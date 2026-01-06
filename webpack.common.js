@@ -90,16 +90,7 @@ export default (env) => {
             path.resolve('./node_modules/@patternfly/react-table/node_modules/@patternfly/react-styles/css/assets/images'),
             path.resolve('./node_modules/@patternfly/react-inline-edit-extension/node_modules/@patternfly/react-styles/css/assets/images')
           ],
-          type: 'asset/inline',
-          use: [
-            {
-              options: {
-                limit: 5000,
-                outputPath: 'images',
-                name: '[name].[ext]',
-              },
-            },
-          ],
+          type: 'asset/resource',
         },
       ],
     },
