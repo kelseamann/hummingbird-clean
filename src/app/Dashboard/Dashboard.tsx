@@ -1,10 +1,8 @@
 import * as React from 'react';
 import {
   Badge,
-  Button,
   Card,
   CardBody,
-  CardHeader,
   CardTitle,
   CompassContent,
   CompassPanel,
@@ -12,15 +10,10 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  Dropdown,
-  DropdownItem,
-  DropdownList,
   Flex,
   FlexItem,
   Grid,
   GridItem,
-  Label,
-  MenuToggle,
   Progress,
   ProgressSize,
   ProgressVariant,
@@ -28,121 +21,37 @@ import {
 } from '@patternfly/react-core';
 import {
   CheckCircleIcon,
-  EllipsisVIcon,
-  ExclamationTriangleIcon,
-  ExternalLinkAltIcon,
-  InfoCircleIcon,
 } from '@patternfly/react-icons';
+import { ActionPanelCard } from '../components/ActionPanelCard';
 
 const Dashboard: React.FunctionComponent = () => {
-  const [isKebabOpen, setIsKebabOpen] = React.useState(false);
-
-  const onKebabToggle = () => {
-    setIsKebabOpen(!isKebabOpen);
-  };
-
-  const onKebabSelect = () => {
-    setIsKebabOpen(false);
-  };
-
-  const kebabDropdownItems = (
-    <DropdownList>
-      <DropdownItem key="copy">Copy image reference</DropdownItem>
-      <DropdownItem key="docs" to="https://docs.python.org" target="_blank">
-        View documentation <ExternalLinkAltIcon />
-      </DropdownItem>
-      <DropdownItem key="github" to="https://github.com/python/cpython" target="_blank">
-        View source <ExternalLinkAltIcon />
-      </DropdownItem>
-    </DropdownList>
-  );
-
-  const headerActions = (
-    <Flex gap={{ default: 'gapSm' }}>
-      <FlexItem>
-        <Button 
-          variant="secondary" 
-          icon={<ExternalLinkAltIcon />} 
-          iconPosition="end"
-          component="a"
-          href="https://hub.docker.com/_/python"
-          target="_blank"
-        >
-          Upstream source
-        </Button>
-      </FlexItem>
-      <FlexItem>
-        <Button 
-          variant="secondary" 
-          icon={<ExternalLinkAltIcon />} 
-          iconPosition="end"
-          component="a"
-          href="https://github.com/python/cpython"
-          target="_blank"
-        >
-          GitHub
-        </Button>
-      </FlexItem>
-      <FlexItem>
-        <Button 
-          variant="secondary" 
-          icon={<ExternalLinkAltIcon />} 
-          iconPosition="end"
-          component="a"
-          href="https://docs.python.org"
-          target="_blank"
-        >
-          Documentation
-        </Button>
-      </FlexItem>
-      <FlexItem>
-        <Dropdown
-          isOpen={isKebabOpen}
-          onSelect={onKebabSelect}
-          onOpenChange={setIsKebabOpen}
-          toggle={(toggleRef) => (
-            <MenuToggle
-              ref={toggleRef}
-              aria-label="Card actions"
-              variant="plain"
-              onClick={onKebabToggle}
-              isExpanded={isKebabOpen}
-            >
-              <EllipsisVIcon />
-            </MenuToggle>
-          )}
-          popperProps={{ position: 'right' }}
-        >
-          {kebabDropdownItems}
-        </Dropdown>
-      </FlexItem>
-    </Flex>
-  );
-
   return (
   <>
     <CompassContent>
       <Grid hasGutter>
-        {/* Python Section */}
+        {/* Python Section - Using ActionPanelCard component */}
         <GridItem lg={6} md={12} sm={12}>
-          <CompassPanel>
-            <Card isPlain isFullHeight>
-              <CardHeader actions={{ actions: headerActions }}>
-                <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
-                  <FlexItem>
-                    <Title headingLevel="h2" size="2xl">Python</Title>
-                  </FlexItem>
-                  <FlexItem>
-                    <span style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
-                      Distributed by <strong>Red Hat</strong>
-                    </span>
-                  </FlexItem>
-                </Flex>
-              </CardHeader>
-              <CardBody>
-              </CardBody>
-            </Card>
-          </CompassPanel>
+          <ActionPanelCard
+            title="Python"
+            subtitle={<>Distributed by <strong>Red Hat</strong></>}
+            primaryAction={{
+              label: "Upstream source",
+              href: "https://hub.docker.com/_/python",
+            }}
+            secondaryAction={{
+              label: "GitHub",
+              href: "https://github.com/python/cpython",
+            }}
+            tertiaryAction={{
+              label: "Documentation",
+              href: "https://docs.python.org",
+            }}
+            kebabItems={[
+              { key: "copy", label: "Copy image reference" },
+              { key: "docs", label: "View documentation" },
+              { key: "source", label: "View source" },
+            ]}
+          />
         </GridItem>
         <GridItem lg={3} md={6} sm={12}>
           <CompassPanel isThinking>
