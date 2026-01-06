@@ -130,7 +130,7 @@ export const ActionPanelCard: React.FC<ActionPanelCardProps> = ({
 
   const cardActions = hasActions ? {
     actions: (
-      <Flex gap={{ default: 'gapSm' }} flexWrap={{ default: 'wrap' }}>
+      <Flex gap={{ default: 'gapSm' }} flexWrap={{ default: 'nowrap' }} style={{ flexShrink: 0 }}>
         {renderActionButton(primaryAction, ButtonVariant.primary)}
         {renderActionButton(secondaryAction, ButtonVariant.secondary)}
         {renderActionButton(tertiaryAction, ButtonVariant.tertiary)}
@@ -172,17 +172,11 @@ export const ActionPanelCard: React.FC<ActionPanelCardProps> = ({
       <Card isPlain isFullHeight={isFullHeight}>
         <CardHeader actions={cardActions}>
           <CardTitle>
-            {subtitle ? (
-              <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
-                <FlexItem>{title}</FlexItem>
-                <FlexItem>
-                  <span style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
-                    {subtitle}
-                  </span>
-                </FlexItem>
-              </Flex>
-            ) : (
-              title
+            {title}
+            {subtitle && (
+              <div style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', fontWeight: 'normal', marginTop: 'var(--pf-t--global--spacer--xs)' }}>
+                {subtitle}
+              </div>
             )}
           </CardTitle>
         </CardHeader>

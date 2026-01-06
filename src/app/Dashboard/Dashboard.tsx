@@ -1,11 +1,7 @@
 import * as React from 'react';
 import {
-  Badge,
   Breadcrumb,
   BreadcrumbItem,
-  Card,
-  CardBody,
-  CardTitle,
   ClipboardCopy,
   CompassContent,
   CompassPanel,
@@ -16,19 +12,93 @@ import {
   Grid,
   GridItem,
   Label,
-  Progress,
-  ProgressSize,
-  ProgressVariant,
+  SearchInput,
   Stack,
   StackItem,
+  Tab,
+  Tabs,
+  TabTitleText,
   Title,
 } from '@patternfly/react-core';
 import {
   CheckCircleIcon,
+  ShieldAltIcon,
 } from '@patternfly/react-icons';
+import { Table, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
 import { ActionPanelCard } from '../components/ActionPanelCard';
 
+// SBOM packages data
+const sbomPackages = [
+  { name: 'python', version: '3.11.6' },
+  { name: 'openssl', version: '3.0.8' },
+  { name: 'pip', version: '23.3.1' },
+  { name: 'setuptools', version: '68.2.2' },
+  { name: 'wheel', version: '0.41.2' },
+  { name: 'glibc', version: '2.34' },
+  { name: 'libffi', version: '3.4.4' },
+  { name: 'zlib', version: '1.2.13' },
+  { name: 'sqlite', version: '3.42.0' },
+  { name: 'ncurses', version: '6.4' },
+  { name: 'readline', version: '8.2' },
+  { name: 'bzip2', version: '1.0.8' },
+  { name: 'xz', version: '5.4.3' },
+  { name: 'libexpat', version: '2.5.0' },
+  { name: 'libxml2', version: '2.10.4' },
+  { name: 'ca-certificates', version: '2023.08' },
+  { name: 'tzdata', version: '2023c' },
+  { name: 'bash', version: '5.2.15' },
+  { name: 'coreutils', version: '9.3' },
+  { name: 'grep', version: '3.11' },
+  { name: 'gawk', version: '5.2.2' },
+  { name: 'sed', version: '4.9' },
+  { name: 'tar', version: '1.35' },
+  { name: 'gzip', version: '1.12' },
+  { name: 'curl', version: '8.2.1' },
+  { name: 'libcurl', version: '8.2.1' },
+  { name: 'git', version: '2.41.0' },
+  { name: 'openssh', version: '9.3p2' },
+  { name: 'gnupg', version: '2.4.3' },
+  { name: 'libgcrypt', version: '1.10.2' },
+  { name: 'libgpg-error', version: '1.47' },
+  { name: 'krb5', version: '1.21' },
+  { name: 'cyrus-sasl', version: '2.1.28' },
+  { name: 'ldns', version: '1.8.3' },
+  { name: 'libevent', version: '2.1.12' },
+  { name: 'libuv', version: '1.46.0' },
+  { name: 'libev', version: '4.33' },
+  { name: 'pcre2', version: '10.42' },
+  { name: 'icu', version: '73.2' },
+  { name: 'libidn2', version: '2.3.4' },
+  { name: 'libunistring', version: '1.1' },
+  { name: 'libpsl', version: '0.21.2' },
+  { name: 'nghttp2', version: '1.55.1' },
+  { name: 'brotli', version: '1.0.9' },
+  { name: 'zstd', version: '1.5.5' },
+  { name: 'lz4', version: '1.9.4' },
+  { name: 'libssh2', version: '1.11.0' },
+  { name: 'libpng', version: '1.6.40' },
+  { name: 'libjpeg-turbo', version: '3.0.0' },
+  { name: 'freetype', version: '2.13.1' },
+  { name: 'fontconfig', version: '2.14.2' },
+  { name: 'harfbuzz', version: '8.1.1' },
+  { name: 'pango', version: '1.51.0' },
+  { name: 'cairo', version: '1.17.8' },
+  { name: 'pixman', version: '0.42.2' },
+  { name: 'glib', version: '2.78.0' },
+  { name: 'dbus', version: '1.14.8' },
+  { name: 'systemd-libs', version: '254' },
+];
+
 const Dashboard: React.FunctionComponent = () => {
+  const [activeTabKey, setActiveTabKey] = React.useState<string | number>(0);
+  const [sbomSearchValue, setSbomSearchValue] = React.useState('');
+
+  const filteredPackages = sbomPackages.filter(
+    (pkg) =>
+      pkg.name.toLowerCase().includes(sbomSearchValue.toLowerCase()) ||
+      pkg.version.toLowerCase().includes(sbomSearchValue.toLowerCase())
+  );
+
   return (
   <>
     <CompassContent>
@@ -41,12 +111,18 @@ const Dashboard: React.FunctionComponent = () => {
 
       {/* Page Title - wrapped in CompassPanel for background styling */}
       <CompassPanel style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
-        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapMd' }}>
+        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapMd' }} style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
           <FlexItem>
             <Content component="h1">Python</Content>
           </FlexItem>
           <FlexItem>
             <Label color="green" icon={<CheckCircleIcon />}>0 CVE's</Label>
+          </FlexItem>
+          <FlexItem>
+            <Label color="purple" icon={<ShieldAltIcon />}>FIPS available</Label>
+          </FlexItem>
+          <FlexItem>
+            <Label color="purple" icon={<ShieldAltIcon />}>STIG available</Label>
           </FlexItem>
         </Flex>
         <p style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>
@@ -55,8 +131,8 @@ const Dashboard: React.FunctionComponent = () => {
       </CompassPanel>
 
       <Grid hasGutter>
-        {/* Get Started Section - Using ActionPanelCard component */}
-        <GridItem lg={6} md={12} sm={12}>
+        {/* Get Started */}
+        <GridItem lg={4} md={12} sm={12}>
           <ActionPanelCard
             title="Get Started"
             primaryAction={{
@@ -67,89 +143,191 @@ const Dashboard: React.FunctionComponent = () => {
               label: "GitHub",
               href: "https://github.com/python/cpython",
             }}
-            kebabItems={[
-              { key: "copy", label: "Copy image reference" },
-              { key: "docs", label: "View documentation" },
-              { key: "source", label: "View source" },
-            ]}
           >
             <Stack hasGutter>
               <StackItem>
-                <FormGroup label="Pull this image" fieldId="pull-command">
+                <FormGroup label="Podman" fieldId="podman-pull">
+                  <ClipboardCopy isReadOnly>podman pull registry.redhat.io/ubi9/python-311</ClipboardCopy>
+                </FormGroup>
+              </StackItem>
+              <StackItem>
+                <FormGroup label="Docker" fieldId="docker-pull">
                   <ClipboardCopy isReadOnly>docker pull registry.redhat.io/ubi9/python-311</ClipboardCopy>
                 </FormGroup>
               </StackItem>
               <StackItem>
-                <FormGroup label="Image reference" fieldId="image-ref">
-                  <ClipboardCopy isReadOnly>registry.redhat.io/ubi9/python-311:latest</ClipboardCopy>
-                </FormGroup>
+                <p style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                  Use a container engine to pull and run this image
+                </p>
               </StackItem>
             </Stack>
           </ActionPanelCard>
         </GridItem>
-        <GridItem lg={3} md={6} sm={12}>
-          <CompassPanel isThinking>
-            <Card isPlain isFullHeight>
-              <CardTitle>
-                <Flex alignItems={{ default: 'alignItemsCenter' }}>
-                  <FlexItem>
-                    <CheckCircleIcon color="var(--pf-t--global--icon--color--status--success--default)" />
-                  </FlexItem>
-                  <FlexItem>0 CVE's!</FlexItem>
-                </Flex>
-              </CardTitle>
-              <CardBody>
-                <Title headingLevel="h2" size="2xl">
-                  0
-                </Title>
-                <Badge>-100% CVEs</Badge>
-              </CardBody>
-            </Card>
-          </CompassPanel>
-        </GridItem>
-        <GridItem lg={3} md={6} sm={12}>
+
+        {/* Documentation */}
+        <GridItem lg={4} md={12} sm={12}>
           <ActionPanelCard
-            title="History for this image"
+            title="Documentation"
+          >
+            <Tabs
+              activeKey={activeTabKey}
+              onSelect={(_event, tabIndex) => setActiveTabKey(tabIndex)}
+            >
+              <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>}>
+                <div style={{ padding: '1rem 0' }}>
+                  <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
+                    <FlexItem>
+                      <div style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500 }}>
+                        Manifest Digest
+                      </div>
+                      <ClipboardCopy isReadOnly variant="inline-compact">
+                        sha256:a3b5c9d7e2f1a0b8c6d4e2f0a8b6c4d2e0f8a6b4
+                      </ClipboardCopy>
+                    </FlexItem>
+                    <FlexItem>
+                      <div style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500 }}>
+                        Licenses
+                      </div>
+                      <Flex gap={{ default: 'gapSm' }} wrap={{ default: 'wrap' }}>
+                        <FlexItem><Label isCompact>MIT</Label></FlexItem>
+                        <FlexItem><Label isCompact>Apache-2.0</Label></FlexItem>
+                        <FlexItem><Label isCompact>PSF-2.0</Label></FlexItem>
+                      </Flex>
+                    </FlexItem>
+                  </Flex>
+                </div>
+              </Tab>
+              <Tab eventKey={1} title={<TabTitleText>SBOM</TabTitleText>}>
+                <div style={{ padding: '1rem 0' }}>
+                  <SearchInput
+                    placeholder="Search packages..."
+                    value={sbomSearchValue}
+                    onChange={(_event, value) => setSbomSearchValue(value)}
+                    onClear={() => setSbomSearchValue('')}
+                    style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}
+                  />
+                  <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                    <Table variant="compact" borders={false}>
+                      <Thead>
+                        <Tr>
+                          <Th>Package</Th>
+                          <Th>Version</Th>
+                        </Tr>
+                      </Thead>
+                      <Tbody>
+                        {filteredPackages.map((pkg) => (
+                          <Tr key={pkg.name}>
+                            <Td>{pkg.name}</Td>
+                            <Td>{pkg.version}</Td>
+                          </Tr>
+                        ))}
+                      </Tbody>
+                    </Table>
+                  </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: 'var(--pf-t--global--spacer--sm)' }}>
+                    {filteredPackages.length} of {sbomPackages.length} packages
+                  </p>
+                </div>
+              </Tab>
+              <Tab eventKey={2} title={<TabTitleText>Attestation</TabTitleText>}>
+                <div style={{ padding: '1rem 0' }}>
+                  <Stack hasGutter>
+                    <StackItem>
+                      <p style={{ fontSize: '0.875rem', marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
+                        <strong>1. Verify the image signature</strong>
+                      </p>
+                      <ClipboardCopy isReadOnly>
+                        cosign verify --key cosign.pub registry.redhat.io/ubi9/python-311
+                      </ClipboardCopy>
+                    </StackItem>
+                    <StackItem>
+                      <p style={{ fontSize: '0.875rem', marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
+                        <strong>2. Download the attestation</strong>
+                      </p>
+                      <ClipboardCopy isReadOnly>
+                        cosign download attestation registry.redhat.io/ubi9/python-311 | jq -r .payload | base64 -d | jq
+                      </ClipboardCopy>
+                    </StackItem>
+                    <StackItem>
+                      <p style={{ fontSize: '0.875rem', marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
+                        <strong>3. Verify SLSA provenance</strong>
+                      </p>
+                      <ClipboardCopy isReadOnly>
+                        slsa-verifier verify-image registry.redhat.io/ubi9/python-311 --source-uri github.com/redhat/ubi9
+                      </ClipboardCopy>
+                    </StackItem>
+                    <StackItem>
+                      <p style={{ fontSize: '0.875rem', marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
+                        <strong>4. Extract SBOM from attestation</strong>
+                      </p>
+                      <ClipboardCopy isReadOnly>
+                        cosign download sbom registry.redhat.io/ubi9/python-311 &gt; sbom.spdx.json
+                      </ClipboardCopy>
+                    </StackItem>
+                    <StackItem>
+                      <p style={{ fontSize: '0.875rem', marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
+                        <strong>5. View attestation predicates</strong>
+                      </p>
+                      <ClipboardCopy isReadOnly>
+                        cosign verify-attestation --type slsaprovenance --key cosign.pub registry.redhat.io/ubi9/python-311
+                      </ClipboardCopy>
+                    </StackItem>
+                  </Stack>
+                </div>
+              </Tab>
+            </Tabs>
+          </ActionPanelCard>
+        </GridItem>
+
+        {/* Vulnerabilities */}
+        <GridItem lg={4} md={12} sm={12}>
+          <ActionPanelCard
+            title="Vulnerabilities"
             primaryAction={{
               label: "Advisories",
               href: "#advisories",
             }}
           >
-            <Title headingLevel="h2" size="2xl">
-              15
-            </Title>
-            <Badge>-87% CVEs</Badge>
-          </ActionPanelCard>
-        </GridItem>
-
-        {/* Documentation */}
-        <GridItem lg={6} md={12} sm={12}>
-          <ActionPanelCard
-            title="Documentation"
-            primaryAction={{
-              label: "Copy All",
-              onClick: () => console.log('Copy all clicked'),
-              showExternalIcon: false,
-            }}
-          >
-            <Stack hasGutter>
-              <StackItem>
-                <div style={{ marginBottom: '0.5rem' }}>CPU Usage</div>
-                <Progress value={45} title="CPU" size={ProgressSize.sm} />
-              </StackItem>
-              <StackItem>
-                <div style={{ marginBottom: '0.5rem' }}>Memory</div>
-                <Progress value={51} title="Memory" size={ProgressSize.sm} variant={ProgressVariant.warning} />
-              </StackItem>
-              <StackItem>
-                <div style={{ marginBottom: '0.5rem' }}>Storage</div>
-                <Progress value={78} title="Storage" size={ProgressSize.sm} variant={ProgressVariant.danger} />
-              </StackItem>
-              <StackItem>
-                <div style={{ marginBottom: '0.5rem' }}>Network</div>
-                <Progress value={32} title="Network" size={ProgressSize.sm} variant={ProgressVariant.success} />
-              </StackItem>
-            </Stack>
+            <div style={{
+              backgroundColor: 'var(--pf-t--global--color--status--success--default)',
+              color: 'var(--pf-t--global--text--color--on-status--success--default)',
+              padding: 'var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md)',
+              borderRadius: 'var(--pf-t--global--border--radius--small)',
+              marginBottom: 'var(--pf-t--global--spacer--md)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--pf-t--global--spacer--sm)',
+            }}>
+              <CheckCircleIcon />
+              <strong>0 CVE's</strong>
+              <span style={{ fontWeight: 'normal', opacity: 0.85 }}>Last scanned XX:XX:XX ago</span>
+            </div>
+            <Table variant="compact">
+              <Thead>
+                <Tr>
+                  <Th>CVE ID</Th>
+                  <Th>Status</Th>
+                  <Th>Last Update</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                <Tr>
+                  <Td>CVE-2024-1234</Td>
+                  <Td><Label color="orange" isCompact>Ongoing</Label></Td>
+                  <Td>Nov 26, 10:30 AM</Td>
+                </Tr>
+                <Tr>
+                  <Td>CVE-2024-5678</Td>
+                  <Td><Label color="green" icon={<CheckCircleIcon />} isCompact>Resolved</Label></Td>
+                  <Td>Nov 25, 3:45 PM</Td>
+                </Tr>
+                <Tr>
+                  <Td>CVE-2024-9012</Td>
+                  <Td><Label color="green" icon={<CheckCircleIcon />} isCompact>Resolved</Label></Td>
+                  <Td>Nov 24, 9:15 AM</Td>
+                </Tr>
+              </Tbody>
+            </Table>
           </ActionPanelCard>
         </GridItem>
       </Grid>
