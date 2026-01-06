@@ -9,7 +9,6 @@ import {
   ButtonVariant,
   Flex,
   FlexItem,
-  Title,
   Dropdown,
   DropdownItem,
   DropdownList,
@@ -131,7 +130,7 @@ export const ActionPanelCard: React.FC<ActionPanelCardProps> = ({
 
   const cardActions = hasActions ? {
     actions: (
-      <Flex gap={{ default: 'gapSm' }} wrap={{ default: 'wrap' }}>
+      <Flex gap={{ default: 'gapSm' }} flexWrap={{ default: 'wrap' }}>
         {renderActionButton(primaryAction, ButtonVariant.primary)}
         {renderActionButton(secondaryAction, ButtonVariant.secondary)}
         {renderActionButton(tertiaryAction, ButtonVariant.tertiary)}
@@ -175,9 +174,7 @@ export const ActionPanelCard: React.FC<ActionPanelCardProps> = ({
           <CardTitle>
             {subtitle ? (
               <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
-                <FlexItem>
-                  <Title headingLevel="h2" size="2xl">{title}</Title>
-                </FlexItem>
+                <FlexItem>{title}</FlexItem>
                 <FlexItem>
                   <span style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
                     {subtitle}
@@ -185,7 +182,7 @@ export const ActionPanelCard: React.FC<ActionPanelCardProps> = ({
                 </FlexItem>
               </Flex>
             ) : (
-              <Title headingLevel="h2" size="2xl">{title}</Title>
+              title
             )}
           </CardTitle>
         </CardHeader>

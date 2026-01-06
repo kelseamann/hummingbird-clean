@@ -6,6 +6,7 @@ import {
   CardTitle,
   CompassContent,
   CompassPanel,
+  Content,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
@@ -28,12 +29,17 @@ const Dashboard: React.FunctionComponent = () => {
   return (
   <>
     <CompassContent>
+      {/* Page Title */}
+      <Content component="h1">Python</Content>
+      <p style={{ marginBottom: '1.5rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
+        Distributed by <strong>Red Hat</strong>
+      </p>
+
       <Grid hasGutter>
-        {/* Python Section - Using ActionPanelCard component */}
+        {/* Get Started Section - Using ActionPanelCard component */}
         <GridItem lg={6} md={12} sm={12}>
           <ActionPanelCard
-            title="Python"
-            subtitle={<>Distributed by <strong>Red Hat</strong></>}
+            title="Get Started"
             primaryAction={{
               label: "Upstream source",
               href: "https://hub.docker.com/_/python",
@@ -74,17 +80,18 @@ const Dashboard: React.FunctionComponent = () => {
           </CompassPanel>
         </GridItem>
         <GridItem lg={3} md={6} sm={12}>
-          <CompassPanel>
-            <Card isPlain isFullHeight>
-              <CardTitle>History for this image</CardTitle>
-              <CardBody>
-                <Title headingLevel="h2" size="2xl">
-                  15
-                </Title>
-                <Badge>-87% CVEs</Badge>
-              </CardBody>
-            </Card>
-          </CompassPanel>
+          <ActionPanelCard
+            title="History for this image"
+            primaryAction={{
+              label: "Advisories",
+              href: "#advisories",
+            }}
+          >
+            <Title headingLevel="h2" size="2xl">
+              15
+            </Title>
+            <Badge>-87% CVEs</Badge>
+          </ActionPanelCard>
         </GridItem>
 
         {/* Get Started */}
@@ -116,35 +123,37 @@ const Dashboard: React.FunctionComponent = () => {
 
         {/* AI Migration Instructions */}
         <GridItem span={6}>
-          <CompassPanel>
-            <Card isPlain isFullHeight>
-              <CardTitle>AI Migration Instructions</CardTitle>
-              <CardBody>
-                <DescriptionList>
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>Hostname</DescriptionListTerm>
-                    <DescriptionListDescription>prod-server-01</DescriptionListDescription>
-                  </DescriptionListGroup>
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>IP Address</DescriptionListTerm>
-                    <DescriptionListDescription>192.168.1.100</DescriptionListDescription>
-                  </DescriptionListGroup>
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>Operating System</DescriptionListTerm>
-                    <DescriptionListDescription>Red Hat Enterprise Linux 9.2</DescriptionListDescription>
-                  </DescriptionListGroup>
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>Uptime</DescriptionListTerm>
-                    <DescriptionListDescription>15 days, 7 hours, 23 minutes</DescriptionListDescription>
-                  </DescriptionListGroup>
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>Last Backup</DescriptionListTerm>
-                    <DescriptionListDescription>2 hours ago</DescriptionListDescription>
-                  </DescriptionListGroup>
-                </DescriptionList>
-              </CardBody>
-            </Card>
-          </CompassPanel>
+          <ActionPanelCard
+            title="AI Migration Instructions"
+            primaryAction={{
+              label: "Copy All",
+              onClick: () => console.log('Copy all clicked'),
+              showExternalIcon: false,
+            }}
+          >
+            <DescriptionList>
+              <DescriptionListGroup>
+                <DescriptionListTerm>Hostname</DescriptionListTerm>
+                <DescriptionListDescription>prod-server-01</DescriptionListDescription>
+              </DescriptionListGroup>
+              <DescriptionListGroup>
+                <DescriptionListTerm>IP Address</DescriptionListTerm>
+                <DescriptionListDescription>192.168.1.100</DescriptionListDescription>
+              </DescriptionListGroup>
+              <DescriptionListGroup>
+                <DescriptionListTerm>Operating System</DescriptionListTerm>
+                <DescriptionListDescription>Red Hat Enterprise Linux 9.2</DescriptionListDescription>
+              </DescriptionListGroup>
+              <DescriptionListGroup>
+                <DescriptionListTerm>Uptime</DescriptionListTerm>
+                <DescriptionListDescription>15 days, 7 hours, 23 minutes</DescriptionListDescription>
+              </DescriptionListGroup>
+              <DescriptionListGroup>
+                <DescriptionListTerm>Last Backup</DescriptionListTerm>
+                <DescriptionListDescription>2 hours ago</DescriptionListDescription>
+              </DescriptionListGroup>
+            </DescriptionList>
+          </ActionPanelCard>
         </GridItem>
       </Grid>
     </CompassContent>
