@@ -62,6 +62,8 @@ export interface ActionPanelCardProps {
   isFullHeight?: boolean;
   /** Additional className for the outer CompassPanel */
   className?: string;
+  /** Additional inline styles for the outer CompassPanel */
+  style?: React.CSSProperties;
 }
 
 /**
@@ -83,6 +85,7 @@ export const ActionPanelCard: React.FC<ActionPanelCardProps> = ({
   isThinking,
   isFullHeight = true,
   className,
+  style,
 }) => {
   const [isKebabOpen, setIsKebabOpen] = React.useState(false);
 
@@ -168,7 +171,7 @@ export const ActionPanelCard: React.FC<ActionPanelCardProps> = ({
   } : undefined;
 
   return (
-    <CompassPanel isPill={isPill} isThinking={isThinking} className={className}>
+    <CompassPanel isPill={isPill} isThinking={isThinking} className={className} style={style}>
       <Card isPlain isFullHeight={isFullHeight}>
         <CardHeader actions={cardActions}>
           <CardTitle>

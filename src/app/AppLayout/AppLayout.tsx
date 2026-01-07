@@ -19,7 +19,6 @@ import {
   MenuToggle,
   MenuToggleElement,
   Tab,
-  TabContent,
   TabTitleText,
   Tabs,
   TabsComponent,
@@ -42,7 +41,6 @@ interface IAppLayout {
 const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const subTabsRef = React.useRef<HTMLDivElement>(null);
   const { isDarkTheme, toggleTheme } = useTheme();
   const [isThinking, setIsThinking] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -51,81 +49,41 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const getActiveTabIndex = React.useCallback(() => {
     const path = location.pathname;
     if (path === '/') return 0;
-    if (path === '/support') return 1;
-    if (path.startsWith('/settings')) return 2;
-    return 0;
-  }, [location.pathname]);
-
-  const getActiveSubtabIndex = React.useCallback(() => {
-    const path = location.pathname;
-    if (path === '/settings/general') return 0;
-    if (path === '/settings/profile') return 1;
+    if (path === '/cve-repository') return 1;
     return 0;
   }, [location.pathname]);
 
   const [activeTab, setActiveTab] = React.useState(getActiveTabIndex);
-  const [activeSubtab, setActiveSubtab] = React.useState(getActiveSubtabIndex);
 
   // Update active tab when route changes
   React.useEffect(() => {
     setActiveTab(getActiveTabIndex());
-    setActiveSubtab(getActiveSubtabIndex());
-  }, [getActiveTabIndex, getActiveSubtabIndex]);
+  }, [getActiveTabIndex]);
 
   const handleTabSelect = (_event: React.MouseEvent<HTMLElement>, tabIndex: number | string) => {
     const idx = tabIndex as number;
     setActiveTab(idx);
     if (idx === 0) navigate('/');
-    else if (idx === 1) navigate('/support');
-    else if (idx === 2) navigate('/settings/general');
-  };
-
-  const handleSubtabSelect = (_event: React.MouseEvent<HTMLElement>, tabIndex: number | string) => {
-    const idx = tabIndex as number;
-    setActiveSubtab(idx);
-    if (idx === 0) navigate('/settings/general');
-    else if (idx === 1) navigate('/settings/profile');
+    else if (idx === 1) navigate('/cve-repository');
   };
 
   const navContent = (
-    <>
-      <CompassPanel isPill hasNoPadding>
-        <Tabs
-          activeKey={activeTab}
-          isNav
-          onSelect={handleTabSelect}
-          component={TabsComponent.nav}
-          aria-label="Main navigation"
-          inset={{ default: 'insetXl' }}
-        >
-          <Tab
-            tabContentId="subtabs"
-            tabContentRef={subTabsRef}
-            eventKey={0}
-            title={<TabTitleText>Dashboard</TabTitleText>}
-          />
-          <Tab eventKey={1} title={<TabTitleText>Support</TabTitleText>} />
-          <Tab eventKey={2} title={<TabTitleText>Settings</TabTitleText>} />
-        </Tabs>
-      </CompassPanel>
-      {activeTab === 2 && (
-        <CompassPanel isPill hasNoPadding>
-          <TabContent id="subtabs" ref={subTabsRef}>
-            <Tabs
-              activeKey={activeSubtab}
-              isSubtab
-              isNav
-              onSelect={handleSubtabSelect}
-              aria-label="Settings navigation"
-              inset={{ default: 'insetXl' }}
-            >
-              <Tab eventKey={0} title={<TabTitleText>General</TabTitleText>} />
-              <Tab eventKey={1} title={<TabTitleText>Profile</TabTitleText>} />
-            </Tabs>
-          </TabContent>
-        </CompassPanel>
-      )}
-    </>
+    <CompassPanel isPill hasNoPadding>
+      <Tabs
+        activeKey={activeTab}
+        isNav
+        onSelect={handleTabSelect}
+        component={TabsComponent.nav}
+        aria-label="Main navigation"
+        inset={{ default: 'insetXl' }}
+      >
+        <Tab
+          eventKey={0}
+          title={<TabTitleText>Overview</TabTitleText>}
+        />
+        <Tab eventKey={1} title={<TabTitleText>Security Feed</TabTitleText>} />
+      </Tabs>
+    </CompassPanel>
   );
 
   const userDropdownItems = (

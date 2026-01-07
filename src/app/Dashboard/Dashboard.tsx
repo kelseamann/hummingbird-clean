@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+  Alert,
   Breadcrumb,
   BreadcrumbItem,
   Button,
@@ -26,6 +27,8 @@ import {
   ShieldAltIcon,
   TimesCircleIcon,
   ThumbsUpIcon,
+  PlusIcon,
+  ExternalLinkAltIcon,
 } from '@patternfly/react-icons';
 import { Table, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
 import { ActionPanelCard } from '../components/ActionPanelCard';
@@ -125,6 +128,20 @@ const compatibilityNotes = [
 const Dashboard: React.FunctionComponent = () => {
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(0);
   const [sbomSearchValue, setSbomSearchValue] = React.useState('');
+  
+  // Image variant toggles
+  const [fipsStigSelected, setFipsStigSelected] = React.useState(false);
+  const [shellSelected, setShellSelected] = React.useState(false);
+  const [goToolsSelected, setGoToolsSelected] = React.useState(false);
+
+  // Compute image name based on selected options
+  const getImageName = () => {
+    if (goToolsSelected) return 'python-go:latest';
+    if (shellSelected) return 'latest-builder';
+    if (fipsStigSelected) return 'python-fips:latest';
+    return 'default:latest';
+  };
+  const imageName = getImageName();
 
   const filteredPackages = sbomPackages.filter(
     (pkg) =>
@@ -168,48 +185,74 @@ const Dashboard: React.FunctionComponent = () => {
         <GridItem lg={4} md={12} sm={12}>
           <ActionPanelCard
             title="Get Started"
-            primaryAction={{
+            secondaryAction={{
               label: "Upstream source",
               href: "https://hub.docker.com/_/python",
             }}
-            secondaryAction={{
+            tertiaryAction={{
               label: "GitLab",
               href: "https://gitlab.com/redhat/hummingbird",
             }}
+            style={{ border: '1px solid var(--pf-t--global--border--color--default)' }}
           >
             <Stack hasGutter>
-              <StackItem>
-                <FormGroup label="Podman" fieldId="podman-pull">
-                  <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                    <FlexItem grow={{ default: 'grow' }}>
-                      <ClipboardCopy isReadOnly>podman pull registry.redhat.io/ubi9/python-311</ClipboardCopy>
-                    </FlexItem>
-                    <FlexItem>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)', whiteSpace: 'nowrap' }}>47 MB</span>
-                    </FlexItem>
-                  </Flex>
-                </FormGroup>
-              </StackItem>
-              <StackItem>
-                <FormGroup label="Docker" fieldId="docker-pull">
-                  <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                    <FlexItem grow={{ default: 'grow' }}>
-                      <ClipboardCopy isReadOnly>docker pull registry.redhat.io/ubi9/python-311</ClipboardCopy>
-                    </FlexItem>
-                    <FlexItem>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)', whiteSpace: 'nowrap' }}>47 MB</span>
-                    </FlexItem>
-                  </Flex>
-                </FormGroup>
-              </StackItem>
               <StackItem>
                 <p style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
                   Use a container engine to pull and run this image
                 </p>
               </StackItem>
               <StackItem>
+                <Flex gap={{ default: 'gapSm' }} flexWrap={{ default: 'wrap' }}>
+                  <FlexItem>
+                    <Button
+                      variant={fipsStigSelected ? 'primary' : 'link'}
+                      size="sm"
+                      icon={<PlusIcon />}
+                      onClick={() => setFipsStigSelected(!fipsStigSelected)}
+                      style={fipsStigSelected ? {} : { color: 'var(--pf-t--global--text--color--link--default)' }}
+                    >
+                      FIPS/STIG
+                    </Button>
+                  </FlexItem>
+                  <FlexItem>
+                    <Button
+                      variant={shellSelected ? 'primary' : 'link'}
+                      size="sm"
+                      icon={<PlusIcon />}
+                      onClick={() => setShellSelected(!shellSelected)}
+                      style={shellSelected ? {} : { color: 'var(--pf-t--global--text--color--link--default)' }}
+                    >
+                      SHELL
+                    </Button>
+                  </FlexItem>
+                  <FlexItem>
+                    <Button
+                      variant={goToolsSelected ? 'primary' : 'link'}
+                      size="sm"
+                      icon={<PlusIcon />}
+                      onClick={() => setGoToolsSelected(!goToolsSelected)}
+                      style={goToolsSelected ? {} : { color: 'var(--pf-t--global--text--color--link--default)' }}
+                    >
+                      GO TOOLS
+                    </Button>
+                  </FlexItem>
+                </Flex>
+              </StackItem>
+              <StackItem>
+                <FormGroup label="Podman" fieldId="podman-pull">
+                  <ClipboardCopy isReadOnly>{`podman pull registry.redhat.io/hummingbird/${imageName}`}</ClipboardCopy>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '0.25rem' }}>4 MB</p>
+                </FormGroup>
+              </StackItem>
+              <StackItem>
+                <FormGroup label="Docker" fieldId="docker-pull">
+                  <ClipboardCopy isReadOnly>{`docker pull registry.redhat.io/hummingbird/${imageName}`}</ClipboardCopy>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '0.25rem' }}>4 MB</p>
+                </FormGroup>
+              </StackItem>
+              <StackItem>
                 <FormGroup label="Replace with Hummingbird Image" fieldId="hummingbird-image">
-                  <ClipboardCopy isReadOnly>FROM registry.redhat.io/hummingbird/default:latest</ClipboardCopy>
+                  <ClipboardCopy isReadOnly>{`FROM registry.redhat.io/hummingbird/${imageName}`}</ClipboardCopy>
                 </FormGroup>
                 <p style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '0.5rem' }}>
                   Replace the <code style={{ backgroundColor: 'var(--pf-t--global--background--color--secondary--default)', padding: '0.125rem 0.25rem', borderRadius: '3px' }}>FROM</code> line in your Containerfile or update the <code style={{ backgroundColor: 'var(--pf-t--global--background--color--secondary--default)', padding: '0.125rem 0.25rem', borderRadius: '3px' }}>image:</code> field in your Kubernetes/OpenShift deployment YAML.
@@ -229,7 +272,7 @@ const Dashboard: React.FunctionComponent = () => {
               onSelect={(_event, tabIndex) => setActiveTabKey(tabIndex)}
             >
               <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>}>
-                <div style={{ padding: '1rem 0', maxHeight: '400px', overflowY: 'auto' }}>
+                <div style={{ padding: '1rem 0', maxHeight: '320px', overflowY: 'auto' }}>
                   <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
                     <FlexItem>
                       <div style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500 }}>
@@ -243,7 +286,7 @@ const Dashboard: React.FunctionComponent = () => {
                       <div style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500 }}>
                         Licenses
                       </div>
-                      <Flex gap={{ default: 'gapSm' }} wrap={{ default: 'wrap' }}>
+                      <Flex gap={{ default: 'gapSm' }} flexWrap={{ default: 'wrap' }}>
                         <FlexItem><Label isCompact>MIT</Label></FlexItem>
                         <FlexItem><Label isCompact>Apache-2.0</Label></FlexItem>
                         <FlexItem><Label isCompact>PSF-2.0</Label></FlexItem>
@@ -260,26 +303,46 @@ const Dashboard: React.FunctionComponent = () => {
                         <div style={{ marginBottom: '0.25rem', fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
                           Architectures
                         </div>
-                        <Flex gap={{ default: 'gapSm' }} wrap={{ default: 'wrap' }}>
-                          <FlexItem><Label isCompact color="blue">x86_64</Label></FlexItem>
-                          <FlexItem><Label isCompact color="blue">arm64</Label></FlexItem>
-                        </Flex>
+                        <Stack>
+                          <StackItem>
+                            <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                              <FlexItem><CheckCircleIcon color="var(--pf-t--global--icon--color--status--success--default)" /></FlexItem>
+                              <FlexItem><span style={{ fontSize: '0.875rem' }}>x86_64</span></FlexItem>
+                            </Flex>
+                          </StackItem>
+                          <StackItem>
+                            <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                              <FlexItem><CheckCircleIcon color="var(--pf-t--global--icon--color--status--success--default)" /></FlexItem>
+                              <FlexItem><span style={{ fontSize: '0.875rem' }}>arm64</span></FlexItem>
+                            </Flex>
+                          </StackItem>
+                        </Stack>
                       </div>
                       <div>
                         <div style={{ marginBottom: '0.25rem', fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
                           Other
                         </div>
-                        <Flex gap={{ default: 'gapSm' }} wrap={{ default: 'wrap' }}>
-                          <FlexItem><Label isCompact color="purple">RHEL 9</Label></FlexItem>
-                          <FlexItem><Label isCompact color="purple">OpenShift 4.14+</Label></FlexItem>
-                        </Flex>
+                        <Stack>
+                          <StackItem>
+                            <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                              <FlexItem><CheckCircleIcon color="var(--pf-t--global--icon--color--status--success--default)" /></FlexItem>
+                              <FlexItem><span style={{ fontSize: '0.875rem' }}>RHEL 9</span></FlexItem>
+                            </Flex>
+                          </StackItem>
+                          <StackItem>
+                            <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                              <FlexItem><CheckCircleIcon color="var(--pf-t--global--icon--color--status--success--default)" /></FlexItem>
+                              <FlexItem><span style={{ fontSize: '0.875rem' }}>OpenShift 4.14+</span></FlexItem>
+                            </Flex>
+                          </StackItem>
+                        </Stack>
                       </div>
                     </FlexItem>
                   </Flex>
                 </div>
               </Tab>
               <Tab eventKey={1} title={<TabTitleText>SBOM</TabTitleText>}>
-                <div style={{ padding: '1rem 0', maxHeight: '400px', overflowY: 'auto' }}>
+                <div style={{ padding: '1rem 0', maxHeight: '320px', overflowY: 'auto' }}>
                   <SearchInput
                     placeholder="Search packages..."
                     value={sbomSearchValue}
@@ -287,7 +350,7 @@ const Dashboard: React.FunctionComponent = () => {
                     onClear={() => setSbomSearchValue('')}
                     style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}
                   />
-                  <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                  <div style={{ maxHeight: '300px', maxHeight: '320px', overflowY: 'auto' }}>
                     <Table variant="compact" borders={false}>
                       <Thead>
                         <Tr>
@@ -311,8 +374,33 @@ const Dashboard: React.FunctionComponent = () => {
                 </div>
               </Tab>
               <Tab eventKey={2} title={<TabTitleText>Attestation</TabTitleText>}>
-                <div style={{ padding: '1rem 0', maxHeight: '400px', overflowY: 'auto' }}>
+                <div style={{ padding: '1rem 0', maxHeight: '320px', overflowY: 'auto' }}>
                   <Stack hasGutter>
+                    <StackItem>
+                      <p style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                        You will need <code style={{ backgroundColor: 'var(--pf-t--global--background--color--secondary--default)', padding: '0.125rem 0.25rem', borderRadius: '3px' }}>cosign</code> installed to verify attestations.
+                      </p>
+                      <Button variant="link" isInline size="sm" component="a" href="#install-cosign" style={{ paddingLeft: 0 }} icon={<ExternalLinkAltIcon />} iconPosition="end">
+                        Install cosign
+                      </Button>
+                    </StackItem>
+                    <StackItem>
+                      <p style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                        Hummingbird may produce mixed results with scanners due to the newness of the images.
+                      </p>
+                      <Flex gap={{ default: 'gapMd' }}>
+                        <FlexItem>
+                          <Button variant="link" isInline size="sm" component="a" href="#scanning-partner-1" style={{ paddingLeft: 0 }} icon={<ExternalLinkAltIcon />} iconPosition="end">
+                            Scanning partner 1
+                          </Button>
+                        </FlexItem>
+                        <FlexItem>
+                          <Button variant="link" isInline size="sm" component="a" href="#scanning-partner-2" icon={<ExternalLinkAltIcon />} iconPosition="end">
+                            Scanning partner 2
+                          </Button>
+                        </FlexItem>
+                      </Flex>
+                    </StackItem>
                     <StackItem>
                       <p style={{ fontSize: '0.875rem', marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
                         <strong>1. Verify the image signature</strong>
@@ -357,7 +445,7 @@ const Dashboard: React.FunctionComponent = () => {
                 </div>
               </Tab>
               <Tab eventKey={3} title={<TabTitleText>Compatibility</TabTitleText>}>
-                <div style={{ padding: '1rem 0', maxHeight: '400px', overflowY: 'auto' }}>
+                <div style={{ padding: '1rem 0', maxHeight: '320px', overflowY: 'auto' }}>
                   <div style={{ overflowX: 'auto' }}>
                     <Table variant="compact" borders>
                       <Thead>
@@ -406,31 +494,24 @@ const Dashboard: React.FunctionComponent = () => {
           </ActionPanelCard>
         </GridItem>
 
-        {/* Vulnerabilities + Get in Touch */}
+        {/* Security Feed + Get in Touch */}
         <GridItem lg={4} md={12} sm={12}>
           <Stack hasGutter>
             <StackItem>
               <ActionPanelCard
-                title="Vulnerabilities"
-                primaryAction={{
-                  label: "Advisories",
-                  href: "#advisories",
-                }}
+                title="Security Feed"
+primaryAction={{
+              label: "CVE Repository",
+              href: "#cve-repository",
+            }}
               >
-                <div style={{
-                  backgroundColor: 'var(--pf-t--global--color--status--success--default)',
-                  color: 'var(--pf-t--global--text--color--on-status--success--default)',
-                  padding: 'var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md)',
-                  borderRadius: 'var(--pf-t--global--border--radius--small)',
-                  marginBottom: 'var(--pf-t--global--spacer--md)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 'var(--pf-t--global--spacer--sm)',
-                }}>
-                  <CheckCircleIcon />
-                  <strong>0 CVE's</strong>
-                  <span style={{ fontWeight: 'normal', opacity: 0.85 }}>Last scanned XX:XX:XX ago</span>
-                </div>
+                <Alert
+                  variant="success"
+                  isInline
+                  isPlain
+                  title={<><strong>0 CVE's</strong> <span style={{ fontWeight: 'normal' }}>Last scanned XX:XX:XX ago</span></>}
+                  style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}
+                />
                 <Table variant="compact">
                   <Thead>
                     <Tr>
@@ -442,17 +523,17 @@ const Dashboard: React.FunctionComponent = () => {
                   <Tbody>
                     <Tr>
                       <Td>CVE-2024-1234</Td>
-                      <Td><Label color="green" icon={<CheckCircleIcon />} isCompact>Resolved</Label></Td>
+                      <Td><Label color="green" variant="outline" icon={<CheckCircleIcon />} isCompact>Resolved</Label></Td>
                       <Td>Nov 26, 10:30 AM</Td>
                     </Tr>
                     <Tr>
                       <Td>CVE-2024-5678</Td>
-                      <Td><Label color="green" icon={<CheckCircleIcon />} isCompact>Resolved</Label></Td>
+                      <Td><Label color="green" variant="outline" icon={<CheckCircleIcon />} isCompact>Resolved</Label></Td>
                       <Td>Nov 25, 3:45 PM</Td>
                     </Tr>
                     <Tr>
                       <Td>CVE-2024-9012</Td>
-                      <Td><Label color="green" icon={<CheckCircleIcon />} isCompact>Resolved</Label></Td>
+                      <Td><Label color="green" variant="outline" icon={<CheckCircleIcon />} isCompact>Resolved</Label></Td>
                       <Td>Nov 24, 9:15 AM</Td>
                     </Tr>
                   </Tbody>
@@ -463,17 +544,12 @@ const Dashboard: React.FunctionComponent = () => {
               <ActionPanelCard title="Get in Touch">
                 <Flex gap={{ default: 'gapSm' }} flexWrap={{ default: 'wrap' }}>
                   <FlexItem>
-                    <Button variant="secondary" size="sm" component="a" href="mailto:support@redhat.com">
+                    <Button variant="link" size="sm" component="a" href="mailto:support@redhat.com">
                       Contact Us
                     </Button>
                   </FlexItem>
                   <FlexItem>
-                    <Button variant="secondary" size="sm" component="a" href="#feedback">
-                      Provide Feedback
-                    </Button>
-                  </FlexItem>
-                  <FlexItem>
-                    <Button variant="primary" size="sm" component="a" href="#request-image">
+                    <Button variant="secondary" size="sm" component="a" href="#request-image">
                       Request an Image
                     </Button>
                   </FlexItem>
