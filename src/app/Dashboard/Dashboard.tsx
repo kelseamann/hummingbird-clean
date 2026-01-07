@@ -14,20 +14,28 @@ import {
   Grid,
   GridItem,
   Label,
+  MenuToggle,
+  MenuToggleElement,
+  Pagination,
   SearchInput,
+  Select,
+  SelectList,
+  SelectOption,
   Stack,
   StackItem,
   Tab,
   Tabs,
   TabTitleText,
   Title,
+  ToggleGroup,
+  ToggleGroupItem,
+  Tooltip,
 } from '@patternfly/react-core';
 import {
   CheckCircleIcon,
   ShieldAltIcon,
   TimesCircleIcon,
   ThumbsUpIcon,
-  PlusIcon,
   ExternalLinkAltIcon,
 } from '@patternfly/react-icons';
 import { Table, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
@@ -95,7 +103,7 @@ const sbomPackages = [
   { name: 'systemd-libs', version: '254' },
 ];
 
-// Compatibility table data
+// Image Comparison table data
 type CompatStatus = 'compatible' | 'incompatible' | 'note';
 interface CompatRow {
   property: string;
@@ -128,18 +136,26 @@ const compatibilityNotes = [
 const Dashboard: React.FunctionComponent = () => {
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(0);
   const [sbomSearchValue, setSbomSearchValue] = React.useState('');
+  const [sbomPage, setSbomPage] = React.useState(1);
+  const [sbomPerPage, setSbomPerPage] = React.useState(10);
   
   // Image variant toggles
   const [fipsStigSelected, setFipsStigSelected] = React.useState(false);
   const [shellSelected, setShellSelected] = React.useState(false);
   const [goToolsSelected, setGoToolsSelected] = React.useState(false);
+  
+  // Version selector
+  const [isVersionSelectOpen, setIsVersionSelectOpen] = React.useState(false);
+  const [selectedVersion, setSelectedVersion] = React.useState('latest');
+  const versions = ['latest', '3.12', '3.11', '3.10', '3.9'];
 
   // Compute image name based on selected options
   const getImageName = () => {
-    if (goToolsSelected) return 'python-go:latest';
-    if (shellSelected) return 'latest-builder';
-    if (fipsStigSelected) return 'python-fips:latest';
-    return 'default:latest';
+    let baseName = 'python';
+    if (goToolsSelected) baseName = 'python-go';
+    else if (shellSelected) baseName = 'python-builder';
+    else if (fipsStigSelected) baseName = 'python-fips';
+    return `${baseName}:${selectedVersion}`;
   };
   const imageName = getImageName();
 
@@ -195,70 +211,118 @@ const Dashboard: React.FunctionComponent = () => {
             }}
             style={{ border: '1px solid var(--pf-t--global--border--color--default)' }}
           >
+            <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
             <Stack hasGutter>
               <StackItem>
                 <p style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
                   Use a container engine to pull and run this image
                 </p>
               </StackItem>
+              {/* Control Panel + Pull Commands */}
               <StackItem>
-                <Flex gap={{ default: 'gapSm' }} flexWrap={{ default: 'wrap' }}>
-                  <FlexItem>
-                    <Button
-                      variant={fipsStigSelected ? 'primary' : 'link'}
-                      size="sm"
-                      icon={<PlusIcon />}
-                      onClick={() => setFipsStigSelected(!fipsStigSelected)}
-                      style={fipsStigSelected ? {} : { color: 'var(--pf-t--global--text--color--link--default)' }}
-                    >
-                      FIPS/STIG
-                    </Button>
-                  </FlexItem>
-                  <FlexItem>
-                    <Button
-                      variant={shellSelected ? 'primary' : 'link'}
-                      size="sm"
-                      icon={<PlusIcon />}
-                      onClick={() => setShellSelected(!shellSelected)}
-                      style={shellSelected ? {} : { color: 'var(--pf-t--global--text--color--link--default)' }}
-                    >
-                      SHELL
-                    </Button>
-                  </FlexItem>
-                  <FlexItem>
-                    <Button
-                      variant={goToolsSelected ? 'primary' : 'link'}
-                      size="sm"
-                      icon={<PlusIcon />}
-                      onClick={() => setGoToolsSelected(!goToolsSelected)}
-                      style={goToolsSelected ? {} : { color: 'var(--pf-t--global--text--color--link--default)' }}
-                    >
-                      GO TOOLS
-                    </Button>
-                  </FlexItem>
-                </Flex>
+                <div style={{
+                  backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+                  padding: 'var(--pf-t--global--spacer--md)',
+                  borderRadius: 'var(--pf-t--global--border--radius--small)',
+                }}>
+                  <Stack hasGutter>
+                    {/* Version & Variant Controls */}
+                    <StackItem>
+                      <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapMd' }} flexWrap={{ default: 'wrap' }}>
+                        <FlexItem>
+                          <Select
+                            id="version-select"
+                            isOpen={isVersionSelectOpen}
+                            selected={selectedVersion}
+                            onSelect={(_event, value) => {
+                              setSelectedVersion(value as string);
+                              setIsVersionSelectOpen(false);
+                            }}
+                            onOpenChange={setIsVersionSelectOpen}
+                            toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                              <MenuToggle
+                                ref={toggleRef}
+                                onClick={() => setIsVersionSelectOpen(!isVersionSelectOpen)}
+                                isExpanded={isVersionSelectOpen}
+                                style={{ minWidth: '100px', backgroundColor: 'var(--pf-t--global--background--color--primary--default)' }}
+                              >
+                                {selectedVersion}
+                              </MenuToggle>
+                            )}
+                          >
+                            <SelectList>
+                              {versions.map((version) => (
+                                <SelectOption key={version} value={version}>
+                                  {version}
+                                </SelectOption>
+                              ))}
+                            </SelectList>
+                          </Select>
+                        </FlexItem>
+                        <FlexItem>
+                          <ToggleGroup isCompact aria-label="Image variant options" className="pf-m-light-background">
+                            <ToggleGroupItem
+                              text="+ FIPS/STIG"
+                              buttonId="toggle-fips-stig"
+                              isSelected={fipsStigSelected}
+                              onChange={() => setFipsStigSelected(!fipsStigSelected)}
+                            />
+                            <ToggleGroupItem
+                              text="+ SHELL"
+                              buttonId="toggle-shell"
+                              isSelected={shellSelected}
+                              onChange={() => setShellSelected(!shellSelected)}
+                            />
+                            <ToggleGroupItem
+                              text="+ GO TOOLS"
+                              buttonId="toggle-go-tools"
+                              isSelected={goToolsSelected}
+                              onChange={() => setGoToolsSelected(!goToolsSelected)}
+                            />
+                          </ToggleGroup>
+                        </FlexItem>
+                      </Flex>
+                    </StackItem>
+                    {/* Podman */}
+                    <StackItem>
+                      <FormGroup label="Podman" fieldId="podman-pull">
+                        <div className="clipboard-white-bg">
+                          <ClipboardCopy isReadOnly>{`podman pull registry.redhat.io/hummingbird/${imageName}`}</ClipboardCopy>
+                        </div>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '0.25rem' }}>4 MB</p>
+                      </FormGroup>
+                    </StackItem>
+                    {/* Docker */}
+                    <StackItem>
+                      <FormGroup label="Docker" fieldId="docker-pull">
+                        <div className="clipboard-white-bg">
+                          <ClipboardCopy isReadOnly>{`docker pull registry.redhat.io/hummingbird/${imageName}`}</ClipboardCopy>
+                        </div>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '0.25rem' }}>4 MB</p>
+                      </FormGroup>
+                    </StackItem>
+                  </Stack>
+                </div>
               </StackItem>
+              {/* Replace with Hummingbird Image */}
               <StackItem>
-                <FormGroup label="Podman" fieldId="podman-pull">
-                  <ClipboardCopy isReadOnly>{`podman pull registry.redhat.io/hummingbird/${imageName}`}</ClipboardCopy>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '0.25rem' }}>4 MB</p>
-                </FormGroup>
-              </StackItem>
-              <StackItem>
-                <FormGroup label="Docker" fieldId="docker-pull">
-                  <ClipboardCopy isReadOnly>{`docker pull registry.redhat.io/hummingbird/${imageName}`}</ClipboardCopy>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '0.25rem' }}>4 MB</p>
-                </FormGroup>
-              </StackItem>
-              <StackItem>
-                <FormGroup label="Replace with Hummingbird Image" fieldId="hummingbird-image">
-                  <ClipboardCopy isReadOnly>{`FROM registry.redhat.io/hummingbird/${imageName}`}</ClipboardCopy>
-                </FormGroup>
-                <p style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '0.5rem' }}>
-                  Replace the <code style={{ backgroundColor: 'var(--pf-t--global--background--color--secondary--default)', padding: '0.125rem 0.25rem', borderRadius: '3px' }}>FROM</code> line in your Containerfile or update the <code style={{ backgroundColor: 'var(--pf-t--global--background--color--secondary--default)', padding: '0.125rem 0.25rem', borderRadius: '3px' }}>image:</code> field in your Kubernetes/OpenShift deployment YAML.
-                </p>
+                <div style={{
+                  backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+                  padding: 'var(--pf-t--global--spacer--md)',
+                  borderRadius: 'var(--pf-t--global--border--radius--small)',
+                }}>
+                  <FormGroup label="Replace with Hummingbird Image" fieldId="hummingbird-image">
+                    <div className="clipboard-white-bg">
+                      <ClipboardCopy isReadOnly>{`FROM registry.redhat.io/hummingbird/${imageName}`}</ClipboardCopy>
+                    </div>
+                  </FormGroup>
+                  <p style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '0.5rem' }}>
+                    Replace the <code style={{ backgroundColor: 'var(--pf-t--global--background--color--primary--default)', padding: '0.125rem 0.25rem', borderRadius: '3px' }}>FROM</code> line in your Containerfile or update the <code style={{ backgroundColor: 'var(--pf-t--global--background--color--primary--default)', padding: '0.125rem 0.25rem', borderRadius: '3px' }}>image:</code> field in your Kubernetes/OpenShift deployment YAML.
+                  </p>
+                </div>
               </StackItem>
             </Stack>
+            </div>
           </ActionPanelCard>
         </GridItem>
 
@@ -294,63 +358,93 @@ const Dashboard: React.FunctionComponent = () => {
                     </FlexItem>
                     <FlexItem>
                       <div style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500 }}>
-                        Compatibility Info
+                        Image Comparison
                       </div>
                       <p style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginBottom: '0.75rem' }}>
                         Hummingbird images are designed for compatibility with popular images from Docker Hub, Red Hat UBI, and other registries, enabling straightforward migration of existing workloads.
                       </p>
-                      <div style={{ marginBottom: '0.5rem' }}>
-                        <div style={{ marginBottom: '0.25rem', fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
-                          Architectures
-                        </div>
-                        <Stack>
-                          <StackItem>
-                            <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                              <FlexItem><CheckCircleIcon color="var(--pf-t--global--icon--color--status--success--default)" /></FlexItem>
-                              <FlexItem><span style={{ fontSize: '0.875rem' }}>x86_64</span></FlexItem>
-                            </Flex>
-                          </StackItem>
-                          <StackItem>
-                            <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                              <FlexItem><CheckCircleIcon color="var(--pf-t--global--icon--color--status--success--default)" /></FlexItem>
-                              <FlexItem><span style={{ fontSize: '0.875rem' }}>arm64</span></FlexItem>
-                            </Flex>
-                          </StackItem>
-                        </Stack>
-                      </div>
-                      <div>
-                        <div style={{ marginBottom: '0.25rem', fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
-                          Other
-                        </div>
-                        <Stack>
-                          <StackItem>
-                            <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                              <FlexItem><CheckCircleIcon color="var(--pf-t--global--icon--color--status--success--default)" /></FlexItem>
-                              <FlexItem><span style={{ fontSize: '0.875rem' }}>RHEL 9</span></FlexItem>
-                            </Flex>
-                          </StackItem>
-                          <StackItem>
-                            <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                              <FlexItem><CheckCircleIcon color="var(--pf-t--global--icon--color--status--success--default)" /></FlexItem>
-                              <FlexItem><span style={{ fontSize: '0.875rem' }}>OpenShift 4.14+</span></FlexItem>
-                            </Flex>
-                          </StackItem>
-                        </Stack>
-                      </div>
+                      <Flex gap={{ default: 'gapLg' }}>
+                        <FlexItem>
+                          <div style={{ marginBottom: '0.25rem', fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                            Architectures
+                          </div>
+                          <Stack>
+                            <StackItem>
+                              <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                                <FlexItem><CheckCircleIcon color="var(--pf-t--global--icon--color--status--success--default)" /></FlexItem>
+                                <FlexItem><span style={{ fontSize: '0.875rem' }}>x86_64</span></FlexItem>
+                              </Flex>
+                            </StackItem>
+                            <StackItem>
+                              <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                                <FlexItem><CheckCircleIcon color="var(--pf-t--global--icon--color--status--success--default)" /></FlexItem>
+                                <FlexItem><span style={{ fontSize: '0.875rem' }}>arm64</span></FlexItem>
+                              </Flex>
+                            </StackItem>
+                          </Stack>
+                        </FlexItem>
+                        <FlexItem>
+                          <div style={{ marginBottom: '0.25rem', fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                            Other
+                          </div>
+                          <Stack>
+                            <StackItem>
+                              <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                                <FlexItem><CheckCircleIcon color="var(--pf-t--global--icon--color--status--success--default)" /></FlexItem>
+                                <FlexItem><span style={{ fontSize: '0.875rem' }}>RHEL 9</span></FlexItem>
+                              </Flex>
+                            </StackItem>
+                            <StackItem>
+                              <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                                <FlexItem><CheckCircleIcon color="var(--pf-t--global--icon--color--status--success--default)" /></FlexItem>
+                                <FlexItem><span style={{ fontSize: '0.875rem' }}>OpenShift 4.14+</span></FlexItem>
+                              </Flex>
+                            </StackItem>
+                          </Stack>
+                        </FlexItem>
+                      </Flex>
                     </FlexItem>
                   </Flex>
                 </div>
               </Tab>
               <Tab eventKey={1} title={<TabTitleText>SBOM</TabTitleText>}>
-                <div style={{ padding: '1rem 0', maxHeight: '320px', overflowY: 'auto' }}>
-                  <SearchInput
-                    placeholder="Search packages..."
-                    value={sbomSearchValue}
-                    onChange={(_event, value) => setSbomSearchValue(value)}
-                    onClear={() => setSbomSearchValue('')}
-                    style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}
-                  />
-                  <div style={{ maxHeight: '300px', maxHeight: '320px', overflowY: 'auto' }}>
+                <div style={{ padding: '1rem 0', maxHeight: '320px', display: 'flex', flexDirection: 'column' }}>
+                  {/* Top toolbar with search and pagination */}
+                  <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} alignItems={{ default: 'alignItemsCenter' }} style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }} flexWrap={{ default: 'wrap' }} gap={{ default: 'gapSm' }}>
+                    <FlexItem>
+                      <SearchInput
+                        placeholder="Search packages..."
+                        value={sbomSearchValue}
+                        onChange={(_event, value) => {
+                          setSbomSearchValue(value);
+                          setSbomPage(1); // Reset to first page on search
+                        }}
+                        onClear={() => {
+                          setSbomSearchValue('');
+                          setSbomPage(1);
+                        }}
+                      />
+                    </FlexItem>
+                    <FlexItem>
+                      <Pagination
+                        itemCount={filteredPackages.length}
+                        perPage={sbomPerPage}
+                        page={sbomPage}
+                        onSetPage={(_event, newPage) => setSbomPage(newPage)}
+                        onPerPageSelect={(_event, newPerPage, newPage) => {
+                          setSbomPerPage(newPerPage);
+                          setSbomPage(newPage);
+                        }}
+                        isCompact
+                        perPageOptions={[
+                          { title: '5', value: 5 },
+                          { title: '10', value: 10 },
+                        ]}
+                      />
+                    </FlexItem>
+                  </Flex>
+                  {/* Scrollable Table */}
+                  <div style={{ flex: 1, overflowY: 'auto' }}>
                     <Table variant="compact" borders={false}>
                       <Thead>
                         <Tr>
@@ -359,18 +453,23 @@ const Dashboard: React.FunctionComponent = () => {
                         </Tr>
                       </Thead>
                       <Tbody>
-                        {filteredPackages.map((pkg) => (
-                          <Tr key={pkg.name}>
-                            <Td>{pkg.name}</Td>
-                            <Td>{pkg.version}</Td>
-                          </Tr>
-                        ))}
+                        {filteredPackages
+                          .slice((sbomPage - 1) * sbomPerPage, sbomPage * sbomPerPage)
+                          .map((pkg) => (
+                            <Tr key={pkg.name}>
+                              <Td dataLabel="Package">{pkg.name}</Td>
+                              <Td dataLabel="Version">{pkg.version}</Td>
+                            </Tr>
+                          ))}
                       </Tbody>
                     </Table>
                   </div>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: 'var(--pf-t--global--spacer--sm)' }}>
-                    {filteredPackages.length} of {sbomPackages.length} packages
-                  </p>
+                  {/* Download button */}
+                  <div style={{ marginTop: 'var(--pf-t--global--spacer--sm)', textAlign: 'right' }}>
+                    <Tooltip content="Downloads the Software Bill of Materials in SPDX format">
+                      <Button variant="primary">Download SBOM</Button>
+                    </Tooltip>
+                  </div>
                 </div>
               </Tab>
               <Tab eventKey={2} title={<TabTitleText>Attestation</TabTitleText>}>
@@ -444,7 +543,7 @@ const Dashboard: React.FunctionComponent = () => {
                   </Stack>
                 </div>
               </Tab>
-              <Tab eventKey={3} title={<TabTitleText>Compatibility</TabTitleText>}>
+              <Tab eventKey={3} title={<TabTitleText>Image Comparison</TabTitleText>}>
                 <div style={{ padding: '1rem 0', maxHeight: '320px', overflowY: 'auto' }}>
                   <div style={{ overflowX: 'auto' }}>
                     <Table variant="compact" borders>
@@ -508,7 +607,6 @@ primaryAction={{
                 <Alert
                   variant="success"
                   isInline
-                  isPlain
                   title={<><strong>0 CVE's</strong> <span style={{ fontWeight: 'normal' }}>Last scanned XX:XX:XX ago</span></>}
                   style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}
                 />
@@ -523,17 +621,32 @@ primaryAction={{
                   <Tbody>
                     <Tr>
                       <Td>CVE-2024-1234</Td>
-                      <Td><Label color="green" variant="outline" icon={<CheckCircleIcon />} isCompact>Resolved</Label></Td>
+                      <Td>
+                        <Flex gap={{ default: 'gapXs' }} flexWrap={{ default: 'nowrap' }}>
+                          <FlexItem><Label color="green" variant="outline" icon={<CheckCircleIcon />} isCompact>Resolved</Label></FlexItem>
+                          <FlexItem><Label color="red" isCompact>Critical</Label></FlexItem>
+                        </Flex>
+                      </Td>
                       <Td>Nov 26, 10:30 AM</Td>
                     </Tr>
                     <Tr>
                       <Td>CVE-2024-5678</Td>
-                      <Td><Label color="green" variant="outline" icon={<CheckCircleIcon />} isCompact>Resolved</Label></Td>
+                      <Td>
+                        <Flex gap={{ default: 'gapXs' }} flexWrap={{ default: 'nowrap' }}>
+                          <FlexItem><Label color="green" variant="outline" icon={<CheckCircleIcon />} isCompact>Resolved</Label></FlexItem>
+                          <FlexItem><Label color="orange" isCompact>High</Label></FlexItem>
+                        </Flex>
+                      </Td>
                       <Td>Nov 25, 3:45 PM</Td>
                     </Tr>
                     <Tr>
                       <Td>CVE-2024-9012</Td>
-                      <Td><Label color="green" variant="outline" icon={<CheckCircleIcon />} isCompact>Resolved</Label></Td>
+                      <Td>
+                        <Flex gap={{ default: 'gapXs' }} flexWrap={{ default: 'nowrap' }}>
+                          <FlexItem><Label color="green" variant="outline" icon={<CheckCircleIcon />} isCompact>Resolved</Label></FlexItem>
+                          <FlexItem><Label color="yellow" isCompact>Medium</Label></FlexItem>
+                        </Flex>
+                      </Td>
                       <Td>Nov 24, 9:15 AM</Td>
                     </Tr>
                   </Tbody>

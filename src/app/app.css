@@ -14,3 +14,17 @@ body,
 :root {
   --pf-v6-global--thinking-active--Animation--Duration: 2s;
 }
+
+/* White background for ClipboardCopy components */
+.clipboard-white-bg .pf-v6-c-clipboard-copy {
+  background-color: var(--pf-t--global--background--color--primary--default);
+}
+
+.clipboard-white-bg .pf-v6-c-clipboard-copy__text {
+  background-color: var(--pf-t--global--background--color--primary--default);
+}
+
+/* Light background for ToggleGroup items */
+.pf-m-light-background .pf-v6-c-toggle-group__button:not(.pf-m-selected) {
+  background-color: var(--pf-t--global--background--color--primary--default);
+}
