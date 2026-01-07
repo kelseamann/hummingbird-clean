@@ -2,6 +2,7 @@ import * as React from 'react';
 import {
   Breadcrumb,
   BreadcrumbItem,
+  Button,
   ClipboardCopy,
   CompassContent,
   CompassPanel,
@@ -131,37 +132,57 @@ const Dashboard: React.FunctionComponent = () => {
       </CompassPanel>
 
       <Grid hasGutter>
-        {/* Get Started */}
+        {/* Get Started + Get in Touch (stacked in same column) */}
         <GridItem lg={4} md={12} sm={12}>
-          <ActionPanelCard
-            title="Get Started"
-            primaryAction={{
-              label: "Upstream source",
-              href: "https://hub.docker.com/_/python",
-            }}
-            secondaryAction={{
-              label: "GitHub",
-              href: "https://github.com/python/cpython",
-            }}
-          >
-            <Stack hasGutter>
-              <StackItem>
-                <FormGroup label="Podman" fieldId="podman-pull">
-                  <ClipboardCopy isReadOnly>podman pull registry.redhat.io/ubi9/python-311</ClipboardCopy>
-                </FormGroup>
-              </StackItem>
-              <StackItem>
-                <FormGroup label="Docker" fieldId="docker-pull">
-                  <ClipboardCopy isReadOnly>docker pull registry.redhat.io/ubi9/python-311</ClipboardCopy>
-                </FormGroup>
-              </StackItem>
-              <StackItem>
-                <p style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
-                  Use a container engine to pull and run this image
-                </p>
-              </StackItem>
-            </Stack>
-          </ActionPanelCard>
+          <Stack hasGutter>
+            <StackItem>
+              <ActionPanelCard
+                title="Get Started"
+                primaryAction={{
+                  label: "Upstream source",
+                  href: "https://hub.docker.com/_/python",
+                }}
+                secondaryAction={{
+                  label: "GitHub",
+                  href: "https://github.com/python/cpython",
+                }}
+              >
+                <Stack hasGutter>
+                  <StackItem>
+                    <FormGroup label="Podman" fieldId="podman-pull">
+                      <ClipboardCopy isReadOnly>podman pull registry.redhat.io/ubi9/python-311</ClipboardCopy>
+                    </FormGroup>
+                  </StackItem>
+                  <StackItem>
+                    <FormGroup label="Docker" fieldId="docker-pull">
+                      <ClipboardCopy isReadOnly>docker pull registry.redhat.io/ubi9/python-311</ClipboardCopy>
+                    </FormGroup>
+                  </StackItem>
+                  <StackItem>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                      Use a container engine to pull and run this image
+                    </p>
+                  </StackItem>
+                </Stack>
+              </ActionPanelCard>
+            </StackItem>
+            <StackItem>
+              <ActionPanelCard title="Get in Touch">
+                <Flex gap={{ default: 'gapSm' }} flexWrap={{ default: 'wrap' }}>
+                  <FlexItem>
+                    <Button variant="secondary" size="sm" component="a" href="mailto:support@redhat.com">
+                      Contact Us
+                    </Button>
+                  </FlexItem>
+                  <FlexItem>
+                    <Button variant="secondary" size="sm" component="a" href="#feedback">
+                      Provide Feedback
+                    </Button>
+                  </FlexItem>
+                </Flex>
+              </ActionPanelCard>
+            </StackItem>
+          </Stack>
         </GridItem>
 
         {/* Documentation */}
@@ -192,6 +213,17 @@ const Dashboard: React.FunctionComponent = () => {
                         <FlexItem><Label isCompact>MIT</Label></FlexItem>
                         <FlexItem><Label isCompact>Apache-2.0</Label></FlexItem>
                         <FlexItem><Label isCompact>PSF-2.0</Label></FlexItem>
+                      </Flex>
+                    </FlexItem>
+                    <FlexItem>
+                      <div style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500 }}>
+                        Compatibility Info
+                      </div>
+                      <Flex gap={{ default: 'gapSm' }} wrap={{ default: 'wrap' }}>
+                        <FlexItem><Label isCompact color="blue">x86_64</Label></FlexItem>
+                        <FlexItem><Label isCompact color="blue">arm64</Label></FlexItem>
+                        <FlexItem><Label isCompact color="purple">RHEL 9</Label></FlexItem>
+                        <FlexItem><Label isCompact color="purple">OpenShift 4.14+</Label></FlexItem>
                       </Flex>
                     </FlexItem>
                   </Flex>
@@ -330,6 +362,7 @@ const Dashboard: React.FunctionComponent = () => {
             </Table>
           </ActionPanelCard>
         </GridItem>
+
       </Grid>
     </CompassContent>
   </>
