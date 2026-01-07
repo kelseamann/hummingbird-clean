@@ -24,6 +24,8 @@ import {
 import {
   CheckCircleIcon,
   ShieldAltIcon,
+  TimesCircleIcon,
+  ThumbsUpIcon,
 } from '@patternfly/react-icons';
 import { Table, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
 import { ActionPanelCard } from '../components/ActionPanelCard';
@@ -90,6 +92,36 @@ const sbomPackages = [
   { name: 'systemd-libs', version: '254' },
 ];
 
+// Compatibility table data
+type CompatStatus = 'compatible' | 'incompatible' | 'note';
+interface CompatRow {
+  property: string;
+  status: CompatStatus;
+  noteNumber?: number;
+  hummingbird: string;
+  upstream: string;
+}
+
+const compatibilityData: CompatRow[] = [
+  { property: 'cmd', status: 'compatible', hummingbird: 'python3', upstream: 'python3' },
+  { property: 'compressed_size_mb', status: 'compatible', hummingbird: '39', upstream: '394' },
+  { property: 'entrypoint', status: 'compatible', hummingbird: '-', upstream: '-' },
+  { property: 'env.HOME', status: 'incompatible', hummingbird: '/tmp', upstream: '-' },
+  { property: 'env.PATH', status: 'note', noteNumber: 1, hummingbird: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', upstream: '/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' },
+  { property: 'env.PYTHON_SHA256', status: 'note', noteNumber: 2, hummingbird: '-', upstream: 'ce543ab854bc256b61b71e9b27f831ffd1bfd60a479d639f8be7f9757cf573e9' },
+  { property: 'env.PYTHON_VERSION', status: 'compatible', hummingbird: '3.14.2', upstream: '3.14.2' },
+  { property: 'exposed_ports', status: 'compatible', hummingbird: '-', upstream: '-' },
+  { property: 'user', status: 'note', noteNumber: 3, hummingbird: '65532', upstream: '-' },
+  { property: 'volumes', status: 'compatible', hummingbird: '-', upstream: '-' },
+  { property: 'workdir', status: 'incompatible', hummingbird: '/tmp', upstream: '/' },
+];
+
+const compatibilityNotes = [
+  { number: 1, text: 'different ordering, official image is buggy (bin before sbin)' },
+  { number: 2, text: 'too hard to dynamically get into the Containerfile' },
+  { number: 3, text: 'run workload unprivileged (security and OpenShift compatibility)' },
+];
+
 const Dashboard: React.FunctionComponent = () => {
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(0);
   const [sbomSearchValue, setSbomSearchValue] = React.useState('');
@@ -127,62 +159,64 @@ const Dashboard: React.FunctionComponent = () => {
           </FlexItem>
         </Flex>
         <p style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>
-          Distributed by <strong>Red Hat</strong>
+          Distributed by <strong>Red Hat</strong> · Last updated Jan 7, 2026
         </p>
       </CompassPanel>
 
       <Grid hasGutter>
-        {/* Get Started + Get in Touch (stacked in same column) */}
+        {/* Get Started */}
         <GridItem lg={4} md={12} sm={12}>
-          <Stack hasGutter>
-            <StackItem>
-              <ActionPanelCard
-                title="Get Started"
-                primaryAction={{
-                  label: "Upstream source",
-                  href: "https://hub.docker.com/_/python",
-                }}
-                secondaryAction={{
-                  label: "GitHub",
-                  href: "https://github.com/python/cpython",
-                }}
-              >
-                <Stack hasGutter>
-                  <StackItem>
-                    <FormGroup label="Podman" fieldId="podman-pull">
+          <ActionPanelCard
+            title="Get Started"
+            primaryAction={{
+              label: "Upstream source",
+              href: "https://hub.docker.com/_/python",
+            }}
+            secondaryAction={{
+              label: "GitLab",
+              href: "https://gitlab.com/redhat/hummingbird",
+            }}
+          >
+            <Stack hasGutter>
+              <StackItem>
+                <FormGroup label="Podman" fieldId="podman-pull">
+                  <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                    <FlexItem grow={{ default: 'grow' }}>
                       <ClipboardCopy isReadOnly>podman pull registry.redhat.io/ubi9/python-311</ClipboardCopy>
-                    </FormGroup>
-                  </StackItem>
-                  <StackItem>
-                    <FormGroup label="Docker" fieldId="docker-pull">
+                    </FlexItem>
+                    <FlexItem>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)', whiteSpace: 'nowrap' }}>47 MB</span>
+                    </FlexItem>
+                  </Flex>
+                </FormGroup>
+              </StackItem>
+              <StackItem>
+                <FormGroup label="Docker" fieldId="docker-pull">
+                  <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                    <FlexItem grow={{ default: 'grow' }}>
                       <ClipboardCopy isReadOnly>docker pull registry.redhat.io/ubi9/python-311</ClipboardCopy>
-                    </FormGroup>
-                  </StackItem>
-                  <StackItem>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
-                      Use a container engine to pull and run this image
-                    </p>
-                  </StackItem>
-                </Stack>
-              </ActionPanelCard>
-            </StackItem>
-            <StackItem>
-              <ActionPanelCard title="Get in Touch">
-                <Flex gap={{ default: 'gapSm' }} flexWrap={{ default: 'wrap' }}>
-                  <FlexItem>
-                    <Button variant="secondary" size="sm" component="a" href="mailto:support@redhat.com">
-                      Contact Us
-                    </Button>
-                  </FlexItem>
-                  <FlexItem>
-                    <Button variant="secondary" size="sm" component="a" href="#feedback">
-                      Provide Feedback
-                    </Button>
-                  </FlexItem>
-                </Flex>
-              </ActionPanelCard>
-            </StackItem>
-          </Stack>
+                    </FlexItem>
+                    <FlexItem>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)', whiteSpace: 'nowrap' }}>47 MB</span>
+                    </FlexItem>
+                  </Flex>
+                </FormGroup>
+              </StackItem>
+              <StackItem>
+                <p style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                  Use a container engine to pull and run this image
+                </p>
+              </StackItem>
+              <StackItem>
+                <FormGroup label="Replace with Hummingbird Image" fieldId="hummingbird-image">
+                  <ClipboardCopy isReadOnly>FROM registry.redhat.io/hummingbird/default:latest</ClipboardCopy>
+                </FormGroup>
+                <p style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '0.5rem' }}>
+                  Replace the <code style={{ backgroundColor: 'var(--pf-t--global--background--color--secondary--default)', padding: '0.125rem 0.25rem', borderRadius: '3px' }}>FROM</code> line in your Containerfile or update the <code style={{ backgroundColor: 'var(--pf-t--global--background--color--secondary--default)', padding: '0.125rem 0.25rem', borderRadius: '3px' }}>image:</code> field in your Kubernetes/OpenShift deployment YAML.
+                </p>
+              </StackItem>
+            </Stack>
+          </ActionPanelCard>
         </GridItem>
 
         {/* Documentation */}
@@ -195,7 +229,7 @@ const Dashboard: React.FunctionComponent = () => {
               onSelect={(_event, tabIndex) => setActiveTabKey(tabIndex)}
             >
               <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>}>
-                <div style={{ padding: '1rem 0' }}>
+                <div style={{ padding: '1rem 0', maxHeight: '400px', overflowY: 'auto' }}>
                   <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
                     <FlexItem>
                       <div style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500 }}>
@@ -219,18 +253,33 @@ const Dashboard: React.FunctionComponent = () => {
                       <div style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 500 }}>
                         Compatibility Info
                       </div>
-                      <Flex gap={{ default: 'gapSm' }} wrap={{ default: 'wrap' }}>
-                        <FlexItem><Label isCompact color="blue">x86_64</Label></FlexItem>
-                        <FlexItem><Label isCompact color="blue">arm64</Label></FlexItem>
-                        <FlexItem><Label isCompact color="purple">RHEL 9</Label></FlexItem>
-                        <FlexItem><Label isCompact color="purple">OpenShift 4.14+</Label></FlexItem>
-                      </Flex>
+                      <p style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)', marginBottom: '0.75rem' }}>
+                        Hummingbird images are designed for compatibility with popular images from Docker Hub, Red Hat UBI, and other registries, enabling straightforward migration of existing workloads.
+                      </p>
+                      <div style={{ marginBottom: '0.5rem' }}>
+                        <div style={{ marginBottom: '0.25rem', fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                          Architectures
+                        </div>
+                        <Flex gap={{ default: 'gapSm' }} wrap={{ default: 'wrap' }}>
+                          <FlexItem><Label isCompact color="blue">x86_64</Label></FlexItem>
+                          <FlexItem><Label isCompact color="blue">arm64</Label></FlexItem>
+                        </Flex>
+                      </div>
+                      <div>
+                        <div style={{ marginBottom: '0.25rem', fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                          Other
+                        </div>
+                        <Flex gap={{ default: 'gapSm' }} wrap={{ default: 'wrap' }}>
+                          <FlexItem><Label isCompact color="purple">RHEL 9</Label></FlexItem>
+                          <FlexItem><Label isCompact color="purple">OpenShift 4.14+</Label></FlexItem>
+                        </Flex>
+                      </div>
                     </FlexItem>
                   </Flex>
                 </div>
               </Tab>
               <Tab eventKey={1} title={<TabTitleText>SBOM</TabTitleText>}>
-                <div style={{ padding: '1rem 0' }}>
+                <div style={{ padding: '1rem 0', maxHeight: '400px', overflowY: 'auto' }}>
                   <SearchInput
                     placeholder="Search packages..."
                     value={sbomSearchValue}
@@ -262,7 +311,7 @@ const Dashboard: React.FunctionComponent = () => {
                 </div>
               </Tab>
               <Tab eventKey={2} title={<TabTitleText>Attestation</TabTitleText>}>
-                <div style={{ padding: '1rem 0' }}>
+                <div style={{ padding: '1rem 0', maxHeight: '400px', overflowY: 'auto' }}>
                   <Stack hasGutter>
                     <StackItem>
                       <p style={{ fontSize: '0.875rem', marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
@@ -307,60 +356,131 @@ const Dashboard: React.FunctionComponent = () => {
                   </Stack>
                 </div>
               </Tab>
+              <Tab eventKey={3} title={<TabTitleText>Compatibility</TabTitleText>}>
+                <div style={{ padding: '1rem 0', maxHeight: '400px', overflowY: 'auto' }}>
+                  <div style={{ overflowX: 'auto' }}>
+                    <Table variant="compact" borders>
+                      <Thead>
+                        <Tr>
+                          <Th>Compat</Th>
+                          <Th>Property</Th>
+                          <Th><code style={{ fontSize: '0.75rem' }}>quay.io/hummingbird/python:3</code></Th>
+                          <Th><code style={{ fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)' }}>docker.io/python:latest</code></Th>
+                        </Tr>
+                      </Thead>
+                      <Tbody>
+                        {compatibilityData.map((row, index) => (
+                          <Tr key={index}>
+                            <Td>
+                              {row.status === 'compatible' && (
+                                <CheckCircleIcon color="var(--pf-t--global--icon--color--status--success--default)" />
+                              )}
+                              {row.status === 'incompatible' && (
+                                <TimesCircleIcon color="var(--pf-t--global--icon--color--status--danger--default)" />
+                              )}
+                              {row.status === 'note' && (
+                                <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: '2px' }}>
+                                  <ThumbsUpIcon color="var(--pf-t--global--icon--color--status--warning--default)" />
+                                  <sup style={{ fontSize: '0.625rem' }}>{row.noteNumber}</sup>
+                                </span>
+                              )}
+                            </Td>
+                            <Td>{row.property}</Td>
+                            <Td style={{ fontSize: '0.75rem', fontFamily: 'var(--pf-t--global--font--family--mono)', wordBreak: 'break-all' }}>{row.hummingbird}</Td>
+                            <Td style={{ fontSize: '0.75rem', fontFamily: 'var(--pf-t--global--font--family--mono)', wordBreak: 'break-all', color: 'var(--pf-t--global--text--color--subtle)' }}>{row.upstream}</Td>
+                          </Tr>
+                        ))}
+                      </Tbody>
+                    </Table>
+                  </div>
+                  <div style={{ marginTop: '1rem', fontSize: '0.75rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                    {compatibilityNotes.map((note) => (
+                      <p key={note.number} style={{ marginBottom: '0.25rem' }}>
+                        {note.number}. {note.text}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              </Tab>
             </Tabs>
           </ActionPanelCard>
         </GridItem>
 
-        {/* Vulnerabilities */}
+        {/* Vulnerabilities + Get in Touch */}
         <GridItem lg={4} md={12} sm={12}>
-          <ActionPanelCard
-            title="Vulnerabilities"
-            primaryAction={{
-              label: "Advisories",
-              href: "#advisories",
-            }}
-          >
-            <div style={{
-              backgroundColor: 'var(--pf-t--global--color--status--success--default)',
-              color: 'var(--pf-t--global--text--color--on-status--success--default)',
-              padding: 'var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md)',
-              borderRadius: 'var(--pf-t--global--border--radius--small)',
-              marginBottom: 'var(--pf-t--global--spacer--md)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--pf-t--global--spacer--sm)',
-            }}>
-              <CheckCircleIcon />
-              <strong>0 CVE's</strong>
-              <span style={{ fontWeight: 'normal', opacity: 0.85 }}>Last scanned XX:XX:XX ago</span>
-            </div>
-            <Table variant="compact">
-              <Thead>
-                <Tr>
-                  <Th>CVE ID</Th>
-                  <Th>Status</Th>
-                  <Th>Last Update</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                <Tr>
-                  <Td>CVE-2024-1234</Td>
-                  <Td><Label color="orange" isCompact>Ongoing</Label></Td>
-                  <Td>Nov 26, 10:30 AM</Td>
-                </Tr>
-                <Tr>
-                  <Td>CVE-2024-5678</Td>
-                  <Td><Label color="green" icon={<CheckCircleIcon />} isCompact>Resolved</Label></Td>
-                  <Td>Nov 25, 3:45 PM</Td>
-                </Tr>
-                <Tr>
-                  <Td>CVE-2024-9012</Td>
-                  <Td><Label color="green" icon={<CheckCircleIcon />} isCompact>Resolved</Label></Td>
-                  <Td>Nov 24, 9:15 AM</Td>
-                </Tr>
-              </Tbody>
-            </Table>
-          </ActionPanelCard>
+          <Stack hasGutter>
+            <StackItem>
+              <ActionPanelCard
+                title="Vulnerabilities"
+                primaryAction={{
+                  label: "Advisories",
+                  href: "#advisories",
+                }}
+              >
+                <div style={{
+                  backgroundColor: 'var(--pf-t--global--color--status--success--default)',
+                  color: 'var(--pf-t--global--text--color--on-status--success--default)',
+                  padding: 'var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md)',
+                  borderRadius: 'var(--pf-t--global--border--radius--small)',
+                  marginBottom: 'var(--pf-t--global--spacer--md)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--pf-t--global--spacer--sm)',
+                }}>
+                  <CheckCircleIcon />
+                  <strong>0 CVE's</strong>
+                  <span style={{ fontWeight: 'normal', opacity: 0.85 }}>Last scanned XX:XX:XX ago</span>
+                </div>
+                <Table variant="compact">
+                  <Thead>
+                    <Tr>
+                      <Th>CVE ID</Th>
+                      <Th>Status</Th>
+                      <Th>Last Update</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    <Tr>
+                      <Td>CVE-2024-1234</Td>
+                      <Td><Label color="green" icon={<CheckCircleIcon />} isCompact>Resolved</Label></Td>
+                      <Td>Nov 26, 10:30 AM</Td>
+                    </Tr>
+                    <Tr>
+                      <Td>CVE-2024-5678</Td>
+                      <Td><Label color="green" icon={<CheckCircleIcon />} isCompact>Resolved</Label></Td>
+                      <Td>Nov 25, 3:45 PM</Td>
+                    </Tr>
+                    <Tr>
+                      <Td>CVE-2024-9012</Td>
+                      <Td><Label color="green" icon={<CheckCircleIcon />} isCompact>Resolved</Label></Td>
+                      <Td>Nov 24, 9:15 AM</Td>
+                    </Tr>
+                  </Tbody>
+                </Table>
+              </ActionPanelCard>
+            </StackItem>
+            <StackItem>
+              <ActionPanelCard title="Get in Touch">
+                <Flex gap={{ default: 'gapSm' }} flexWrap={{ default: 'wrap' }}>
+                  <FlexItem>
+                    <Button variant="secondary" size="sm" component="a" href="mailto:support@redhat.com">
+                      Contact Us
+                    </Button>
+                  </FlexItem>
+                  <FlexItem>
+                    <Button variant="secondary" size="sm" component="a" href="#feedback">
+                      Provide Feedback
+                    </Button>
+                  </FlexItem>
+                  <FlexItem>
+                    <Button variant="primary" size="sm" component="a" href="#request-image">
+                      Request an Image
+                    </Button>
+                  </FlexItem>
+                </Flex>
+              </ActionPanelCard>
+            </StackItem>
+          </Stack>
         </GridItem>
 
       </Grid>
