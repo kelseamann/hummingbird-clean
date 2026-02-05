@@ -65,6 +65,7 @@ import {
   SecurityIcon,
   SyncAltIcon,
   EllipsisVIcon,
+  TagIcon,
 } from '@patternfly/react-icons';
 import { Table, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
 import { useCardStyle } from '@app/utils/CardStyleContext';
@@ -748,7 +749,7 @@ const HeaderHeavyCard: React.FC<{
             </div>
           </FlexItem>
           
-          {/* Title + CVE Badge */}
+          {/* Title + CVE Badge + Latest Tag */}
           <FlexItem flex={{ default: 'flex_1' }}>
             <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
               <FlexItem>
@@ -761,42 +762,30 @@ const HeaderHeavyCard: React.FC<{
                   <Label color="green" icon={<InfoCircleIcon />} isCompact>0 CVEs</Label>
                 )}
               </FlexItem>
+              <FlexItem>
+                <Label color="grey" icon={<TagIcon />} isCompact>Latest</Label>
+              </FlexItem>
             </Flex>
           </FlexItem>
           
-          {/* Latest Tag pill + More tags icon */}
+          {/* Favorite icon */}
           <FlexItem>
-            <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-              <FlexItem>
-                <span style={{
-                  backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
-                  color: 'var(--pf-t--global--text--color--subtle)',
-                  padding: '2px 8px',
-                  borderRadius: '12px',
-                  fontSize: 'var(--pf-t--global--font--size--body--sm)',
-                }}>
-                  {image.latestTag}
-                </span>
-              </FlexItem>
-              <FlexItem>
-                <Tooltip content={isStarFilled ? "Remove from favorites" : "Add to favorites"}>
-                  <Button 
-                    variant="plain" 
-                    aria-label={isStarFilled ? "Remove from favorites" : "Add to favorites"}
-                    style={{ padding: '4px' }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                  >
-                    {isStarFilled ? (
-                      <StarIcon style={{ color: 'var(--pf-t--global--color--nonstatus--orange--default)', fontSize: '1rem' }} />
-                    ) : (
-                      <OutlinedStarIcon style={{ fontSize: '1rem' }} />
-                    )}
-                  </Button>
-                </Tooltip>
-              </FlexItem>
-            </Flex>
+            <Tooltip content={isStarFilled ? "Remove from favorites" : "Add to favorites"}>
+              <Button 
+                variant="plain" 
+                aria-label={isStarFilled ? "Remove from favorites" : "Add to favorites"}
+                style={{ padding: '4px' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
+                {isStarFilled ? (
+                  <StarIcon style={{ color: 'var(--pf-t--global--color--nonstatus--orange--default)', fontSize: '1rem' }} />
+                ) : (
+                  <OutlinedStarIcon style={{ fontSize: '1rem' }} />
+                )}
+              </Button>
+            </Tooltip>
           </FlexItem>
         </Flex>
       </CardHeader>
