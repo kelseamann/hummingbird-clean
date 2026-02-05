@@ -691,7 +691,8 @@ const HeaderHeavyCard: React.FC<{
   displayName?: string;
   pullCommand?: string;
   onCopy?: (imageName: string, commandType: 'podman' | 'docker', variants: string[]) => void;
-}> = ({ image, onClick, commandType, displayName, pullCommand, onCopy }) => {
+  isStarFilled?: boolean;
+}> = ({ image, onClick, commandType, displayName, pullCommand, onCopy, isStarFilled = false }) => {
   const cardId = `header-heavy-${image.name.toLowerCase().replace(/\s+/g, '-')}`;
   
   const getVariantsFromCommand = (cmd: string): string[] => {
@@ -778,17 +779,20 @@ const HeaderHeavyCard: React.FC<{
                 </span>
               </FlexItem>
               <FlexItem>
-                <Tooltip content="More tags">
+                <Tooltip content={isStarFilled ? "Remove from favorites" : "Add to favorites"}>
                   <Button 
                     variant="plain" 
-                    aria-label="More tags" 
+                    aria-label={isStarFilled ? "Remove from favorites" : "Add to favorites"}
                     style={{ padding: '4px' }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (onClick) onClick();
                     }}
                   >
-                    <EllipsisVIcon style={{ fontSize: '1rem' }} />
+                    {isStarFilled ? (
+                      <StarIcon style={{ color: 'var(--pf-t--global--color--brand--default)', fontSize: '1rem' }} />
+                    ) : (
+                      <OutlinedStarIcon style={{ fontSize: '1rem' }} />
+                    )}
                   </Button>
                 </Tooltip>
               </FlexItem>
@@ -1164,7 +1168,7 @@ const Dashboard: React.FunctionComponent<DashboardProps> = ({ previewMode = fals
       case 'B':
         return (
           <div key={key}>
-            <HeaderHeavyCard {...commonProps} />
+            <HeaderHeavyCard {...commonProps} isStarFilled={isStarFilled(image)} />
           </div>
         );
       case 'C':
