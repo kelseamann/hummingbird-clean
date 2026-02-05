@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { Dashboard } from '@app/Dashboard/Dashboard';
-import { Support } from '@app/Support/Support';
+import { SecurityFeed } from '@app/SecurityFeed/SecurityFeed';
+import { About } from '@app/About/About';
 import { NotFound } from '@app/NotFound/NotFound';
 
 export interface IAppRoute {
@@ -29,11 +30,24 @@ const routes: AppRouteConfig[] = [
     title: 'Hummingbird | Overview',
   },
   {
-    element: <Support />,
+    element: <SecurityFeed />,
     exact: true,
-    label: 'CVE Repository',
-    path: '/cve-repository',
-    title: 'Hummingbird | CVE Repository',
+    label: 'Security Feed',
+    path: '/security-feed',
+    title: 'Hummingbird | Security Feed',
+  },
+  {
+    element: <About />,
+    exact: true,
+    label: 'About Hummingbird',
+    path: '/about',
+    title: 'Hummingbird | About',
+  },
+  {
+    element: <Dashboard previewMode />,
+    exact: true,
+    path: '/preview',
+    title: 'Hummingbird | Preview',
   },
 ];
 

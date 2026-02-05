@@ -8,7 +8,6 @@ import {
   Button,
   Compass,
   CompassHeader,
-  CompassMessageBar,
   CompassPanel,
   Dropdown,
   DropdownItem,
@@ -24,7 +23,6 @@ import {
   TabsComponent,
   Tooltip,
 } from '@patternfly/react-core';
-import { MessageBar } from '@patternfly/chatbot/dist/dynamic/MessageBar';
 import { useTheme } from '@app/utils/ThemeContext';
 import CubeIcon from '@patternfly/react-icons/dist/esm/icons/cube-icon';
 import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
@@ -32,7 +30,7 @@ import MoonIcon from '@patternfly/react-icons/dist/esm/icons/moon-icon';
 import SunIcon from '@patternfly/react-icons/dist/esm/icons/sun-icon';
 import pfBackground from '../bgimages/pf-background.svg';
 import avatarSvg from '../bgimages/avatar.svg';
-import imageLogo from '../bgimages/image-logo.png';
+import imageLogo from '../../hummingbird_full_color_logomark.png';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -42,14 +40,14 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isDarkTheme, toggleTheme } = useTheme();
-  const [isThinking, setIsThinking] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Determine active tabs based on current route
   const getActiveTabIndex = React.useCallback(() => {
     const path = location.pathname;
     if (path === '/') return 0;
-    if (path === '/cve-repository') return 1;
+    if (path === '/security-feed') return 1;
+    if (path === '/about') return 2;
     return 0;
   }, [location.pathname]);
 
@@ -64,7 +62,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     const idx = tabIndex as number;
     setActiveTab(idx);
     if (idx === 0) navigate('/');
-    else if (idx === 1) navigate('/cve-repository');
+    else if (idx === 1) navigate('/security-feed');
+    else if (idx === 2) navigate('/about');
   };
 
   const navContent = (
@@ -77,11 +76,9 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         aria-label="Main navigation"
         inset={{ default: 'insetXl' }}
       >
-        <Tab
-          eventKey={0}
-          title={<TabTitleText>Overview</TabTitleText>}
-        />
+        <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>} />
         <Tab eventKey={1} title={<TabTitleText>Security Feed</TabTitleText>} />
+        <Tab eventKey={2} title={<TabTitleText>About Hummingbird</TabTitleText>} />
       </Tabs>
     </CompassPanel>
   );
@@ -165,35 +162,12 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     />
   );
 
-  const handleSendMessage = () => {
-    setIsThinking(true);
-    setTimeout(() => {
-      setIsThinking(false);
-    }, 10000); // 10 seconds
-  };
-
-  const footerContent = (
-    <CompassMessageBar>
-      <CompassPanel isPill hasNoPadding hasNoBorder>
-        <MessageBar
-          isCompact
-          onSendMessage={handleSendMessage}
-          alwayShowSendButton
-          hasAttachButton={false}
-          hasAiIndicator
-          isThinking={isThinking}
-        />
-      </CompassPanel>
-    </CompassMessageBar>
-  );
-
   return (
     <Compass
       header={headerContent}
       sidebarStart={sidebarContent}
       main={children}
       sidebarEnd={sidebarContent}
-      footer={footerContent}
       backgroundSrcDark={pfBackground}
       backgroundSrcLight={pfBackground}
     />

@@ -3,12 +3,13 @@
   "version": "0.0.2",
   "description": "An open source build scaffolding utility for web apps.",
   "repository": "https://github.com/patternfly/patternfly-react-seed.git",
-  "homepage": "https://patternfly-react-seed.surge.sh",
+  "homepage": "https://kelseamann.github.io/hummingbird-clean",
   "license": "MIT",
   "private": true,
   "scripts": {
     "prebuild": "npm run type-check && npm run clean",
     "build": "NODE_OPTIONS='--max-old-space-size=4096' webpack --config webpack.prod.js",
+    "build:ghpages": "ASSET_PATH=/hummingbird-clean/ NODE_OPTIONS='--max-old-space-size=4096' webpack --config webpack.prod.js",
     "start": "sirv dist --cors --single --host --port 8080",
     "start:dev": "webpack serve --color --progress --config webpack.dev.js",
     "test": "vitest run",
@@ -21,7 +22,9 @@
     "ci-checks": "npm run type-check && npm run lint && npm run test:coverage",
     "build:bundle-profile": "NODE_OPTIONS='--max-old-space-size=4096' webpack --config webpack.prod.js --profile --json > stats.json",
     "bundle-profile:analyze": "npm run build:bundle-profile && webpack-bundle-analyzer ./stats.json",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "predeploy": "npm run build:ghpages",
+    "deploy": "gh-pages -d dist"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
@@ -41,6 +44,7 @@
     "eslint-plugin-prettier": "^5.4.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "gh-pages": "^6.3.0",
     "html-webpack-plugin": "^5.6.3",
     "imagemin": "^9.0.0",
     "jsdom": "^25.0.1",

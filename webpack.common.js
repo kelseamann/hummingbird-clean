@@ -102,13 +102,17 @@ export default (env) => {
     plugins: [
       new HtmlWebpackPlugin({
         template: path.resolve('./src', 'index.html'),
+        publicPath: ASSET_PATH,
       }),
       new Dotenv({
         systemvars: true,
         silent: true,
       }),
       new CopyPlugin({
-        patterns: [{ from: './src/favicon.png', to: 'images' }],
+        patterns: [
+          { from: './src/favicon.svg', to: 'images' },
+          { from: './src/404.html', to: '404.html' },
+        ],
       }),
     ],
     resolve: {
