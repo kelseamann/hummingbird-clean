@@ -789,7 +789,7 @@ const HeaderHeavyCard: React.FC<{
                     }}
                   >
                     {isStarFilled ? (
-                      <StarIcon style={{ color: 'var(--pf-t--global--color--brand--default)', fontSize: '1rem' }} />
+                      <StarIcon style={{ color: 'var(--pf-t--global--color--nonstatus--orange--default)', fontSize: '1rem' }} />
                     ) : (
                       <OutlinedStarIcon style={{ fontSize: '1rem' }} />
                     )}
