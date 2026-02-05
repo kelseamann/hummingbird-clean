@@ -7,6 +7,19 @@ body,
 /* Content container - scale can be adjusted via class in future */
 .pf-v6-c-compass__content {
   /* Default: 100% scale */
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Ensure main compass area scrolls properly */
+.pf-v6-c-compass__main {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.pf-v6-c-compass-content {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
 }
 
 .pf-v6-c-content {

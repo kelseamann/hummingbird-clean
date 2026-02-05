@@ -1993,6 +1993,51 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
                 </div>
                 </div>
 
+      {/* Popular Images Section */}
+      <div style={{ 
+        marginBottom: 'var(--pf-t--global--spacer--xl)',
+        backgroundColor: 'rgba(231, 241, 250, 0.75)',
+        border: '1px solid #0066CC',
+        borderRadius: '16px',
+        padding: 'var(--pf-t--global--spacer--lg)'
+      }}>
+        <Flex 
+          justifyContent={{ default: 'justifyContentSpaceBetween' }} 
+          alignItems={{ default: 'alignItemsCenter' }}
+          style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}
+        >
+          <FlexItem>
+            <Content component="h2" style={{ margin: 0, fontWeight: 600 }}>Popular Images</Content>
+          </FlexItem>
+          <FlexItem>
+            <Content component="p" style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)', maxWidth: '280px', textAlign: 'right', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+              These distributions are verified by the Red Hat trusted software supply chain.
+            </Content>
+          </FlexItem>
+        </Flex>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+          {/* Featured popular images - using first 3 from images with FIPS variant */}
+          {allImages.filter(img => img.availableVariants?.includes('fips')).slice(0, 3).map((image, index) => {
+            const fipsSuffix = '-fips';
+            const fipsPullCommand = `${commandType} pull registry.redhat.io/hummingbird/${image.name.toLowerCase()}${fipsSuffix}:latest`;
+            return (
+              <div key={`popular-${index}`}>
+                <ContainerImageCard 
+                  image={image} 
+                  onClick={() => handleCardClick(image)} 
+                  onClickSide={() => handleCardClickSide(image)}
+                  commandType={commandType}
+                  displayName={`${image.name}- FIPS`}
+                  pullCommand={fipsPullCommand}
+                  isStarFilled={isStarFilled(image)}
+                  onCopy={handleCopyCommand}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Filter Bar Container */}
       <div style={{ 
         backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
