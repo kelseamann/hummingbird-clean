@@ -954,7 +954,16 @@ const SplitVerticalCard: React.FC<{
         </div>
       </CardHeader>
       <CardTitle>
-        <Content component="h3" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--lg)' }}>{cardTitle}</Content>
+        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+          <FlexItem>
+            <Content component="h3" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--lg)' }}>{cardTitle}</Content>
+          </FlexItem>
+          <FlexItem>
+            {image.cveCount === 0 && (
+              <Label color="green" icon={<InfoCircleIcon />} isCompact>0 CVEs</Label>
+            )}
+          </FlexItem>
+        </Flex>
       </CardTitle>
       <CardBody>
         <Content component="p" style={{ 
@@ -1006,29 +1015,26 @@ const SplitVerticalCard: React.FC<{
             </Button>
           </FlexItem>
         </Flex>
-        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }} style={{ marginBottom: 'var(--pf-t--global--spacer--xs)' }}>
+        <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} alignItems={{ default: 'alignItemsCenter' }}>
           <FlexItem>
             <Content component="p" style={{ 
               fontSize: 'var(--pf-t--global--font--size--body--sm)',
-              color: 'var(--pf-t--global--text--color--default)',
+              color: 'var(--pf-t--global--text--color--subtle)',
               margin: 0
             }}>
               Latest tag: {image.latestTag}
             </Content>
           </FlexItem>
           <FlexItem>
-            {image.cveCount === 0 && (
-              <Label color="green" icon={<InfoCircleIcon />}>0 CVEs</Label>
-            )}
+            <Content component="p" style={{ 
+              fontSize: 'var(--pf-t--global--font--size--body--sm)',
+              color: 'var(--pf-t--global--text--color--subtle)',
+              margin: 0
+            }}>
+              Last updated: {formatShortDate(image.lastUpdated)}
+            </Content>
           </FlexItem>
         </Flex>
-        <Content component="p" style={{ 
-          fontSize: 'var(--pf-t--global--font--size--body--sm)',
-          color: 'var(--pf-t--global--text--color--subtle)',
-          margin: 0
-        }}>
-          Last updated: {formatShortDate(image.lastUpdated)}
-        </Content>
       </CardBody>
       <CardFooter>
         <Flex justifyContent={{ default: 'justifyContentFlexEnd' }}>
