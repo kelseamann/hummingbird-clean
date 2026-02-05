@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   ActionList,
@@ -26,6 +26,7 @@ import {
 import { useTheme } from '@app/utils/ThemeContext';
 import { useCardStyle } from '@app/utils/CardStyleContext';
 import CubeIcon from '@patternfly/react-icons/dist/esm/icons/cube-icon';
+import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
 import MoonIcon from '@patternfly/react-icons/dist/esm/icons/moon-icon';
 import SunIcon from '@patternfly/react-icons/dist/esm/icons/sun-icon';
@@ -43,6 +44,24 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const { isDarkTheme, toggleTheme } = useTheme();
   const { cardStyle, setCardStyle } = useCardStyle();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showFab, setShowFab] = useState(false);
+
+  // Track scroll position to show/hide FAB
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollThreshold = 200; // Show FAB after scrolling 200px
+      const mainContent = document.querySelector('.pf-v6-c-compass__main');
+      if (mainContent) {
+        setShowFab(mainContent.scrollTop > scrollThreshold);
+      }
+    };
+
+    const mainContent = document.querySelector('.pf-v6-c-compass__main');
+    if (mainContent) {
+      mainContent.addEventListener('scroll', handleScroll);
+      return () => mainContent.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
 
   // Determine active tabs based on current route
   const getActiveTabIndex = React.useCallback(() => {
@@ -199,14 +218,41 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   );
 
   return (
-    <Compass
-      header={headerContent}
-      sidebarStart={sidebarContent}
-      main={children}
-      sidebarEnd={sidebarContent}
-      backgroundSrcDark={pfBackground}
-      backgroundSrcLight={pfBackground}
-    />
+    <>
+      <Compass
+        header={headerContent}
+        sidebarStart={sidebarContent}
+        main={children}
+        sidebarEnd={sidebarContent}
+        backgroundSrcDark={pfBackground}
+        backgroundSrcLight={pfBackground}
+      />
+      {/* Floating Action Button - appears when scrolling */}
+      {showFab && (
+        <Tooltip content="Request an image" position="left">
+          <Button
+            variant="primary"
+            aria-label="Request an image"
+            icon={<PlusIcon />}
+            style={{
+              position: 'fixed',
+              bottom: '32px',
+              right: '32px',
+              width: '56px',
+              height: '56px',
+              borderRadius: '50%',
+              boxShadow: 'var(--pf-t--global--box-shadow--lg)',
+              zIndex: 1000,
+              transition: 'opacity 0.2s ease-in-out, transform 0.2s ease-in-out',
+            }}
+            onClick={() => {
+              // Handle request an image action
+              console.log('Request an image clicked');
+            }}
+          />
+        </Tooltip>
+      )}
+    </>
   );
 };
 
