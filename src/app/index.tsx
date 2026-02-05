@@ -5,6 +5,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { AppLayout } from '@app/AppLayout/AppLayout';
 import { AppRoutes } from '@app/routes';
 import { ThemeProvider } from '@app/utils/ThemeContext';
+import { CardStyleProvider } from '@app/utils/CardStyleContext';
 import '@app/app.css';
 
 // Get basename for GitHub Pages compatibility
@@ -46,11 +47,13 @@ const App: React.FunctionComponent = () => {
 
   return (
     <ThemeProvider>
-      <Router basename={basename}>
-        <AppLayout>
-          <AppRoutes />
-        </AppLayout>
-      </Router>
+      <CardStyleProvider>
+        <Router basename={basename}>
+          <AppLayout>
+            <AppRoutes />
+          </AppLayout>
+        </Router>
+      </CardStyleProvider>
     </ThemeProvider>
   );
 };

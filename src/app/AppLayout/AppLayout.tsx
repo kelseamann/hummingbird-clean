@@ -24,6 +24,7 @@ import {
   Tooltip,
 } from '@patternfly/react-core';
 import { useTheme } from '@app/utils/ThemeContext';
+import { useCardStyle } from '@app/utils/CardStyleContext';
 import CubeIcon from '@patternfly/react-icons/dist/esm/icons/cube-icon';
 import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
 import MoonIcon from '@patternfly/react-icons/dist/esm/icons/moon-icon';
@@ -40,6 +41,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isDarkTheme, toggleTheme } = useTheme();
+  const { cardStyle, setCardStyle } = useCardStyle();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Determine active tabs based on current route
@@ -121,8 +123,42 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       <ActionList isIconList isVertical>
         <ActionListGroup>
           <ActionListItem>
-            <Tooltip content="Components">
-              <Button isCircle variant="plain" icon={<CubeIcon />} aria-label="Components" />
+            <Tooltip content="Card Style A">
+              <Button
+                isCircle
+                variant={cardStyle === 'A' ? 'primary' : 'plain'}
+                aria-label="Card Style A"
+                onClick={() => setCardStyle('A')}
+                style={{ fontWeight: 'bold', fontSize: '14px' }}
+              >
+                A
+              </Button>
+            </Tooltip>
+          </ActionListItem>
+          <ActionListItem>
+            <Tooltip content="Card Style B">
+              <Button
+                isCircle
+                variant={cardStyle === 'B' ? 'primary' : 'plain'}
+                aria-label="Card Style B"
+                onClick={() => setCardStyle('B')}
+                style={{ fontWeight: 'bold', fontSize: '14px' }}
+              >
+                B
+              </Button>
+            </Tooltip>
+          </ActionListItem>
+          <ActionListItem>
+            <Tooltip content="Card Style C">
+              <Button
+                isCircle
+                variant={cardStyle === 'C' ? 'primary' : 'plain'}
+                aria-label="Card Style C"
+                onClick={() => setCardStyle('C')}
+                style={{ fontWeight: 'bold', fontSize: '14px' }}
+              >
+                C
+              </Button>
             </Tooltip>
           </ActionListItem>
         </ActionListGroup>

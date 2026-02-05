@@ -64,8 +64,10 @@ import {
   QuestionCircleIcon,
   SecurityIcon,
   SyncAltIcon,
+  EllipsisVIcon,
 } from '@patternfly/react-icons';
 import { Table, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
+import { useCardStyle } from '@app/utils/CardStyleContext';
 
 // Container image data
 interface ContainerImage {
@@ -681,6 +683,371 @@ const ContainerImageCard: React.FC<{
   );
 };
 
+// Option 1: Header-Heavy Stack Card
+const HeaderHeavyCard: React.FC<{
+  image: ContainerImage;
+  onClick?: () => void;
+  commandType: 'podman' | 'docker';
+  displayName?: string;
+  pullCommand?: string;
+  onCopy?: (imageName: string, commandType: 'podman' | 'docker', variants: string[]) => void;
+}> = ({ image, onClick, commandType, displayName, pullCommand, onCopy }) => {
+  const cardId = `header-heavy-${image.name.toLowerCase().replace(/\s+/g, '-')}`;
+  
+  const getVariantsFromCommand = (cmd: string): string[] => {
+    const variants: string[] = [];
+    if (cmd.includes('-fips')) variants.push('FIPS');
+    if (cmd.includes('-builder')) variants.push('Builder');
+    if (cmd.includes('-go-tools')) variants.push('Go Tools');
+    return variants;
+  };
+
+  const getPullCommand = () => {
+    if (pullCommand) return pullCommand;
+    const baseRegistry = `registry.redhat.io/hummingbird/${image.name.toLowerCase()}:latest`;
+    return `${commandType} pull ${baseRegistry}`;
+  };
+  
+  const cardTitle = displayName || image.name;
+  
+  return (
+    <Card 
+      isCompact
+      isClickable
+      id={cardId}
+      style={{
+        backgroundColor: 'var(--pf-t--global--background--color--primary--default)',
+        boxShadow: 'var(--pf-t--global--box-shadow--md)',
+        borderRadius: '16px',
+      }}
+    >
+      <CardHeader
+        selectableActions={{
+          onClickAction: onClick,
+          selectableActionId: `${cardId}-action`,
+          selectableActionAriaLabelledby: cardId,
+          name: 'header-heavy-cards',
+        }}
+      >
+        {/* Header row: Logo | Title + CVE | Tag pill + More tags icon */}
+        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapMd' }} style={{ width: '100%' }}>
+          {/* Product Logo */}
+          <FlexItem>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
+              backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1px solid var(--pf-t--global--border--color--default)',
+            }}>
+              <CubeIcon style={{ color: 'var(--pf-t--global--icon--color--status--danger--default)', fontSize: '1.5rem' }} />
+            </div>
+          </FlexItem>
+          
+          {/* Title + CVE Badge */}
+          <FlexItem flex={{ default: 'flex_1' }}>
+            <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+              <FlexItem>
+                <Content component="h3" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--lg)', fontWeight: 600 }}>
+                  {cardTitle}
+                </Content>
+              </FlexItem>
+              <FlexItem>
+                {image.cveCount === 0 && (
+                  <Label color="green" icon={<InfoCircleIcon />} isCompact>0 CVEs</Label>
+                )}
+              </FlexItem>
+            </Flex>
+          </FlexItem>
+          
+          {/* Latest Tag pill + More tags icon */}
+          <FlexItem>
+            <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+              <FlexItem>
+                <span style={{
+                  backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+                  color: 'var(--pf-t--global--text--color--subtle)',
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  fontSize: 'var(--pf-t--global--font--size--body--sm)',
+                }}>
+                  {image.latestTag}
+                </span>
+              </FlexItem>
+              <FlexItem>
+                <Tooltip content="More tags">
+                  <Button 
+                    variant="plain" 
+                    aria-label="More tags" 
+                    style={{ padding: '4px' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onClick) onClick();
+                    }}
+                  >
+                    <EllipsisVIcon style={{ fontSize: '1rem' }} />
+                  </Button>
+                </Tooltip>
+              </FlexItem>
+            </Flex>
+          </FlexItem>
+        </Flex>
+      </CardHeader>
+      
+      <CardBody>
+        {/* Description */}
+        <Content component="p" style={{ 
+          fontSize: 'var(--pf-t--global--font--size--body--default)',
+          color: 'var(--pf-t--global--text--color--subtle)',
+          marginBottom: 'var(--pf-t--global--spacer--md)',
+          lineHeight: '1.5',
+        }}>
+          {image.description}
+        </Content>
+        
+        {/* Full-width Pull Command */}
+        <Flex style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
+          <FlexItem flex={{ default: 'flex_1' }}>
+            <div
+              style={{ 
+                backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+                fontSize: 'var(--pf-t--global--font--size--body--sm)',
+                padding: '6px 12px',
+                borderRadius: '3px 0 0 3px',
+                border: '1px solid var(--pf-t--global--border--color--default)',
+                borderRight: 'none',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                height: '36px',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              {renderPullCommandWithHighlights(getPullCommand())}
+            </div>
+          </FlexItem>
+          <FlexItem>
+            <Button 
+              variant="control" 
+              aria-label="Copy to clipboard"
+              onClick={(e) => {
+                e.stopPropagation();
+                const cmd = getPullCommand();
+                navigator.clipboard.writeText(cmd);
+                if (onCopy) {
+                  onCopy(image.name, commandType, getVariantsFromCommand(cmd));
+                }
+              }}
+              style={{ 
+                backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+                borderRadius: '0 3px 3px 0',
+                height: '36px',
+              }}
+            >
+              <CopyIcon />
+            </Button>
+          </FlexItem>
+        </Flex>
+        
+        {/* Last Updated */}
+        <Content component="p" style={{ 
+          fontSize: 'var(--pf-t--global--font--size--body--sm)',
+          color: 'var(--pf-t--global--text--color--subtle)',
+          margin: 0
+        }}>
+          Last updated: {formatShortDate(image.lastUpdated)}
+        </Content>
+      </CardBody>
+    </Card>
+  );
+};
+
+// Option 2: Minimal Card (like original but with only favorite icon)
+const SplitVerticalCard: React.FC<{
+  image: ContainerImage;
+  onClick?: () => void;
+  commandType: 'podman' | 'docker';
+  displayName?: string;
+  pullCommand?: string;
+  isStarFilled?: boolean;
+  onCopy?: (imageName: string, commandType: 'podman' | 'docker', variants: string[]) => void;
+}> = ({ image, onClick, commandType, displayName, pullCommand, isStarFilled = false, onCopy }) => {
+  const cardId = `minimal-${image.name.toLowerCase().replace(/\s+/g, '-')}`;
+  
+  const getVariantsFromCommand = (cmd: string): string[] => {
+    const variants: string[] = [];
+    if (cmd.includes('-fips')) variants.push('FIPS');
+    if (cmd.includes('-builder')) variants.push('Builder');
+    if (cmd.includes('-go-tools')) variants.push('Go Tools');
+    return variants;
+  };
+
+  const getPullCommand = () => {
+    if (pullCommand) return pullCommand;
+    const baseRegistry = `registry.redhat.io/hummingbird/${image.name.toLowerCase()}:latest`;
+    return `${commandType} pull ${baseRegistry}`;
+  };
+  
+  const cardTitle = displayName || image.name;
+  
+  return (
+    <Card 
+      isCompact
+      isClickable
+      id={cardId}
+      style={{
+        backgroundColor: 'var(--pf-t--global--background--color--primary--default)',
+        boxShadow: 'var(--pf-t--global--box-shadow--md)',
+        borderRadius: '16px',
+      }}
+    >
+      <CardHeader
+        selectableActions={{
+          onClickAction: onClick,
+          selectableActionId: `${cardId}-action`,
+          selectableActionAriaLabelledby: cardId,
+          name: 'minimal-cards',
+        }}
+        actions={{
+          actions: (
+            <div style={{ position: 'relative', zIndex: 10 }}>
+              <Tooltip content="Favorites">
+                <Button 
+                  variant="plain" 
+                  aria-label="Favorite" 
+                  style={{ padding: '4px' }}
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseEnter={(e) => e.stopPropagation()}
+                >
+                  {isStarFilled ? (
+                    <StarIcon style={{ color: 'var(--pf-t--global--color--nonstatus--orange--default)', fontSize: '1.25rem' }} />
+                  ) : (
+                    <OutlinedStarIcon style={{ fontSize: '1.25rem' }} />
+                  )}
+                </Button>
+              </Tooltip>
+            </div>
+          ),
+          hasNoOffset: true,
+        }}
+      >
+        {/* Circular icon container */}
+        <div style={{
+          width: '56px',
+          height: '56px',
+          borderRadius: '50%',
+          backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '1px solid var(--pf-t--global--border--color--default)',
+        }}>
+          <CubeIcon style={{ color: 'var(--pf-t--global--icon--color--status--danger--default)', fontSize: '1.75rem' }} />
+        </div>
+      </CardHeader>
+      <CardTitle>
+        <Content component="h3" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--lg)' }}>{cardTitle}</Content>
+      </CardTitle>
+      <CardBody>
+        <Content component="p" style={{ 
+          fontSize: 'var(--pf-t--global--font--size--body--default)',
+          color: 'var(--pf-t--global--text--color--subtle)',
+          marginBottom: 'var(--pf-t--global--spacer--md)',
+          lineHeight: '1.5',
+        }}>
+          {image.description}
+        </Content>
+        <Flex style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+          <FlexItem flex={{ default: 'flex_1' }}>
+            <div
+              style={{ 
+                backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+                fontSize: 'var(--pf-t--global--font--size--body--sm)',
+                padding: '6px 12px',
+                borderRadius: '3px 0 0 3px',
+                border: '1px solid var(--pf-t--global--border--color--default)',
+                borderRight: 'none',
+                whiteSpace: 'nowrap',
+                height: '36px',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              {renderPullCommandWithHighlights(getPullCommand())}
+            </div>
+          </FlexItem>
+          <FlexItem>
+            <Button 
+              variant="control" 
+              aria-label="Copy to clipboard"
+              onClick={(e) => {
+                e.stopPropagation();
+                const cmd = getPullCommand();
+                navigator.clipboard.writeText(cmd);
+                if (onCopy) {
+                  onCopy(image.name, commandType, getVariantsFromCommand(cmd));
+                }
+              }}
+              style={{ 
+                backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+                borderRadius: '0 3px 3px 0',
+                height: '36px',
+              }}
+            >
+              <CopyIcon />
+            </Button>
+          </FlexItem>
+        </Flex>
+        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }} style={{ marginBottom: 'var(--pf-t--global--spacer--xs)' }}>
+          <FlexItem>
+            <Content component="p" style={{ 
+              fontSize: 'var(--pf-t--global--font--size--body--sm)',
+              color: 'var(--pf-t--global--text--color--default)',
+              margin: 0
+            }}>
+              Latest tag: {image.latestTag}
+            </Content>
+          </FlexItem>
+          <FlexItem>
+            {image.cveCount === 0 && (
+              <Label color="green" icon={<InfoCircleIcon />}>0 CVEs</Label>
+            )}
+          </FlexItem>
+        </Flex>
+        <Content component="p" style={{ 
+          fontSize: 'var(--pf-t--global--font--size--body--sm)',
+          color: 'var(--pf-t--global--text--color--subtle)',
+          margin: 0
+        }}>
+          Last updated: {formatShortDate(image.lastUpdated)}
+        </Content>
+      </CardBody>
+      <CardFooter>
+        <Flex justifyContent={{ default: 'justifyContentFlexEnd' }}>
+          <FlexItem>
+            <Button 
+              variant="link" 
+              isInline 
+              icon={<ArrowRightIcon />} 
+              iconPosition="end"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onClick) onClick();
+              }}
+            >
+              More tags
+            </Button>
+          </FlexItem>
+        </Flex>
+      </CardFooter>
+    </Card>
+  );
+};
+
 interface DashboardProps {
   previewMode?: boolean;
 }
@@ -725,6 +1092,7 @@ const Dashboard: React.FunctionComponent<DashboardProps> = ({ previewMode = fals
   const [addGoToolsTag, setAddGoToolsTag] = React.useState(false);
   const [isOrderByOpen, setIsOrderByOpen] = React.useState(false);
   const [isRestrictTagsOpen, setIsRestrictTagsOpen] = React.useState(false);
+  const { cardStyle } = useCardStyle();
   const [showFavoritesFirst, setShowFavoritesFirst] = React.useState(false);
   
   // Toast notification state
@@ -780,6 +1148,44 @@ const Dashboard: React.FunctionComponent<DashboardProps> = ({ previewMode = fals
 
   // Combine all images for filtering/sorting
   const allImages = [...languageRuntimes, ...databases, ...devTools];
+
+  // Render card based on selected style
+  const renderStyledCard = (image: ContainerImage, displayName: string, pullCmd: string, key: string) => {
+    const commonProps = {
+      image,
+      onClick: () => handleCardClick(image),
+      commandType,
+      displayName,
+      pullCommand: pullCmd,
+      onCopy: handleCopyCommand,
+    };
+
+    switch (cardStyle) {
+      case 'B':
+        return (
+          <div key={key}>
+            <HeaderHeavyCard {...commonProps} />
+          </div>
+        );
+      case 'C':
+        return (
+          <div key={key}>
+            <SplitVerticalCard {...commonProps} isStarFilled={isStarFilled(image)} />
+          </div>
+        );
+      case 'A':
+      default:
+        return (
+          <div key={key}>
+            <ContainerImageCard 
+              {...commonProps}
+              onClickSide={() => handleCardClickSide(image)}
+              isStarFilled={isStarFilled(image)}
+            />
+          </div>
+        );
+    }
+  };
   
   // Filter images based on search and restrict tags
   const getFilteredImages = (images: ContainerImage[]) => {
@@ -2016,24 +2422,10 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
           </FlexItem>
         </Flex>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
-          {/* Featured popular images - using first 3 from images with FIPS variant */}
+          {/* Featured popular images - card style changes with sidebar selection */}
           {allImages.filter(img => img.availableVariants?.includes('fips')).slice(0, 3).map((image, index) => {
-            const fipsSuffix = '-fips';
-            const fipsPullCommand = `${commandType} pull registry.redhat.io/hummingbird/${image.name.toLowerCase()}${fipsSuffix}:latest`;
-            return (
-              <div key={`popular-${index}`}>
-                <ContainerImageCard 
-                  image={image} 
-                  onClick={() => handleCardClick(image)} 
-                  onClickSide={() => handleCardClickSide(image)}
-                  commandType={commandType}
-                  displayName={`${image.name}- FIPS`}
-                  pullCommand={fipsPullCommand}
-                  isStarFilled={isStarFilled(image)}
-                  onCopy={handleCopyCommand}
-                />
-              </div>
-            );
+            const pullCmd = `${commandType} pull registry.redhat.io/hummingbird/${image.name.toLowerCase()}-fips:latest`;
+            return renderStyledCard(image, 'ExampleCard', pullCmd, `popular-${index}`);
           })}
         </div>
       </div>
@@ -2254,20 +2646,14 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
                 {getFilteredImages(allImages)
                   .filter(img => img.isFavorite)
                   .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
-                  .map((image, index) => (
-                    <div key={index}>
-                      <ContainerImageCard 
-                        image={image} 
-                        onClick={() => handleCardClick(image)} 
-                        onClickSide={() => handleCardClickSide(image)}
-                        commandType={commandType}
-                        displayName={getCardDisplayName(image.name)}
-                        pullCommand={getCardPullCommand(image.name, commandType)}
-                        isStarFilled={isStarFilled(image)}
-                        onCopy={handleCopyCommand}
-                      />
-                    </div>
-                  ))}
+                  .map((image, index) => 
+                    renderStyledCard(
+                      image,
+                      getCardDisplayName(image.name),
+                      getCardPullCommand(image.name, commandType),
+                      `fav-${index}`
+                    )
+                  )}
               </div>
             </>
           )}
@@ -2282,20 +2668,14 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
                 {getFilteredImages(allImages)
                   .filter(img => !img.isFavorite)
                   .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
-                  .map((image, index) => (
-                    <div key={index}>
-                      <ContainerImageCard 
-                        image={image} 
-                        onClick={() => handleCardClick(image)} 
-                        onClickSide={() => handleCardClickSide(image)}
-                        commandType={commandType}
-                        displayName={getCardDisplayName(image.name)}
-                        pullCommand={getCardPullCommand(image.name, commandType)}
-                        isStarFilled={isStarFilled(image)}
-                        onCopy={handleCopyCommand}
-                      />
-                    </div>
-                  ))}
+                  .map((image, index) => 
+                    renderStyledCard(
+                      image,
+                      getCardDisplayName(image.name),
+                      getCardPullCommand(image.name, commandType),
+                      `nonfav-${index}`
+                    )
+                  )}
               </div>
             </>
           )}
@@ -2316,19 +2696,11 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
                   if (addGoToolsTag) fipsSuffix += '-go-tools';
                   const fipsPullCommand = `${commandType} pull registry.redhat.io/hummingbird/${image.name.toLowerCase()}${fipsSuffix}:latest`;
                   
-                  return (
-                    <div key={index}>
-                      <ContainerImageCard 
-                        image={image} 
-                        onClick={() => handleCardClick(image)} 
-                        onClickSide={() => handleCardClickSide(image)}
-                        commandType={commandType}
-                        displayName={`${image.name}- FIPS`}
-                        pullCommand={fipsPullCommand}
-                        isStarFilled={false}
-                        onCopy={handleCopyCommand}
-                      />
-                    </div>
+                  return renderStyledCard(
+                    image,
+                    `${image.name}- FIPS`,
+                    fipsPullCommand,
+                    `hardened-${index}`
                   );
                 })}
               </div>
@@ -2342,21 +2714,15 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
                 Languages/Runtimes
               </Content>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
-                {getFilteredImages(languageRuntimes).map((image, index) => (
-                  <div key={index}>
-                    <ContainerImageCard 
-                      image={image} 
-                      onClick={() => handleCardClick(image)} 
-                      onClickSide={() => handleCardClickSide(image)}
-                      commandType={commandType}
-                      displayName={getCardDisplayName(image.name)}
-                      pullCommand={getCardPullCommand(image.name, commandType)}
-                      isStarFilled={isStarFilled(image)}
-                      onCopy={handleCopyCommand}
-                    />
-                  </div>
-                ))}
-                  </div>
+                {getFilteredImages(languageRuntimes).map((image, index) => 
+                  renderStyledCard(
+                    image,
+                    getCardDisplayName(image.name),
+                    getCardPullCommand(image.name, commandType),
+                    `lang-${index}`
+                  )
+                )}
+              </div>
             </>
           )}
 
@@ -2367,21 +2733,15 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
                 Databases
               </Content>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
-                {getFilteredImages(databases).map((image, index) => (
-                  <div key={index}>
-                    <ContainerImageCard 
-                      image={image} 
-                      onClick={() => handleCardClick(image)} 
-                      onClickSide={() => handleCardClickSide(image)}
-                      commandType={commandType}
-                      displayName={getCardDisplayName(image.name)}
-                      pullCommand={getCardPullCommand(image.name, commandType)}
-                      isStarFilled={isStarFilled(image)}
-                      onCopy={handleCopyCommand}
-                    />
-                  </div>
-                    ))}
-                  </div>
+                {getFilteredImages(databases).map((image, index) => 
+                  renderStyledCard(
+                    image,
+                    getCardDisplayName(image.name),
+                    getCardPullCommand(image.name, commandType),
+                    `db-${index}`
+                  )
+                )}
+              </div>
             </>
           )}
 
@@ -2392,20 +2752,14 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
                 Dev Tools
               </Content>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
-                {getFilteredImages(devTools).map((image, index) => (
-                  <div key={index}>
-                    <ContainerImageCard 
-                      image={image} 
-                      onClick={() => handleCardClick(image)} 
-                      onClickSide={() => handleCardClickSide(image)}
-                      commandType={commandType}
-                      displayName={getCardDisplayName(image.name)}
-                      pullCommand={getCardPullCommand(image.name, commandType)}
-                      isStarFilled={isStarFilled(image)}
-                      onCopy={handleCopyCommand}
-                    />
-                </div>
-                ))}
+                {getFilteredImages(devTools).map((image, index) => 
+                  renderStyledCard(
+                    image,
+                    getCardDisplayName(image.name),
+                    getCardPullCommand(image.name, commandType),
+                    `devtools-${index}`
+                  )
+                )}
               </div>
             </>
           )}
@@ -2413,20 +2767,14 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
       ) : (
         /* Alphabetical View - all cards in one grid, sorted alphabetically */
         <div style={{ marginTop: '24px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
-          {getAllFilteredImagesSorted().map((image, index) => (
-            <div key={index}>
-              <ContainerImageCard 
-                image={image} 
-                onClick={() => handleCardClick(image)} 
-                onClickSide={() => handleCardClickSide(image)}
-                commandType={commandType}
-                displayName={getCardDisplayName(image.name)}
-                pullCommand={getCardPullCommand(image.name, commandType)}
-                isStarFilled={isStarFilled(image)}
-                onCopy={handleCopyCommand}
-              />
-            </div>
-          ))}
+          {getAllFilteredImagesSorted().map((image, index) => 
+            renderStyledCard(
+              image,
+              getCardDisplayName(image.name),
+              getCardPullCommand(image.name, commandType),
+              `alpha-${index}`
+            )
+          )}
         </div>
       )}
     </CompassContent>
