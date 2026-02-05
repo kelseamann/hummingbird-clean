@@ -763,7 +763,7 @@ const HeaderHeavyCard: React.FC<{
                 )}
               </FlexItem>
               <FlexItem>
-                <Label color="grey" icon={<TagIcon />} isCompact>Latest</Label>
+                <Label color="grey" icon={<TagIcon />} isCompact>Latest: {image.latestTag}</Label>
               </FlexItem>
             </Flex>
           </FlexItem>
