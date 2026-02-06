@@ -532,6 +532,14 @@ const ContainerImageCard: React.FC<{
     const baseRegistry = `registry.access.redhat.com/hummingbird/${image.name.toLowerCase()}:latest`;
     return `${commandType} pull ${baseRegistry}`;
   };
+
+  // Render styled pull command with bold uppercase command type
+  const renderStyledPullCommand = () => {
+    const cmd = getPullCommand();
+    const cmdType = commandType.toUpperCase();
+    const restOfCommand = cmd.substring(commandType.length);
+    return <><strong>{cmdType}</strong>{restOfCommand}</>;
+  };
   
   // Use displayName if provided, otherwise use image.name
   const cardTitle = displayName || image.name;
@@ -665,7 +673,7 @@ const ContainerImageCard: React.FC<{
               </CodeBlockAction>
             }
           >
-            <CodeBlockCode>{getPullCommand()}</CodeBlockCode>
+            <CodeBlockCode>{renderStyledPullCommand()}</CodeBlockCode>
           </CodeBlock>
           <TypeLabel level="CMD-TEXT" />
         </div>
@@ -733,6 +741,14 @@ const HeaderHeavyCard: React.FC<{
     const baseRegistry = `registry.access.redhat.com/hummingbird/${image.name.toLowerCase()}:latest`;
     return `${commandType} pull ${baseRegistry}`;
   };
+
+  // Render styled pull command with bold uppercase command type
+  const renderStyledPullCommand = () => {
+    const cmd = getPullCommand();
+    const cmdType = commandType.toUpperCase();
+    const restOfCommand = cmd.substring(commandType.length);
+    return <><strong>{cmdType}</strong>{restOfCommand}</>;
+  };
   
   const cardTitle = displayName || image.name;
   
@@ -784,11 +800,6 @@ const HeaderHeavyCard: React.FC<{
                 <Content component="h3" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--lg)', fontFamily: 'var(--pf-t--global--font--family--heading)', fontWeight: 'var(--pf-t--global--font--weight--heading--bold)' }}>
                   {cardTitle}<TypeLabel level="CARD-DISPLAY-BOLD" />
                 </Content>
-              </FlexItem>
-              <FlexItem>
-                {image.cveCount === 0 && (
-                  <Label color="green" icon={<InfoCircleIcon />} isCompact>0 CVEs</Label>
-                )}
               </FlexItem>
               <FlexItem>
                 <Label color="grey" icon={<TagIcon />} isCompact>{image.latestTag}</Label>
@@ -855,7 +866,7 @@ const HeaderHeavyCard: React.FC<{
               </CodeBlockAction>
             }
           >
-            <CodeBlockCode>{getPullCommand()}</CodeBlockCode>
+            <CodeBlockCode>{renderStyledPullCommand()}</CodeBlockCode>
           </CodeBlock>
           <TypeLabel level="CMD-TEXT" />
         </div>
@@ -898,6 +909,14 @@ const SplitVerticalCard: React.FC<{
     if (pullCommand) return pullCommand;
     const baseRegistry = `registry.access.redhat.com/hummingbird/${image.name.toLowerCase()}:latest`;
     return `${commandType} pull ${baseRegistry}`;
+  };
+
+  // Render styled pull command with bold uppercase command type
+  const renderStyledPullCommand = () => {
+    const cmd = getPullCommand();
+    const cmdType = commandType.toUpperCase();
+    const restOfCommand = cmd.substring(commandType.length);
+    return <><strong>{cmdType}</strong>{restOfCommand}</>;
   };
   
   const cardTitle = displayName || image.name;
@@ -1007,7 +1026,7 @@ const SplitVerticalCard: React.FC<{
               </CodeBlockAction>
             }
           >
-            <CodeBlockCode>{getPullCommand()}</CodeBlockCode>
+            <CodeBlockCode>{renderStyledPullCommand()}</CodeBlockCode>
           </CodeBlock>
           <TypeLabel level="CMD-TEXT" />
         </div>
@@ -1270,13 +1289,13 @@ const Dashboard: React.FunctionComponent<DashboardProps> = ({ previewMode = fals
   // Generate pull command based on image, tag, and selected variants (full version for copying)
   const getFullPullCommand = (imageName: string, tag: string): string => {
     const suffix = getVariantSuffix();
-    return `podman pull registry.access.redhat.com/hummingbird/${imageName.toLowerCase()}:${tag}${suffix}`;
+    return `${commandType} pull registry.access.redhat.com/hummingbird/${imageName.toLowerCase()}:${tag}${suffix}`;
   };
 
-  // Generate truncated pull command for display
+  // Generate pull command for display (no truncation)
   const getDisplayPullCommand = (imageName: string, tag: string): string => {
     const suffix = getVariantSuffix();
-    return `.../hummingbird/${imageName.toLowerCase()}:${tag}${suffix}`;
+    return `${commandType} pull registry.access.redhat.com/hummingbird/${imageName.toLowerCase()}:${tag}${suffix}`;
   };
 
   // Filter variants based on selected variant types - only show versions that have ALL selected variants available
@@ -1597,7 +1616,23 @@ const Dashboard: React.FunctionComponent<DashboardProps> = ({ previewMode = fals
                   <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Available Tags<TypeLabel level="H2" /></Content>
                   <CompassPanel>
                     <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
-                      <Flex justifyContent={{ default: 'justifyContentFlexEnd' }} alignItems={{ default: 'alignItemsFlexEnd' }} style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+                      <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} alignItems={{ default: 'alignItemsFlexEnd' }} style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+                        <FlexItem>
+                          <ToggleGroup aria-label="Command type toggle">
+                            <ToggleGroupItem
+                              text="Podman"
+                              buttonId="drawer-podman-toggle"
+                              isSelected={commandType === 'podman'}
+                              onChange={() => setCommandType('podman')}
+                            />
+                            <ToggleGroupItem
+                              text="Docker"
+                              buttonId="drawer-docker-toggle"
+                              isSelected={commandType === 'docker'}
+                              onChange={() => setCommandType('docker')}
+                            />
+                          </ToggleGroup>
+                        </FlexItem>
                         <FlexItem>
                           <Flex gap={{ default: 'gapMd' }} alignItems={{ default: 'alignItemsFlexEnd' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
