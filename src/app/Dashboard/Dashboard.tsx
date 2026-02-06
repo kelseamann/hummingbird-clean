@@ -1449,6 +1449,114 @@ const Dashboard: React.FunctionComponent<DashboardProps> = ({ previewMode = fals
                         </div>
                       </CompassPanel>
                     </FlexItem>
+                    <FlexItem flex={{ default: 'flex_2' }}>
+                      <CompassPanel style={{ height: '100%' }}>
+                        <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                          <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>Quick Pull<TypeLabel level="H3" /></Content>
+                          <CodeBlock 
+                            actions={
+                              <CodeBlockAction>
+                                <Tooltip content="Copy to clipboard">
+                                  <Button 
+                                    variant="plain" 
+                                    aria-label="Copy to clipboard" 
+                                    onClick={() => {
+                                      let cmd = `${commandType} pull registry.access.redhat.com/hummingbird/${selectedImage.name.toLowerCase()}`;
+                                      if (selectedVariants.has('fips')) cmd += '-fips';
+                                      if (selectedVariants.has('builder')) cmd += '-builder';
+                                      if (selectedVariants.has('go-tools')) cmd += '-go-tools';
+                                      cmd += ':latest';
+                                      navigator.clipboard.writeText(cmd);
+                                    }}
+                                  >
+                                    <CopyIcon />
+                                  </Button>
+                                </Tooltip>
+                              </CodeBlockAction>
+                            }
+                          >
+                            <CodeBlockCode>
+                              {(() => {
+                                let cmd = `${commandType} pull registry.access.redhat.com/hummingbird/${selectedImage.name.toLowerCase()}`;
+                                if (selectedVariants.has('fips')) cmd += '-fips';
+                                if (selectedVariants.has('builder')) cmd += '-builder';
+                                if (selectedVariants.has('go-tools')) cmd += '-go-tools';
+                                cmd += ':latest';
+                                return cmd;
+                              })()}
+                            </CodeBlockCode>
+                          </CodeBlock>
+                          <Flex gap={{ default: 'gapSm' }} alignItems={{ default: 'alignItemsCenter' }} style={{ marginTop: 'var(--pf-t--global--spacer--md)' }}>
+                            <FlexItem>
+                              <Button 
+                                variant={selectedVariants.has('fips') ? 'primary' : 'secondary'}
+                                size="sm"
+                                onClick={() => {
+                                  const newVariants = new Set(selectedVariants);
+                                  if (newVariants.has('fips')) {
+                                    newVariants.delete('fips');
+                                  } else {
+                                    newVariants.add('fips');
+                                  }
+                                  setSelectedVariants(newVariants);
+                                }}
+                                style={{ borderRadius: '20px' }}
+                              >
+                                FIPS
+                              </Button>
+                            </FlexItem>
+                            <FlexItem>
+                              <Button 
+                                variant={selectedVariants.has('builder') ? 'primary' : 'secondary'}
+                                size="sm"
+                                onClick={() => {
+                                  const newVariants = new Set(selectedVariants);
+                                  if (newVariants.has('builder')) {
+                                    newVariants.delete('builder');
+                                  } else {
+                                    newVariants.add('builder');
+                                  }
+                                  setSelectedVariants(newVariants);
+                                }}
+                                style={{ borderRadius: '20px' }}
+                              >
+                                Builder
+                              </Button>
+                            </FlexItem>
+                            <FlexItem>
+                              <Button 
+                                variant={selectedVariants.has('go-tools') ? 'primary' : 'secondary'}
+                                size="sm"
+                                onClick={() => {
+                                  const newVariants = new Set(selectedVariants);
+                                  if (newVariants.has('go-tools')) {
+                                    newVariants.delete('go-tools');
+                                  } else {
+                                    newVariants.add('go-tools');
+                                  }
+                                  setSelectedVariants(newVariants);
+                                }}
+                                style={{ borderRadius: '20px' }}
+                              >
+                                Go Tools
+                              </Button>
+                            </FlexItem>
+                            <FlexItem style={{ marginLeft: 'auto' }}>
+                              <Button 
+                                variant="link" 
+                                isInline 
+                                onClick={() => {
+                                  const el = document.getElementById('available-tags');
+                                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                                }}
+                              >
+                                See additional tags<TypeLabel level="LINK" />
+                              </Button>
+                            </FlexItem>
+                          </Flex>
+                        </div>
+                      </CompassPanel>
+                    </FlexItem>
                   </Flex>
 
                   {/* Start using this image */}
