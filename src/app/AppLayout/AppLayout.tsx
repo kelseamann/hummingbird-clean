@@ -31,6 +31,7 @@ import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
 import MoonIcon from '@patternfly/react-icons/dist/esm/icons/moon-icon';
 import SunIcon from '@patternfly/react-icons/dist/esm/icons/sun-icon';
 import FontIcon from '@patternfly/react-icons/dist/esm/icons/font-icon';
+import HomeIcon from '@patternfly/react-icons/dist/esm/icons/home-icon';
 import pfBackground from '../bgimages/pf-background.svg';
 import avatarSvg from '../bgimages/avatar.svg';
 import imageLogo from '../../hummingbird_full_color_logomark.png';
@@ -100,7 +101,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         aria-label="Main navigation"
         inset={{ default: 'insetXl' }}
       >
-        <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>} />
+        <Tab eventKey={0} title={<HomeIcon />} aria-label="Overview" />
         <Tab eventKey={1} title={<TabTitleText>Security Feed</TabTitleText>} />
         <Tab eventKey={2} title={<TabTitleText>About Hummingbird</TabTitleText>} />
       </Tabs>

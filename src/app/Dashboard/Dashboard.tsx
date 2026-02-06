@@ -20,6 +20,8 @@ import {
   FlexItem,
   Grid,
   GridItem,
+  JumpLinks,
+  JumpLinksItem,
   Label,
   MenuToggle,
   MenuToggleElement,
@@ -64,6 +66,7 @@ import {
   SyncAltIcon,
   EllipsisVIcon,
   TagIcon,
+  HomeIcon,
 } from '@patternfly/react-icons';
 import { Table, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
 import { useCardStyle, useTypographyLabels } from '@app/utils/CardStyleContext';
@@ -543,6 +546,9 @@ const ContainerImageCard: React.FC<{
         boxShadow: 'var(--pf-t--global--box-shadow--md)',
         borderRadius: '16px',
         overflow: 'hidden',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       <CardHeader
@@ -625,17 +631,18 @@ const ContainerImageCard: React.FC<{
       <CardTitle>
         <Content component="h3" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--lg)', fontFamily: 'var(--pf-t--global--font--family--heading)', fontWeight: 'var(--pf-t--global--font--weight--heading--bold)' }}>{cardTitle}<TypeLabel level="CARD-DISPLAY-BOLD" /></Content>
       </CardTitle>
-      <CardBody>
+      <CardBody style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <Content component="p" style={{ 
           fontSize: 'var(--pf-t--global--font--size--body--default)',
           fontFamily: 'var(--pf-t--global--font--family--text)',
           color: 'var(--pf-t--global--text--color--subtle)',
           marginBottom: 'var(--pf-t--global--spacer--md)',
           lineHeight: '1.5',
+          flex: 1,
         }}>
           {image.description}<TypeLabel level="BODY" />
         </Content>
-        <div style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+        <div style={{ marginBottom: 'var(--pf-t--global--spacer--md)', marginTop: 'auto' }}>
           <CodeBlock
             actions={
               <CodeBlockAction>
@@ -739,6 +746,9 @@ const HeaderHeavyCard: React.FC<{
         boxShadow: 'var(--pf-t--global--box-shadow--md)',
         borderRadius: '24px',
         overflow: 'hidden',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       <CardHeader
@@ -808,7 +818,7 @@ const HeaderHeavyCard: React.FC<{
         </Flex>
       </CardHeader>
       
-      <CardBody>
+      <CardBody style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         {/* Description */}
         <Content component="p" style={{ 
           fontSize: 'var(--pf-t--global--font--size--body--default)',
@@ -816,12 +826,13 @@ const HeaderHeavyCard: React.FC<{
           color: 'var(--pf-t--global--text--color--subtle)',
           marginBottom: 'var(--pf-t--global--spacer--md)',
           lineHeight: '1.5',
+          flex: 1,
         }}>
           {image.description}<TypeLabel level="BODY" />
         </Content>
         
         {/* Full-width Pull Command */}
-        <div style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
+        <div style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', marginTop: 'auto' }}>
           <CodeBlock
             actions={
               <CodeBlockAction>
@@ -901,6 +912,9 @@ const SplitVerticalCard: React.FC<{
         boxShadow: 'var(--pf-t--global--box-shadow--md)',
         borderRadius: '8px',
         overflow: 'hidden',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       <CardHeader
@@ -959,17 +973,18 @@ const SplitVerticalCard: React.FC<{
           </FlexItem>
         </Flex>
       </CardTitle>
-      <CardBody>
+      <CardBody style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <Content component="p" style={{ 
           fontSize: 'var(--pf-t--global--font--size--body--default)',
           fontFamily: 'var(--pf-t--global--font--family--text)',
           color: 'var(--pf-t--global--text--color--subtle)',
           marginBottom: 'var(--pf-t--global--spacer--md)',
           lineHeight: '1.5',
+          flex: 1,
         }}>
           {image.description}<TypeLabel level="BODY" />
         </Content>
-        <div style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+        <div style={{ marginBottom: 'var(--pf-t--global--spacer--md)', marginTop: 'auto' }}>
           <CodeBlock
             actions={
               <CodeBlockAction>
@@ -1038,6 +1053,7 @@ const Dashboard: React.FunctionComponent<DashboardProps> = ({ previewMode = fals
   const [isDrawerRestrictTagsOpen, setIsDrawerRestrictTagsOpen] = React.useState(false);
   const [copiedRowIndex, setCopiedRowIndex] = React.useState<number | null>(null);
   const [modalTab, setModalTab] = React.useState<string>('overview');
+  const scrollableRef = React.useRef<HTMLDivElement>(null);
   const [sbomSearchValue, setSbomSearchValue] = React.useState('');
   const [sbomPage, setSbomPage] = React.useState(1);
   const [sbomPerPage, setSbomPerPage] = React.useState(10);
@@ -1388,610 +1404,280 @@ const Dashboard: React.FunctionComponent<DashboardProps> = ({ previewMode = fals
 
         {/* Tab Content */}
         {modalTab === 'overview' && (
-      <Grid hasGutter>
-            {/* Left column */}
-            <GridItem span={12} lg={4}>
-              {/* Stats - Two separate panels */}
-              <Flex gap={{ default: 'gapMd' }} style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
-                <FlexItem flex={{ default: 'flex_1' }}>
-                  <CompassPanel style={{ height: '100%' }}>
-                    <div style={{ padding: 'var(--pf-t--global--spacer--lg)', textAlign: 'center' }}>
-                      <div style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
-                        <CheckCircleIcon style={{ fontSize: '2rem', color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
-                      </div>
-                      <Content component="h2" style={{ margin: 0, fontSize: '2rem' }}>{selectedImage.cveCount || 0}<TypeLabel level="STAT" /></Content>
-                      <Content component="p" style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>CVEs<TypeLabel level="SM" /></Content>
-                      <Button variant="link" isInline icon={<ArrowRightIcon />} iconPosition="end" style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}>
-                        Security feed<TypeLabel level="LINK" />
-                      </Button>
-                    </div>
-                  </CompassPanel>
-                </FlexItem>
-                <FlexItem flex={{ default: 'flex_1' }}>
-                  <CompassPanel style={{ height: '100%' }}>
-                    <div style={{ padding: 'var(--pf-t--global--spacer--lg)', textAlign: 'center' }}>
-                      <div style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
-                        <DownloadIcon style={{ fontSize: '2rem', color: 'var(--pf-t--global--icon--color--status--info--default)' }} />
-                      </div>
-                      <Content component="h2" style={{ margin: 0, fontSize: '2rem' }}>{selectedImage.daysSincePublished || 0} days<TypeLabel level="STAT" /></Content>
-                      <Content component="p" style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>since last published<TypeLabel level="SM" /></Content>
-                      <Button variant="link" isInline icon={<ArrowRightIcon />} iconPosition="end" style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}>
-                        Repository<TypeLabel level="LINK" />
-                      </Button>
-                    </div>
-                  </CompassPanel>
-                </FlexItem>
-              </Flex>
-
-            {/* Start using this image */}
-            <CompassPanel style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
-              <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
-                <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>Start using this image<TypeLabel level="H3-DISPLAY-BOLD" /></Content>
-                <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
-                  Copy commands from the table to the right to use different tags.<TypeLabel level="SM" />
-                </Content>
-
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--xs)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
-                  Swap existing instance<TypeLabel level="SM" />
-                </Content>
-                <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }} style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
-                  <FlexItem flex={{ default: 'flex_1' }}>
-                    <CodeBlock
-                      actions={
-                        <CodeBlockAction>
-                          <Tooltip content="Copy to clipboard">
-                            <Button 
-                              variant="plain" 
-                              aria-label="Copy to clipboard"
-                              onClick={() => navigator.clipboard.writeText(`podman pull registry.access.redhat.com/hummingbird/${selectedImage.name.toLowerCase()}:latest`)}
-                            >
-                              <CopyIcon />
-                            </Button>
-                          </Tooltip>
-                        </CodeBlockAction>
-                      }
-                    >
-                      <CodeBlockCode>{`podman pull registry.access.redhat.com/hummingbird/${selectedImage.name.toLowerCase()}:latest`}</CodeBlockCode>
-                    </CodeBlock>
-                  </FlexItem>
-                  <FlexItem>
-                    <Content component="p" style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)' }}>{selectedImage.size}</Content>
-                  </FlexItem>
-                </Flex>
-
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--xs)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
-                  Manifest Digest
-                </Content>
-                <div style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
-                  <CodeBlock
-                    actions={
-                      <CodeBlockAction>
-                        <Tooltip content="Copy to clipboard">
-                          <Button 
-                            variant="plain" 
-                            aria-label="Copy to clipboard"
-                            onClick={() => navigator.clipboard.writeText('sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4')}
-                          >
-                            <CopyIcon />
-                          </Button>
-                        </Tooltip>
-                      </CodeBlockAction>
-                    }
-                  >
-                    <CodeBlockCode>sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4</CodeBlockCode>
-                  </CodeBlock>
-                </div>
-
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--xs)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
-                  Registry
-                </Content>
-                <CodeBlock
-                  actions={
-                    <CodeBlockAction>
-                      <Tooltip content="Copy to clipboard">
-                        <Button 
-                          variant="plain" 
-                          aria-label="Copy to clipboard"
-                          onClick={() => navigator.clipboard.writeText('registry.access.redhat.com/hummingbird')}
-                        >
-                          <CopyIcon />
-                        </Button>
-                      </Tooltip>
-                    </CodeBlockAction>
-                  }
-                >
-                  <CodeBlockCode>registry.access.redhat.com/hummingbird</CodeBlockCode>
-                </CodeBlock>
-                        </div>
-            </CompassPanel>
-
-            {/* Documentation */}
-            <CompassPanel>
-              <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
-                <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Documentation<TypeLabel level="H2-DISPLAY-BOLD" /></Content>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--pf-t--global--spacer--sm)' }}>
-                  <Button 
-                    variant="link" 
-                    isInline 
-                    icon={<BookOpenIcon />} 
-                    iconPosition="start"
-                    component="a"
-                    href="#"
-                    target="_blank"
-                  >
-                    Getting Started Guide
-                  </Button>
-                  <Button 
-                    variant="link" 
-                    isInline 
-                    icon={<BookOpenIcon />} 
-                    iconPosition="start"
-                    component="a"
-                    href="#"
-                    target="_blank"
-                  >
-                    API Reference
-                  </Button>
-                  <Button 
-                    variant="link" 
-                    isInline 
-                    icon={<BookOpenIcon />} 
-                    iconPosition="start"
-                    component="a"
-                    href="#"
-                    target="_blank"
-                  >
-                    Configuration Options
-                  </Button>
-                  <Button 
-                    variant="link" 
-                    isInline 
-                    icon={<BookOpenIcon />} 
-                    iconPosition="start"
-                    component="a"
-                    href="#"
-                    target="_blank"
-                  >
-                    Migration from UBI
-                  </Button>
-                  <Button 
-                    variant="link" 
-                    isInline 
-                    icon={<ExternalLinkAltIcon />} 
-                    iconPosition="start"
-                    component="a"
-                    href="#"
-                    target="_blank"
-                  >
-                    Community Forum
-                  </Button>
-                </div>
-              </div>
-            </CompassPanel>
-        </GridItem>
-
-          {/* Right column - Documentation */}
-          <GridItem span={12} lg={8}>
-            <CompassPanel>
-              <div style={{ padding: 'var(--pf-t--global--spacer--lg)', maxHeight: '60vh', overflowY: 'auto' }}>
-                <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Documentation<TypeLabel level="H2-DISPLAY-BOLD" /></Content>
-                
-                <Content component="h3" style={{ marginTop: 'var(--pf-t--global--spacer--lg)', marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)', fontWeight: 'var(--pf-t--global--font--weight--body--bold)' }}>Description<TypeLabel level="H3-DISPLAY-BOLD" /></Content>
-                <Content component="p" style={{ fontWeight: 'bold', marginBottom: 'var(--pf-t--global--spacer--xs)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>Project Hummingbird httpd Image<TypeLabel level="BODY" /></Content>
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>
-                  The Apache HTTP Server, colloquially called Apache, is a Web server application notable for playing a key role in the initial growth of the World Wide Web. Originally based on the NCSA HTTPd server, development of Apache began in early 1995 after work on the NCSA code stalled. Apache quickly overtook NCSA HTTPd as the dominant HTTP server, and has remained the most popular HTTP server in use since April 1996.<TypeLabel level="BODY" />
-                </Content>
-
-                <Content component="h3" style={{ marginTop: 'var(--pf-t--global--spacer--lg)', marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)', fontWeight: 'var(--pf-t--global--font--weight--body--bold)' }}>Usage<TypeLabel level="H3-DISPLAY-BOLD" /></Content>
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>
-                  This image runs as a non-root user on port 8080 (not 80) for improved security as the non-root user cannot bind to privileged ports.<TypeLabel level="BODY" />
-                </Content>
-
-                <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)', fontWeight: 'var(--pf-t--global--font--weight--body--bold)' }}>Basic Startup<TypeLabel level="H3-DISPLAY-BOLD" /></Content>
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>Start an httpd container serving the default welcome page:<TypeLabel level="BODY" /></Content>
-                <CodeBlock 
-                  style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}
-                  actions={
-                    <CodeBlockAction>
-                      <Tooltip content="Copy to clipboard">
-                        <Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText('podman run -d --name httpd-server -p 8080:8080 quay.io/hummingbird/httpd:latest')}>
-                          <CopyIcon />
-                        </Button>
-                      </Tooltip>
-                    </CodeBlockAction>
-                  }
-                >
-                  <CodeBlockCode>podman run -d --name httpd-server -p 8080:8080 quay.io/hummingbird/httpd:latest</CodeBlockCode>
-                </CodeBlock>
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>Access the server at http://localhost:8080.</Content>
-
-                <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)', fontWeight: 'var(--pf-t--global--font--weight--body--bold)' }}>Serving Custom Content<TypeLabel level="H3-DISPLAY-BOLD" /></Content>
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>Mount your content directory to serve static files:<TypeLabel level="BODY" /></Content>
-                <CodeBlock 
-                  style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}
-                  actions={
-                    <CodeBlockAction>
-                      <Tooltip content="Copy to clipboard">
-                        <Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText(`podman run -d --name httpd-server \\
-  -p 8080:8080 \\
-  -v /path/to/your/html:/usr/local/apache2/htdocs:ro,Z \\
-  quay.io/hummingbird/httpd:latest`)}>
-                          <CopyIcon />
-                        </Button>
-                      </Tooltip>
-                    </CodeBlockAction>
-                  }
-                >
-                  <CodeBlockCode>{`podman run -d --name httpd-server \\
-  -p 8080:8080 \\
-  -v /path/to/your/html:/usr/local/apache2/htdocs:ro,Z \\
-  quay.io/hummingbird/httpd:latest`}</CodeBlockCode>
-                </CodeBlock>
-
-                <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)', fontWeight: 'var(--pf-t--global--font--weight--body--bold)' }}>Custom Configuration<TypeLabel level="H3-DISPLAY-BOLD" /></Content>
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>Mount a custom httpd configuration:<TypeLabel level="BODY" /></Content>
-                <CodeBlock 
-                  style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}
-                  actions={
-                    <CodeBlockAction>
-                      <Tooltip content="Copy to clipboard">
-                        <Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText(`podman run -d --name httpd-server \\
-  -p 8080:8080 \\
-  -v /path/to/my-httpd.conf:/etc/httpd/conf.d/custom.conf:ro,Z \\
-  quay.io/hummingbird/httpd:latest`)}>
-                          <CopyIcon />
-                        </Button>
-                      </Tooltip>
-                    </CodeBlockAction>
-                  }
-                >
-                  <CodeBlockCode>{`podman run -d --name httpd-server \\
-  -p 8080:8080 \\
-  -v /path/to/my-httpd.conf:/etc/httpd/conf.d/custom.conf:ro,Z \\
-  quay.io/hummingbird/httpd:latest`}</CodeBlockCode>
-                </CodeBlock>
-
-                <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)', fontWeight: 'var(--pf-t--global--font--weight--body--bold)' }}>Container Networking<TypeLabel level="H3-DISPLAY-BOLD" /></Content>
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>Connect to httpd from another container:<TypeLabel level="BODY" /></Content>
-                <CodeBlock 
-                  style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}
-                  actions={
-                    <CodeBlockAction>
-                      <Tooltip content="Copy to clipboard">
-                        <Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText(`# Create a network
-podman network create myapp-network
-
-# Start httpd on the network
-podman run -d --name httpd-server \\
-  --network myapp-network \\
-  quay.io/hummingbird/httpd:latest
-
-# Connect from another container (note: port 8080)
-podman run --rm --network myapp-network \\
-  quay.io/hummingbird/curl:latest \\
-  http://httpd-server:8080/`)}>
-                          <CopyIcon />
-                        </Button>
-                      </Tooltip>
-                    </CodeBlockAction>
-                  }
-                >
-                  <CodeBlockCode>{`# Create a network
-podman network create myapp-network
-
-# Start httpd on the network
-podman run -d --name httpd-server \\
-  --network myapp-network \\
-  quay.io/hummingbird/httpd:latest
-
-# Connect from another container (note: port 8080)
-podman run --rm --network myapp-network \\
-  quay.io/hummingbird/curl:latest \\
-  http://httpd-server:8080/`}</CodeBlockCode>
-                </CodeBlock>
-
-                <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)', fontWeight: 'var(--pf-t--global--font--weight--body--bold)' }}>Version Check<TypeLabel level="H3-DISPLAY-BOLD" /></Content>
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>Verify the httpd version:<TypeLabel level="BODY" /></Content>
-                <CodeBlock 
-                  style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}
-                  actions={
-                    <CodeBlockAction>
-                      <Tooltip content="Copy to clipboard">
-                        <Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText('podman run --rm quay.io/hummingbird/httpd:latest httpd -v')}>
-                          <CopyIcon />
-                        </Button>
-                      </Tooltip>
-                    </CodeBlockAction>
-                  }
-                >
-                  <CodeBlockCode>podman run --rm quay.io/hummingbird/httpd:latest httpd -v</CodeBlockCode>
-                </CodeBlock>
-
-                <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)', fontWeight: 'var(--pf-t--global--font--weight--body--bold)' }}>Building a Custom Image<TypeLabel level="H3-DISPLAY-BOLD" /></Content>
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>Create a Containerfile to build an image with your static content:<TypeLabel level="BODY" /></Content>
-                <CodeBlock 
-                  style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}
-                  actions={
-                    <CodeBlockAction>
-                      <Tooltip content="Copy to clipboard">
-                        <Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText(`FROM quay.io/hummingbird/httpd:latest
-
-COPY index.html /usr/local/apache2/htdocs/
-COPY css/ /usr/local/apache2/htdocs/css/
-COPY images/ /usr/local/apache2/htdocs/images/`)}>
-                          <CopyIcon />
-                        </Button>
-                      </Tooltip>
-                    </CodeBlockAction>
-                  }
-                >
-                  <CodeBlockCode>{`FROM quay.io/hummingbird/httpd:latest
-
-COPY index.html /usr/local/apache2/htdocs/
-COPY css/ /usr/local/apache2/htdocs/css/
-COPY images/ /usr/local/apache2/htdocs/images/`}</CodeBlockCode>
-                </CodeBlock>
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>Build and run:</Content>
-                <CodeBlock 
-                  style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}
-                  actions={
-                    <CodeBlockAction>
-                      <Tooltip content="Copy to clipboard">
-                        <Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText(`podman build -t my-website .
-podman run -d -p 8080:8080 my-website`)}>
-                          <CopyIcon />
-                        </Button>
-                      </Tooltip>
-                    </CodeBlockAction>
-                  }
-                >
-                  <CodeBlockCode>{`podman build -t my-website .
-podman run -d -p 8080:8080 my-website`}</CodeBlockCode>
-                </CodeBlock>
-
-                <Content component="h3" style={{ marginTop: 'var(--pf-t--global--spacer--lg)', marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)', fontWeight: 'var(--pf-t--global--font--weight--body--bold)' }}>Compatibility Notes<TypeLabel level="H3-DISPLAY-BOLD" /></Content>
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>
-                  The Hummingbird httpd image is aiming to be compatible with the docker.io/httpd:latest image. For details, see the compatibility table.<TypeLabel level="BODY" />
-                </Content>
-
-                <Content component="h3" style={{ marginTop: 'var(--pf-t--global--spacer--lg)', marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)', fontWeight: 'var(--pf-t--global--font--weight--body--bold)' }}>Image Verification<TypeLabel level="H3-DISPLAY-BOLD" /></Content>
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>You can use the following public key to verify Hummingbird images:<TypeLabel level="BODY" /></Content>
-                <CodeBlock 
-                  style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}
-                  actions={
-                    <CodeBlockAction>
-                      <Tooltip content="Copy to clipboard">
-                        <Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText(`-----BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEtYRltxRJvXLMpXT+pIIu86CLhDP7
-Q6VznCXqlzV3AO4AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
------END PUBLIC KEY-----`)}>
-                          <CopyIcon />
-                        </Button>
-                      </Tooltip>
-                    </CodeBlockAction>
-                  }
-                >
-                  <CodeBlockCode>{`-----BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEtYRltxRJvXLMpXT+pIIu86CLhDP7
-Q6VznCXqlzV3AO4AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
------END PUBLIC KEY-----`}</CodeBlockCode>
-                </CodeBlock>
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>First, copy the upper key to a file (e.g., key.pub). Then you can use cosign along with the key:<TypeLabel level="BODY" /></Content>
-                <CodeBlock 
-                  style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}
-                  actions={
-                    <CodeBlockAction>
-                      <Tooltip content="Copy to clipboard">
-                        <Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText('cosign verify --key key.pub --insecure-ignore-tlog quay.io/hummingbird/httpd:latest')}>
-                          <CopyIcon />
-                        </Button>
-                      </Tooltip>
-                    </CodeBlockAction>
-                  }
-                >
-                  <CodeBlockCode>cosign verify --key key.pub --insecure-ignore-tlog quay.io/hummingbird/httpd:latest</CodeBlockCode>
-                </CodeBlock>
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontStyle: 'italic', color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>
-                  Note that the key is not sufficient to establish trust as it only verifies that the image was built in Hummingbird's Tekton pipeline. Once Project Hummingbird releases official images, they will be signed with an official Red Hat key and go through Red Hat's publishing pipeline.<TypeLabel level="BODY" />
-                </Content>
-
-                <Content component="h3" style={{ marginTop: 'var(--pf-t--global--spacer--lg)', marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)', fontWeight: 'var(--pf-t--global--font--weight--body--bold)' }}>Vulnerability Scanning<TypeLabel level="H3-DISPLAY-BOLD" /></Content>
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>
-                  For security vulnerability scanning, Hummingbird uses Syft for SBOM generation and Grype for vulnerability detection. However, for the time being, Syft's output needs to be post-processed for accurate vulnerability matching with Fedora packages. You can conveniently run the scan yourself in a container:<TypeLabel level="BODY" />
-                </Content>
-                <CodeBlock 
-                  style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}
-                  actions={
-                    <CodeBlockAction>
-                      <Tooltip content="Copy to clipboard">
-                        <Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText('podman run --volume vuln-db:/tmp/.cache quay.io/hummingbird-ci/gitlab-ci grype-hummingbird.sh quay.io/hummingbird/httpd:latest')}>
-                          <CopyIcon />
-                        </Button>
-                      </Tooltip>
-                    </CodeBlockAction>
-                  }
-                >
-                  <CodeBlockCode>podman run --volume vuln-db:/tmp/.cache quay.io/hummingbird-ci/gitlab-ci grype-hummingbird.sh quay.io/hummingbird/httpd:latest</CodeBlockCode>
-                </CodeBlock>
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>
-                  For details and other ways how to do the scan, see the vulnerability scanning documentation.<TypeLabel level="BODY" />
-                </Content>
-
-                <Content component="h3" style={{ marginTop: 'var(--pf-t--global--spacer--lg)', marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)', fontWeight: 'var(--pf-t--global--font--weight--body--bold)' }}>About Hummingbird Containers<TypeLabel level="H3-DISPLAY-BOLD" /></Content>
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>
-                  Project Hummingbird builds a collection of minimal, hardened, and secure container images, aiming to provide purpose-built containers with a significantly reduced attack surface. This strong focus on security combined with a highly automated update workflow results in containers with nearly zero CVEs.<TypeLabel level="BODY" />
-                </Content>
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>The project applies a number of measures to harden the Hummingbird containers:<TypeLabel level="BODY" /></Content>
-                <ul style={{ marginLeft: 'var(--pf-t--global--spacer--lg)', marginBottom: 'var(--pf-t--global--spacer--md)' }}>
-                  <li><strong>Minimal Software Footprint:</strong> Images include only essential software packages required for the workload, significantly reducing the attack surface and the number of CVEs per image.</li>
-                  <li><strong>Rapid Update Deployment:</strong> Software package updates are shipped as quickly as possible, ensuring that fixes are consumed early.</li>
-                  <li><strong>Non-Root User Default:</strong> Most containers default to a non-root user, increasing security by reducing privileges within the container.</li>
-                  <li><strong>Hermetic Build Environment:</strong> All containers are built in a hermetic environment without network access. This prevents unintended package drift and gives the Hummingbird project full control over the software versions used.</li>
-                  <li><strong>Distroless Security:</strong> The distroless nature of Hummingbird containers, shipping only what is strictly necessary for the given workload, reduces the attack surface and further improves security by making certain types of attacks impossible.</li>
-                </ul>
-                <Content component="p" style={{ fontStyle: 'italic', color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>
-                  Note that the project is currently under development. All containers are tested and built with care, but are not yet recommended for production.<TypeLabel level="BODY" />
-                </Content>
-              </div>
-            </CompassPanel>
-
-            {/* Available Variants table */}
-            <CompassPanel style={{ marginTop: 'var(--pf-t--global--spacer--lg)' }}>
-              <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
-                <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} alignItems={{ default: 'alignItemsCenter' }} style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
-                  <FlexItem>
-                    <Content component="h2" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Available Tags<TypeLabel level="H2-DISPLAY-BOLD" /></Content>
-                  </FlexItem>
-                  <FlexItem>
-                    <Flex gap={{ default: 'gapMd' }} alignItems={{ default: 'alignItemsCenter' }}>
-                      <FlexItem>
-                        <SearchInput placeholder="Search tags" style={{ width: '150px' }} />
-                      </FlexItem>
-                      <FlexItem>
-                        <Flex gap={{ default: 'gapMd' }} alignItems={{ default: 'alignItemsCenter' }}>
-                          {/* Restrict tags dropdown for FIPS */}
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <label style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>
-                              Restrict tags
-                            </label>
-                            <Select
-                              id="drawer-restrict-tags-select"
-                              isOpen={isDrawerRestrictTagsOpen}
-                              selected={drawerRestrictTags}
-                              onSelect={(_event, value) => {
-                                setDrawerRestrictTags(value as 'all' | 'fips' | 'exclude-fips');
-                                setIsDrawerRestrictTagsOpen(false);
-                              }}
-                              onOpenChange={setIsDrawerRestrictTagsOpen}
-                              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-                                <MenuToggle
-                                  ref={toggleRef}
-                                  onClick={() => setIsDrawerRestrictTagsOpen(!isDrawerRestrictTagsOpen)}
-                                  isExpanded={isDrawerRestrictTagsOpen}
-                                  style={{ minWidth: '120px' }}
-                                >
-                                  {drawerRestrictTags === 'all' ? 'All' : 
-                                   drawerRestrictTags === 'fips' ? 'FIPS only' : 
-                                   'Exclude FIPS'}
-                                </MenuToggle>
-                              )}
-                            >
-                              <SelectList>
-                                <SelectOption value="all" isSelected={drawerRestrictTags === 'all'}>All</SelectOption>
-                                <SelectOption value="fips" isSelected={drawerRestrictTags === 'fips'}>FIPS only</SelectOption>
-                                <SelectOption value="exclude-fips" isSelected={drawerRestrictTags === 'exclude-fips'}>Exclude FIPS</SelectOption>
-                              </SelectList>
-                            </Select>
+          <Flex>
+            {/* Left Content - Scrollable */}
+            <FlexItem flex={{ default: 'flex_1' }} style={{ paddingRight: 'var(--pf-t--global--spacer--lg)' }}>
+              <div 
+                ref={scrollableRef}
+                style={{ 
+                  overflowY: 'auto', 
+                  maxHeight: '70vh',
+                  paddingRight: 'var(--pf-t--global--spacer--md)'
+                }}
+              >
+                {/* Get Started Section */}
+                <div id="get-started" style={{ marginBottom: 'var(--pf-t--global--spacer--xl)', scrollMarginTop: '24px' }}>
+                  <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Get Started<TypeLabel level="H2" /></Content>
+                  
+                  {/* Stats - Two separate panels */}
+                  <Flex gap={{ default: 'gapMd' }} style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
+                    <FlexItem flex={{ default: 'flex_1' }}>
+                      <CompassPanel style={{ height: '100%' }}>
+                        <div style={{ padding: 'var(--pf-t--global--spacer--lg)', textAlign: 'center' }}>
+                          <div style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
+                            <CheckCircleIcon style={{ fontSize: '2rem', color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
                           </div>
-                          {/* Builder and Go Tools pill buttons */}
-                          <Flex gap={{ default: 'gapSm' }} alignItems={{ default: 'alignItemsFlexEnd' }}>
-                            <Button 
-                              variant={selectedVariants.has('builder') ? 'primary' : 'secondary'}
-                              onClick={() => toggleVariant('builder')}
-                              icon={<PlusIcon />}
-                              style={{ 
-                                borderRadius: '20px',
-                                paddingLeft: '12px',
-                                paddingRight: '16px',
-                              }}
-                            >
-                              Builder
-                            </Button>
-                            <Button 
-                              variant={selectedVariants.has('go-tools') ? 'primary' : 'secondary'}
-                              onClick={() => toggleVariant('go-tools')}
-                              icon={<PlusIcon />}
-                              style={{ 
-                                borderRadius: '20px',
-                                paddingLeft: '12px',
-                                paddingRight: '16px',
-                              }}
-                            >
-                              Go Tools
-                            </Button>
-                          </Flex>
-                        </Flex>
-                      </FlexItem>
-                    </Flex>
-                  </FlexItem>
-                </Flex>
+                          <Content component="h2" style={{ margin: 0, fontSize: '2rem' }}>{selectedImage.cveCount || 0}<TypeLabel level="STAT" /></Content>
+                          <Content component="p" style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>CVEs<TypeLabel level="SM" /></Content>
+                          <Button variant="link" isInline icon={<ArrowRightIcon />} iconPosition="end" style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}>
+                            Security feed<TypeLabel level="LINK" />
+                          </Button>
+                        </div>
+                      </CompassPanel>
+                    </FlexItem>
+                    <FlexItem flex={{ default: 'flex_1' }}>
+                      <CompassPanel style={{ height: '100%' }}>
+                        <div style={{ padding: 'var(--pf-t--global--spacer--lg)', textAlign: 'center' }}>
+                          <div style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
+                            <DownloadIcon style={{ fontSize: '2rem', color: 'var(--pf-t--global--icon--color--status--info--default)' }} />
+                          </div>
+                          <Content component="h2" style={{ margin: 0, fontSize: '2rem' }}>{selectedImage.daysSincePublished || 0} days<TypeLabel level="STAT" /></Content>
+                          <Content component="p" style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>since last published<TypeLabel level="SM" /></Content>
+                          <Button variant="link" isInline icon={<ArrowRightIcon />} iconPosition="end" style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}>
+                            Repository<TypeLabel level="LINK" />
+                          </Button>
+                        </div>
+                      </CompassPanel>
+                    </FlexItem>
+                  </Flex>
 
-                <Table variant="compact" borders={false} style={{ tableLayout: 'fixed' }}>
-                  <Thead>
-                    <Tr>
-                      <Th width={20}>Tag</Th>
-                      <Th width={20}>UID</Th>
-                      <Th width={15}>Last update</Th>
-                      <Th width={45}>Pull command</Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {variants.map((variant, index) => {
-                      const fullCommand = getFullPullCommand(selectedImage?.name || '', variant.tag);
-                      const displayCommand = getDisplayPullCommand(selectedImage?.name || '', variant.tag);
-                      return (
-                        <Tr 
-                          key={index}
-                          style={variant.isLatest ? {
-                            backgroundColor: 'rgba(0, 102, 204, 0.08)',
-                          } : undefined}
-                        >
-                          <Td dataLabel="Tag">
-                            <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                              <Label variant="outline" isCompact>{variant.tag}</Label>
-                              {variant.isLatest && (
-                                <Label color="blue" isCompact>Latest</Label>
-                              )}
-                            </Flex>
-                          </Td>
-                          <Td dataLabel="UID">
-                            <Tooltip
-                              content={
-                                <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                                  <span>{variant.project}</span>
-                                  <Button 
-                                    variant="plain" 
-                                    size="sm"
-                                    onClick={() => navigator.clipboard.writeText(variant.project)}
-                                    style={{ color: 'white', padding: '2px' }}
-                                  >
-                                    <CopyIcon />
-                                  </Button>
-                                </Flex>
-                              }
-                            >
-                              <span style={{ cursor: 'pointer' }}>...{variant.project.slice(-8)}</span>
-                            </Tooltip>
-                          </Td>
-                          <Td dataLabel="Last update">{variant.lastUpdate}</Td>
-                          <Td dataLabel="Pull command">
-                            <CodeBlock
-                              actions={
-                                <CodeBlockAction>
-                                  <Tooltip content="Copy to clipboard">
-                                    <Button 
-                                      variant="plain" 
-                                      aria-label="Copy to clipboard"
-                                      onClick={() => handleCopyPullCommand(index, fullCommand)}
-                                    >
-                                      <CopyIcon />
-                                    </Button>
-                                  </Tooltip>
-                                </CodeBlockAction>
-                              }
-                            >
-                              <CodeBlockCode>{displayCommand}</CodeBlockCode>
-                            </CodeBlock>
-                          </Td>
-                        </Tr>
-                      );
-                    })}
-                  </Tbody>
-                </Table>
+                  {/* Start using this image */}
+                  <CompassPanel>
+                    <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                      <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>Start using this image<TypeLabel level="H3" /></Content>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--xs)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                        Swap existing instance<TypeLabel level="SM" />
+                      </Content>
+                      <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }} style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+                        <FlexItem flex={{ default: 'flex_1' }}>
+                          <CodeBlock actions={<CodeBlockAction><Tooltip content="Copy to clipboard"><Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText(`podman pull registry.access.redhat.com/hummingbird/${selectedImage.name.toLowerCase()}:latest`)}><CopyIcon /></Button></Tooltip></CodeBlockAction>}>
+                            <CodeBlockCode>{`podman pull registry.access.redhat.com/hummingbird/${selectedImage.name.toLowerCase()}:latest`}</CodeBlockCode>
+                          </CodeBlock>
+                        </FlexItem>
+                        <FlexItem>
+                          <Content component="p" style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)' }}>{selectedImage.size}</Content>
+                        </FlexItem>
+                      </Flex>
+
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--xs)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>Manifest Digest</Content>
+                      <div style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+                        <CodeBlock actions={<CodeBlockAction><Tooltip content="Copy to clipboard"><Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText('sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4')}><CopyIcon /></Button></Tooltip></CodeBlockAction>}>
+                          <CodeBlockCode>sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4</CodeBlockCode>
+                        </CodeBlock>
+                      </div>
+
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--xs)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>Registry</Content>
+                      <CodeBlock actions={<CodeBlockAction><Tooltip content="Copy to clipboard"><Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText('registry.access.redhat.com/hummingbird')}><CopyIcon /></Button></Tooltip></CodeBlockAction>}>
+                        <CodeBlockCode>registry.access.redhat.com/hummingbird</CodeBlockCode>
+                      </CodeBlock>
+                    </div>
+                  </CompassPanel>
+                </div>
+
+                {/* Available Tags Section */}
+                <div id="available-tags" style={{ marginBottom: 'var(--pf-t--global--spacer--xl)', scrollMarginTop: '24px' }}>
+                  <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Available Tags<TypeLabel level="H2" /></Content>
+                  <CompassPanel>
+                    <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                      <Flex justifyContent={{ default: 'justifyContentFlexEnd' }} alignItems={{ default: 'alignItemsFlexEnd' }} style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+                        <FlexItem>
+                          <Flex gap={{ default: 'gapMd' }} alignItems={{ default: 'alignItemsFlexEnd' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <div style={{ height: '18px' }} />
+                              <SearchInput placeholder="Search tags" style={{ width: '150px' }} />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <label style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Restrict tags</label>
+                              <Select id="drawer-restrict-tags-select" isOpen={isDrawerRestrictTagsOpen} selected={drawerRestrictTags} onSelect={(_event, value) => { setDrawerRestrictTags(value as 'all' | 'fips' | 'exclude-fips'); setIsDrawerRestrictTagsOpen(false); }} onOpenChange={setIsDrawerRestrictTagsOpen} toggle={(toggleRef: React.Ref<MenuToggleElement>) => (<MenuToggle ref={toggleRef} onClick={() => setIsDrawerRestrictTagsOpen(!isDrawerRestrictTagsOpen)} isExpanded={isDrawerRestrictTagsOpen} style={{ minWidth: '120px' }}>{drawerRestrictTags === 'all' ? 'All' : drawerRestrictTags === 'fips' ? 'FIPS only' : 'Exclude FIPS'}</MenuToggle>)}>
+                                <SelectList>
+                                  <SelectOption value="all" isSelected={drawerRestrictTags === 'all'}>All</SelectOption>
+                                  <SelectOption value="fips" isSelected={drawerRestrictTags === 'fips'}>FIPS only</SelectOption>
+                                  <SelectOption value="exclude-fips" isSelected={drawerRestrictTags === 'exclude-fips'}>Exclude FIPS</SelectOption>
+                                </SelectList>
+                              </Select>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <div style={{ height: '18px' }} />
+                              <Flex gap={{ default: 'gapSm' }}>
+                                <Button variant={selectedVariants.has('builder') ? 'primary' : 'secondary'} onClick={() => toggleVariant('builder')} icon={<PlusIcon />} style={{ borderRadius: '20px', paddingLeft: '12px', paddingRight: '16px' }}>Builder</Button>
+                                <Button variant={selectedVariants.has('go-tools') ? 'primary' : 'secondary'} onClick={() => toggleVariant('go-tools')} icon={<PlusIcon />} style={{ borderRadius: '20px', paddingLeft: '12px', paddingRight: '16px' }}>Go Tools</Button>
+                              </Flex>
+                            </div>
+                          </Flex>
+                        </FlexItem>
+                      </Flex>
+                      <Table variant="compact" borders={false} style={{ tableLayout: 'fixed' }}>
+                        <Thead><Tr><Th width={20}>Tag</Th><Th width={20}>UID</Th><Th width={15}>Last update</Th><Th width={45}>Pull command</Th></Tr></Thead>
+                        <Tbody>
+                          {variants.map((variant, index) => {
+                            const fullCommand = getFullPullCommand(selectedImage?.name || '', variant.tag);
+                            const displayCommand = getDisplayPullCommand(selectedImage?.name || '', variant.tag);
+                            return (
+                              <Tr key={index} style={variant.isLatest ? { backgroundColor: 'rgba(0, 102, 204, 0.08)' } : undefined}>
+                                <Td dataLabel="Tag"><Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}><Label variant="outline" isCompact>{variant.tag}</Label>{variant.isLatest && <Label color="blue" isCompact>Latest</Label>}</Flex></Td>
+                                <Td dataLabel="UID"><Tooltip content={<Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}><span>{variant.project}</span><Button variant="plain" size="sm" onClick={() => navigator.clipboard.writeText(variant.project)} style={{ color: 'white', padding: '2px' }}><CopyIcon /></Button></Flex>}><span style={{ cursor: 'pointer' }}>...{variant.project.slice(-8)}</span></Tooltip></Td>
+                                <Td dataLabel="Last update">{variant.lastUpdate}</Td>
+                                <Td dataLabel="Pull command"><CodeBlock actions={<CodeBlockAction><Tooltip content="Copy to clipboard"><Button variant="plain" aria-label="Copy to clipboard" onClick={() => handleCopyPullCommand(index, fullCommand)}><CopyIcon /></Button></Tooltip></CodeBlockAction>}><CodeBlockCode>{displayCommand}</CodeBlockCode></CodeBlock></Td>
+                              </Tr>
+                            );
+                          })}
+                        </Tbody>
+                      </Table>
+                    </div>
+                  </CompassPanel>
+                </div>
+
+                {/* Documentation Section */}
+                <div id="documentation" style={{ marginBottom: 'var(--pf-t--global--spacer--xl)', scrollMarginTop: '24px' }}>
+                  <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Documentation<TypeLabel level="H2" /></Content>
+                  <CompassPanel>
+                    <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                      <Content component="p" style={{ fontWeight: 'bold', marginBottom: 'var(--pf-t--global--spacer--xs)' }}>Project Hummingbird httpd Image</Content>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>The Apache HTTP Server, colloquially called Apache, is a Web server application notable for playing a key role in the initial growth of the World Wide Web. Originally based on the NCSA HTTPd server, development of Apache began in early 1995 after work on the NCSA code stalled. Apache quickly overtook NCSA HTTPd as the dominant HTTP server, and has remained the most popular HTTP server in use since April 1996.</Content>
+                      
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>This image runs as a non-root user on port 8080 (not 80) for improved security as the non-root user cannot bind to privileged ports.</Content>
+                      
+                      <Content component="p" style={{ fontWeight: 'bold', marginBottom: 'var(--pf-t--global--spacer--xs)' }}>Basic Startup</Content>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>Start an httpd container serving the default welcome page:</Content>
+                      <CodeBlock style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }} actions={<CodeBlockAction><Tooltip content="Copy to clipboard"><Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText('podman run -d --name httpd-server -p 8080:8080 quay.io/hummingbird/httpd:latest')}><CopyIcon /></Button></Tooltip></CodeBlockAction>}><CodeBlockCode>podman run -d --name httpd-server -p 8080:8080 quay.io/hummingbird/httpd:latest</CodeBlockCode></CodeBlock>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>Access the server at http://localhost:8080.</Content>
+
+                      <Content component="p" style={{ fontWeight: 'bold', marginBottom: 'var(--pf-t--global--spacer--xs)' }}>Serving Custom Content</Content>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>Mount your content directory to serve static files:</Content>
+                      <CodeBlock style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }} actions={<CodeBlockAction><Tooltip content="Copy to clipboard"><Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText(`podman run -d --name httpd-server \\\n  -p 8080:8080 \\\n  -v /path/to/your/html:/usr/local/apache2/htdocs:ro,Z \\\n  quay.io/hummingbird/httpd:latest`)}><CopyIcon /></Button></Tooltip></CodeBlockAction>}><CodeBlockCode>{`podman run -d --name httpd-server \\
+  -p 8080:8080 \\
+  -v /path/to/your/html:/usr/local/apache2/htdocs:ro,Z \\
+  quay.io/hummingbird/httpd:latest`}</CodeBlockCode></CodeBlock>
+
+                      <Content component="p" style={{ fontWeight: 'bold', marginBottom: 'var(--pf-t--global--spacer--xs)' }}>Custom Configuration</Content>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>Mount a custom httpd configuration:</Content>
+                      <CodeBlock style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }} actions={<CodeBlockAction><Tooltip content="Copy to clipboard"><Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText(`podman run -d --name httpd-server \\\n  -p 8080:8080 \\\n  -v /path/to/my-httpd.conf:/etc/httpd/conf.d/custom.conf:ro,Z \\\n  quay.io/hummingbird/httpd:latest`)}><CopyIcon /></Button></Tooltip></CodeBlockAction>}><CodeBlockCode>{`podman run -d --name httpd-server \\
+  -p 8080:8080 \\
+  -v /path/to/my-httpd.conf:/etc/httpd/conf.d/custom.conf:ro,Z \\
+  quay.io/hummingbird/httpd:latest`}</CodeBlockCode></CodeBlock>
+
+                      <Content component="p" style={{ fontWeight: 'bold', marginBottom: 'var(--pf-t--global--spacer--xs)' }}>Container Networking</Content>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>Connect to httpd from another container:</Content>
+                      <CodeBlock style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }} actions={<CodeBlockAction><Tooltip content="Copy to clipboard"><Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText(`# Create a network\npodman network create myapp-network\n\n# Start httpd on the network\npodman run -d --name httpd-server \\\n  --network myapp-network \\\n  quay.io/hummingbird/httpd:latest\n\n# Connect from another container (note: port 8080)\npodman run --rm --network myapp-network \\\n  quay.io/hummingbird/curl:latest \\\n  http://httpd-server:8080/`)}><CopyIcon /></Button></Tooltip></CodeBlockAction>}><CodeBlockCode>{`# Create a network
+podman network create myapp-network
+
+# Start httpd on the network
+podman run -d --name httpd-server \\
+  --network myapp-network \\
+  quay.io/hummingbird/httpd:latest
+
+# Connect from another container (note: port 8080)
+podman run --rm --network myapp-network \\
+  quay.io/hummingbird/curl:latest \\
+  http://httpd-server:8080/`}</CodeBlockCode></CodeBlock>
+
+                      <Content component="p" style={{ fontWeight: 'bold', marginBottom: 'var(--pf-t--global--spacer--xs)' }}>Version Check</Content>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>Verify the httpd version:</Content>
+                      <CodeBlock style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }} actions={<CodeBlockAction><Tooltip content="Copy to clipboard"><Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText('podman run --rm quay.io/hummingbird/httpd:latest httpd -v')}><CopyIcon /></Button></Tooltip></CodeBlockAction>}><CodeBlockCode>podman run --rm quay.io/hummingbird/httpd:latest httpd -v</CodeBlockCode></CodeBlock>
+
+                      <Content component="p" style={{ fontWeight: 'bold', marginBottom: 'var(--pf-t--global--spacer--xs)' }}>Building a Custom Image</Content>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>Create a Containerfile to build an image with your static content:</Content>
+                      <CodeBlock style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }} actions={<CodeBlockAction><Tooltip content="Copy to clipboard"><Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText(`FROM quay.io/hummingbird/httpd:latest\n\nCOPY index.html /usr/local/apache2/htdocs/\nCOPY css/ /usr/local/apache2/htdocs/css/\nCOPY images/ /usr/local/apache2/htdocs/images/`)}><CopyIcon /></Button></Tooltip></CodeBlockAction>}><CodeBlockCode>{`FROM quay.io/hummingbird/httpd:latest
+
+COPY index.html /usr/local/apache2/htdocs/
+COPY css/ /usr/local/apache2/htdocs/css/
+COPY images/ /usr/local/apache2/htdocs/images/`}</CodeBlockCode></CodeBlock>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>Build and run:</Content>
+                      <CodeBlock actions={<CodeBlockAction><Tooltip content="Copy to clipboard"><Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText(`podman build -t my-website .\npodman run -d -p 8080:8080 my-website`)}><CopyIcon /></Button></Tooltip></CodeBlockAction>}><CodeBlockCode>{`podman build -t my-website .
+podman run -d -p 8080:8080 my-website`}</CodeBlockCode></CodeBlock>
+                    </div>
+                  </CompassPanel>
+                </div>
+
+                {/* Compatibility Notes Section */}
+                <div id="compatibility-notes" style={{ marginBottom: 'var(--pf-t--global--spacer--xl)', scrollMarginTop: '24px' }}>
+                  <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Compatibility Notes<TypeLabel level="H2" /></Content>
+                  <CompassPanel>
+                    <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                      <Content component="p">The Hummingbird httpd image is aiming to be compatible with the docker.io/httpd:latest image. For details, see the compatibility table.</Content>
+                    </div>
+                  </CompassPanel>
+                </div>
+
+                {/* Image Verification Section */}
+                <div id="image-verification" style={{ marginBottom: 'var(--pf-t--global--spacer--xl)', scrollMarginTop: '24px' }}>
+                  <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Image Verification<TypeLabel level="H2" /></Content>
+                  <CompassPanel>
+                    <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>You can use the following public key to verify Hummingbird images:</Content>
+                      <CodeBlock style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }} actions={<CodeBlockAction><Tooltip content="Copy to clipboard"><Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText(`-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEtYRltxRJvXLMpXT+pIIu86CLhDP7\nQ6VznCXqlzV3AO4AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==\n-----END PUBLIC KEY-----`)}><CopyIcon /></Button></Tooltip></CodeBlockAction>}><CodeBlockCode>{`-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEtYRltxRJvXLMpXT+pIIu86CLhDP7
+Q6VznCXqlzV3AO4AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
+-----END PUBLIC KEY-----`}</CodeBlockCode></CodeBlock>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>First, copy the upper key to a file (e.g., key.pub). Then you can use cosign along with the key:</Content>
+                      <CodeBlock style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }} actions={<CodeBlockAction><Tooltip content="Copy to clipboard"><Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText('cosign verify --key key.pub --insecure-ignore-tlog quay.io/hummingbird/httpd:latest')}><CopyIcon /></Button></Tooltip></CodeBlockAction>}><CodeBlockCode>cosign verify --key key.pub --insecure-ignore-tlog quay.io/hummingbird/httpd:latest</CodeBlockCode></CodeBlock>
+                      <Content component="p" style={{ fontStyle: 'italic', color: 'var(--pf-t--global--text--color--subtle)' }}>Note that the key is not sufficient to establish trust as it only verifies that the image was built in Hummingbird's Tekton pipeline. Once Project Hummingbird releases official images, they will be signed with an official Red Hat key and go through Red Hat's publishing pipeline.</Content>
+                    </div>
+                  </CompassPanel>
+                </div>
+
+                {/* Vulnerability Scanning Section */}
+                <div id="vulnerability-scanning" style={{ marginBottom: 'var(--pf-t--global--spacer--xl)', scrollMarginTop: '24px' }}>
+                  <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Vulnerability Scanning<TypeLabel level="H2" /></Content>
+                  <CompassPanel>
+                    <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>For security vulnerability scanning, Hummingbird uses Syft for SBOM generation and Grype for vulnerability detection. However, for the time being, Syft's output needs to be post-processed for accurate vulnerability matching with Fedora packages. You can conveniently run the scan yourself in a container:</Content>
+                      <CodeBlock style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }} actions={<CodeBlockAction><Tooltip content="Copy to clipboard"><Button variant="plain" aria-label="Copy to clipboard" onClick={() => navigator.clipboard.writeText('podman run --volume vuln-db:/tmp/.cache quay.io/hummingbird-ci/gitlab-ci grype-hummingbird.sh quay.io/hummingbird/httpd:latest')}><CopyIcon /></Button></Tooltip></CodeBlockAction>}><CodeBlockCode>podman run --volume vuln-db:/tmp/.cache quay.io/hummingbird-ci/gitlab-ci grype-hummingbird.sh quay.io/hummingbird/httpd:latest</CodeBlockCode></CodeBlock>
+                      <Content component="p">For details and other ways how to do the scan, see the vulnerability scanning documentation.</Content>
+                    </div>
+                  </CompassPanel>
+                </div>
+
+                {/* About Hummingbird Section */}
+                <div id="about-hummingbird" style={{ marginBottom: 'var(--pf-t--global--spacer--xl)', scrollMarginTop: '24px' }}>
+                  <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>About Hummingbird Containers<TypeLabel level="H2" /></Content>
+                  <CompassPanel>
+                    <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>Project Hummingbird builds a collection of minimal, hardened, and secure container images, aiming to provide purpose-built containers with a significantly reduced attack surface. This strong focus on security combined with a highly automated update workflow results in containers with nearly zero CVEs.</Content>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>The project applies a number of measures to harden the Hummingbird containers:</Content>
+                      <ul style={{ marginLeft: 'var(--pf-t--global--spacer--lg)', marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+                        <li><strong>Minimal Software Footprint:</strong> Images include only essential software packages required for the workload, significantly reducing the attack surface and the number of CVEs per image.</li>
+                        <li><strong>Rapid Update Deployment:</strong> Software package updates are shipped as quickly as possible, ensuring that fixes are consumed early.</li>
+                        <li><strong>Non-Root User Default:</strong> Most containers default to a non-root user, increasing security by reducing privileges within the container.</li>
+                        <li><strong>Hermetic Build Environment:</strong> All containers are built in a hermetic environment without network access. This prevents unintended package drift and gives the Hummingbird project full control over the software versions used.</li>
+                        <li><strong>Distroless Security:</strong> The distroless nature of Hummingbird containers, shipping only what is strictly necessary for the given workload, reduces the attack surface and further improves security by making certain types of attacks impossible.</li>
+                      </ul>
+                      <Content component="p" style={{ fontStyle: 'italic', color: 'var(--pf-t--global--text--color--subtle)' }}>Note that the project is currently under development. All containers are tested and built with care, but are not yet recommended for production.</Content>
+                    </div>
+                  </CompassPanel>
+                </div>
               </div>
-            </CompassPanel>
-          </GridItem>
-          </Grid>
+            </FlexItem>
+
+            {/* Right Side - Jump Links */}
+            <FlexItem style={{ width: '200px', minWidth: '200px', paddingLeft: 'var(--pf-t--global--spacer--md)' }}>
+              <JumpLinks
+                isVertical
+                scrollableRef={scrollableRef}
+                offset={160}
+                aria-label="Page navigation"
+                style={{ '--pf-v6-c-jump-links__list--before--BorderLeftWidth': '0' } as React.CSSProperties}
+              >
+                <JumpLinksItem href="#get-started">Get Started</JumpLinksItem>
+                <JumpLinksItem href="#available-tags">Available Tags</JumpLinksItem>
+                <JumpLinksItem href="#documentation">Documentation</JumpLinksItem>
+                <JumpLinksItem href="#compatibility-notes">Compatibility Notes</JumpLinksItem>
+                <JumpLinksItem href="#image-verification">Image Verification</JumpLinksItem>
+                <JumpLinksItem href="#vulnerability-scanning">Vulnerability Scanning</JumpLinksItem>
+                <JumpLinksItem href="#about-hummingbird">About Hummingbird</JumpLinksItem>
+              </JumpLinks>
+            </FlexItem>
+          </Flex>
         )}
 
         {/* Technical Information Tab */}
@@ -2004,7 +1690,7 @@ Q6VznCXqlzV3AO4AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
                 <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
                   <Flex gap={{ default: 'gap2xl' }}>
                     <FlexItem>
-                      <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>Architectures<TypeLabel level="H3-DISPLAY-BOLD" /></Content>
+                      <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>Architectures<TypeLabel level="H3" /></Content>
                       <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
                         <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
                           <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
@@ -2017,7 +1703,7 @@ Q6VznCXqlzV3AO4AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
                       </Flex>
                     </FlexItem>
                     <FlexItem>
-                      <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>Other<TypeLabel level="H3-DISPLAY-BOLD" /></Content>
+                      <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>Other<TypeLabel level="H3" /></Content>
                       <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
                         <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
                           <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
@@ -2032,7 +1718,7 @@ Q6VznCXqlzV3AO4AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
                   </Flex>
                   
                   <div style={{ marginTop: 'var(--pf-t--global--spacer--lg)' }}>
-                    <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>Licenses<TypeLabel level="H3-DISPLAY-BOLD" /></Content>
+                    <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>Licenses<TypeLabel level="H3" /></Content>
                     <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
                       <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
                         <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
@@ -2057,7 +1743,7 @@ Q6VznCXqlzV3AO4AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
               <CompassPanel>
                 <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
                   <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
-                    Image Verification<TypeLabel level="H3-DISPLAY-BOLD" />
+                    Image Verification<TypeLabel level="H3" />
                   </Content>
                   <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
                     You can use the following public key to verify Hummingbird images:
@@ -2107,7 +1793,7 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
               <CompassPanel style={{ marginTop: 'var(--pf-t--global--spacer--lg)' }}>
                 <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
                   <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
-                    Vulnerability Scanning<TypeLabel level="H3-DISPLAY-BOLD" />
+                    Vulnerability Scanning<TypeLabel level="H3" />
                   </Content>
                   <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
                     Hummingbird uses <Button variant="link" isInline style={{ padding: 0 }}>Syft</Button> for SBOM generation and <Button variant="link" isInline style={{ padding: 0 }}>Grype</Button> for vulnerability detection. Run the scan locally:
@@ -2132,7 +1818,7 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
 
                   {/* Vulnerabilities Summary */}
                   <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
-                    Current Scan Results<TypeLabel level="H3-DISPLAY-BOLD" />
+                    Current Scan Results<TypeLabel level="H3" />
                   </Content>
                   <Flex gap={{ default: 'gapMd' }}>
                     <Label color="green" icon={<CheckCircleIcon />}>0 Critical</Label>
@@ -2149,7 +1835,7 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
           <CompassPanel style={{ marginTop: 'var(--pf-t--global--spacer--lg)' }}>
             <div style={{ padding: 'var(--pf-t--global--spacer--xl)' }}>
               <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--lg)', fontSize: 'var(--pf-t--global--font--size--heading--h2)' }}>
-                Inventory<TypeLabel level="H2-DISPLAY-BOLD" />
+                Inventory<TypeLabel level="H2" />
               </Content>
               
               {/* Inventory items as a list */}
@@ -2291,7 +1977,7 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
               <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
                 <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} alignItems={{ default: 'alignItemsCenter' }} style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
                   <FlexItem>
-                    <Content component="h3" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>Security Vulnerabilities<TypeLabel level="H3-DISPLAY-BOLD" /></Content>
+                    <Content component="h3" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>Security Vulnerabilities<TypeLabel level="H3" /></Content>
                   </FlexItem>
                   <FlexItem>
                     <SearchInput placeholder="Search CVE or Package ID" style={{ width: '220px' }} />
@@ -2368,7 +2054,7 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
           return (
           <CompassPanel>
             <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
-              <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h2)' }}>Software Bill of Materials (SBOM)<TypeLabel level="H2-DISPLAY-BOLD" /></Content>
+              <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h2)' }}>Software Bill of Materials (SBOM)<TypeLabel level="H2" /></Content>
               <Flex gap={{ default: 'gapMd' }} alignItems={{ default: 'alignItemsCenter' }} style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
                 <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
                   Generated: <strong>January 28, 2026 at 14:32 UTC</strong>
@@ -2574,7 +2260,7 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
           style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}
         >
           <FlexItem>
-            <Content component="h2" style={{ margin: 0, fontWeight: 600, fontSize: 'var(--pf-t--global--font--size--heading--h2)' }}>Popular Images<TypeLabel level="H2-DISPLAY-BOLD" /></Content>
+            <Content component="h2" style={{ margin: 0, fontWeight: 600, fontSize: 'var(--pf-t--global--font--size--heading--h2)' }}>Popular Images<TypeLabel level="H2" /></Content>
           </FlexItem>
           <FlexItem>
             <Content component="p" style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)', maxWidth: '280px', textAlign: 'right', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
@@ -2801,7 +2487,7 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
           {getFilteredImages(allImages).filter(img => img.isFavorite).length > 0 && (
             <>
               <Content component="h3" style={{ marginTop: '24px', marginBottom: '24px', fontWeight: 500, fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
-                Favorites<TypeLabel level="H3-DISPLAY-BOLD" />
+                Favorites<TypeLabel level="H3" />
               </Content>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
                 {getFilteredImages(allImages)
@@ -2823,7 +2509,7 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
           {getFilteredImages(allImages).filter(img => !img.isFavorite).length > 0 && (
             <>
               <Content component="h3" style={{ marginTop: '48px', marginBottom: '24px', fontWeight: 500, fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
-                All Images<TypeLabel level="H3-DISPLAY-BOLD" />
+                All Images<TypeLabel level="H3" />
               </Content>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
                 {getFilteredImages(allImages)
@@ -2847,7 +2533,7 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
           {restrictTags !== 'exclude-fips' && getHardenedImages().length > 0 && (
             <>
               <Content component="h3" style={{ marginTop: '24px', marginBottom: '24px', fontWeight: 500, fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
-                Hardened Images<TypeLabel level="H3-DISPLAY-BOLD" />
+                Hardened Images<TypeLabel level="H3" />
               </Content>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
                 {getHardenedImages().map((image, index) => {
@@ -2872,7 +2558,7 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
           {getFilteredImages(languageRuntimes).length > 0 && (
             <>
               <Content component="h3" style={{ marginTop: '48px', marginBottom: '24px', fontWeight: 500, fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
-                Languages/Runtimes<TypeLabel level="H3-DISPLAY-BOLD" />
+                Languages/Runtimes<TypeLabel level="H3" />
               </Content>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
                 {getFilteredImages(languageRuntimes).map((image, index) => 
@@ -2891,7 +2577,7 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
           {getFilteredImages(databases).length > 0 && (
             <>
               <Content component="h3" style={{ marginTop: '48px', marginBottom: '24px', fontWeight: 500, fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
-                Databases<TypeLabel level="H3-DISPLAY-BOLD" />
+                Databases<TypeLabel level="H3" />
               </Content>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
                 {getFilteredImages(databases).map((image, index) => 
@@ -2910,7 +2596,7 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
           {getFilteredImages(devTools).length > 0 && (
             <>
               <Content component="h3" style={{ marginTop: '48px', marginBottom: '24px', fontWeight: 500, fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
-                Dev Tools<TypeLabel level="H3-DISPLAY-BOLD" />
+                Dev Tools<TypeLabel level="H3" />
               </Content>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
                 {getFilteredImages(devTools).map((image, index) => 
@@ -3046,7 +2732,7 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
                       </div>
                   </FlexItem>
                   <FlexItem>
-                      <Content component="h2" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--heading--h2)' }}>{selectedImage.name}<TypeLabel level="H2-DISPLAY-BOLD" /></Content>
+                      <Content component="h2" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--heading--h2)' }}>{selectedImage.name}<TypeLabel level="H2" /></Content>
                       <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
                         Container Image Details<TypeLabel level="SM" />
                       </Content>
