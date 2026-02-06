@@ -1638,24 +1638,6 @@ Q6VznCXqlzV3AO4AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
                   </CompassPanel>
                 </div>
 
-                {/* About Hummingbird Section */}
-                <div id="about-hummingbird" style={{ marginBottom: 'var(--pf-t--global--spacer--xl)', scrollMarginTop: '24px' }}>
-                  <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>About Hummingbird Containers<TypeLabel level="H2" /></Content>
-                  <CompassPanel>
-                    <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
-                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>Project Hummingbird builds a collection of minimal, hardened, and secure container images, aiming to provide purpose-built containers with a significantly reduced attack surface. This strong focus on security combined with a highly automated update workflow results in containers with nearly zero CVEs.</Content>
-                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>The project applies a number of measures to harden the Hummingbird containers:</Content>
-                      <ul style={{ marginLeft: 'var(--pf-t--global--spacer--lg)', marginBottom: 'var(--pf-t--global--spacer--md)' }}>
-                        <li><strong>Minimal Software Footprint:</strong> Images include only essential software packages required for the workload, significantly reducing the attack surface and the number of CVEs per image.</li>
-                        <li><strong>Rapid Update Deployment:</strong> Software package updates are shipped as quickly as possible, ensuring that fixes are consumed early.</li>
-                        <li><strong>Non-Root User Default:</strong> Most containers default to a non-root user, increasing security by reducing privileges within the container.</li>
-                        <li><strong>Hermetic Build Environment:</strong> All containers are built in a hermetic environment without network access. This prevents unintended package drift and gives the Hummingbird project full control over the software versions used.</li>
-                        <li><strong>Distroless Security:</strong> The distroless nature of Hummingbird containers, shipping only what is strictly necessary for the given workload, reduces the attack surface and further improves security by making certain types of attacks impossible.</li>
-                      </ul>
-                      <Content component="p" style={{ fontStyle: 'italic', color: 'var(--pf-t--global--text--color--subtle)' }}>Note that the project is currently under development. All containers are tested and built with care, but are not yet recommended for production.</Content>
-                    </div>
-                  </CompassPanel>
-                </div>
               </div>
             </FlexItem>
 
@@ -1674,7 +1656,6 @@ Q6VznCXqlzV3AO4AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
                 <JumpLinksItem href="#compatibility-notes">Compatibility Notes</JumpLinksItem>
                 <JumpLinksItem href="#image-verification">Image Verification</JumpLinksItem>
                 <JumpLinksItem href="#vulnerability-scanning">Vulnerability Scanning</JumpLinksItem>
-                <JumpLinksItem href="#about-hummingbird">About Hummingbird</JumpLinksItem>
               </JumpLinks>
             </FlexItem>
           </Flex>
