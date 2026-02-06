@@ -238,3 +238,70 @@ body,
 .mt-md { margin-top: var(--pf-t--global--spacer--md); }
 .mt-lg { margin-top: var(--pf-t--global--spacer--lg); }
 .mt-xl { margin-top: var(--pf-t--global--spacer--xl); }
+
+/* ============================================
+   CODE BLOCK CUSTOMIZATION
+   ============================================ */
+
+/* Round corners to 16px */
+.pf-v6-c-code-block {
+  --pf-v6-c-code-block--BorderRadius: 16px;
+  border-radius: 16px !important;
+  position: relative;
+}
+
+/* Remove the horizontal rule between header and content */
+.pf-v6-c-code-block__header {
+  border-bottom: none !important;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  background: transparent;
+  padding: var(--pf-t--global--spacer--sm);
+}
+
+/* Adjust content padding - extra right padding for copy button */
+.pf-v6-c-code-block__content {
+  padding: 8px 40px 8px 8px !important;
+}
+
+/* Ensure pre element has proper padding */
+.pf-v6-c-code-block__pre {
+  padding: 8px !important;
+}
+
+/* ============================================
+   CARD BORDER RADIUS CUSTOMIZATION
+   ============================================ */
+
+/* Override PatternFly Card default border-radius */
+.pf-v6-c-card {
+  --pf-v6-c-card--BorderRadius: 16px;
+}
+
+/* Card Style A - 16px rounded corners */
+.pf-v6-c-card[id^="card-"] {
+  --pf-v6-c-card--BorderRadius: 16px !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+}
+
+/* Card Style B - 24px rounded corners */
+.pf-v6-c-card[id^="header-heavy-"] {
+  --pf-v6-c-card--BorderRadius: 24px !important;
+  border-radius: 24px !important;
+  overflow: hidden !important;
+}
+
+/* Card Style C - 8px rounded corners */
+.pf-v6-c-card[id^="minimal-"] {
+  --pf-v6-c-card--BorderRadius: 8px !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+/* Popular section cards - inherit based on card type */
+.pf-v6-c-card[id^="popular-"] {
+  overflow: hidden !important;
+}

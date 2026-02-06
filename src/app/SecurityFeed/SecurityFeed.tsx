@@ -26,6 +26,28 @@ import {
   SyncAltIcon,
 } from '@patternfly/react-icons';
 import { Table, Thead, Tr, Th, Tbody, Td, ThProps } from '@patternfly/react-table';
+import { useTypographyLabels } from '@app/utils/CardStyleContext';
+
+// Typography label component - shows semantic level in pink/red
+const TypeLabel: React.FC<{ level: string }> = ({ level }) => {
+  const { showTypographyLabels } = useTypographyLabels();
+  if (!showTypographyLabels) return null;
+  return (
+    <span style={{
+      backgroundColor: '#E91E63',
+      color: 'white',
+      fontSize: '10px',
+      fontWeight: 'bold',
+      padding: '2px 6px',
+      borderRadius: '4px',
+      marginLeft: '8px',
+      verticalAlign: 'middle',
+      fontFamily: 'monospace',
+    }}>
+      {level}
+    </span>
+  );
+};
 
 // Security Feed data
 interface SecurityFeedRow {
@@ -81,7 +103,7 @@ const SeverityLabel: React.FC<{ severity: SecurityFeedRow['severity'] }> = ({ se
     case 'critical':
       return <Label color="red" icon={<ExclamationCircleIcon />}>Critical</Label>;
     case 'high':
-      return <Label color="gold" icon={<ExclamationTriangleIcon />}>High</Label>;
+      return <Label color="yellow" icon={<ExclamationTriangleIcon />}>High</Label>;
     case 'moderate':
       return <Label color="teal" icon={<CheckCircleIcon />}>Moderate</Label>;
     case 'low':
@@ -187,8 +209,8 @@ const SecurityFeed: React.FunctionComponent = () => {
               }}
             >
               <div style={{ maxWidth: '600px' }}>
-                <Content component="h1" style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
-                  Project Hummingbird Container Images
+                <Content component="h1" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--heading--h1)' }}>
+                  Project Hummingbird Container Images<TypeLabel level="H1-DISPLAY-BOLD" />
                 </Content>
                 <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
                   Red Hat is excited to introduce <strong>Hummingbird container images</strong>.
@@ -222,7 +244,7 @@ const SecurityFeed: React.FunctionComponent = () => {
                 gap={{ default: 'gapMd' }}
               >
                 <FlexItem>
-                  <Content component="h2" style={{ margin: 0 }}>Security Feed</Content>
+                  <Content component="h2" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--heading--h2)' }}>Security Feed<TypeLabel level="H2-DISPLAY-BOLD" /></Content>
                 </FlexItem>
                 <FlexItem>
                   <Flex gap={{ default: 'gapMd' }} alignItems={{ default: 'alignItemsFlexEnd' }}>
@@ -278,8 +300,8 @@ const SecurityFeed: React.FunctionComponent = () => {
             {/* Table Panel */}
             <CompassPanel className="pf-m-no-padding">
               <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
-                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
-                  This is an ongoing list of CVEs Project Hummingbird is tracking
+                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>
+                  This is an ongoing list of CVEs Project Hummingbird is tracking<TypeLabel level="BODY" />
                 </Content>
                 <Table variant="compact" borders={false}>
                   <Thead>
@@ -365,11 +387,11 @@ const SecurityFeed: React.FunctionComponent = () => {
               alignItems: 'flex-start',
             }}>
               <div>
-                <Content component="h2" style={{ margin: 0 }}>
-                  {selectedCve?.cveId}
+                <Content component="h2" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--heading--h2)' }}>
+                  {selectedCve?.cveId}<TypeLabel level="H2-DISPLAY-BOLD" />
                 </Content>
-                <Content component="p" style={{ margin: 0, marginTop: 'var(--pf-t--global--spacer--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>
-                  {selectedCve && `${selectedCve.severity.charAt(0).toUpperCase() + selectedCve.severity.slice(1)} severity vulnerability in ${selectedCve.affectedPackage}`}
+                <Content component="p" style={{ margin: 0, marginTop: 'var(--pf-t--global--spacer--sm)', color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                  {selectedCve && `${selectedCve.severity.charAt(0).toUpperCase() + selectedCve.severity.slice(1)} severity vulnerability in ${selectedCve.affectedPackage}`}<TypeLabel level="SM" />
                 </Content>
               </div>
               <Button variant="plain" aria-label="Close drawer" onClick={onCloseDrawer}>

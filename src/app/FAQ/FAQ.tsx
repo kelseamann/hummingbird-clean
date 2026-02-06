@@ -12,6 +12,28 @@ import {
   QuestionCircleIcon,
   ExternalLinkAltIcon,
 } from '@patternfly/react-icons';
+import { useTypographyLabels } from '@app/utils/CardStyleContext';
+
+// Typography label component - shows semantic level in pink/red
+const TypeLabel: React.FC<{ level: string }> = ({ level }) => {
+  const { showTypographyLabels } = useTypographyLabels();
+  if (!showTypographyLabels) return null;
+  return (
+    <span style={{
+      backgroundColor: '#E91E63',
+      color: 'white',
+      fontSize: '10px',
+      fontWeight: 'bold',
+      padding: '2px 6px',
+      borderRadius: '4px',
+      marginLeft: '8px',
+      verticalAlign: 'middle',
+      fontFamily: 'monospace',
+    }}>
+      {level}
+    </span>
+  );
+};
 
 interface FAQItem {
   question: string;
@@ -46,7 +68,7 @@ const faqItems: FAQItem[] = [
           marginTop: 'var(--pf-t--global--spacer--sm)',
           overflow: 'auto',
         }}>
-          podman pull registry.redhat.io/hummingbird/python:latest
+          podman pull registry.access.redhat.com/hummingbird/python:latest
         </pre>
         <p style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}>
           Or with docker:
@@ -58,7 +80,7 @@ const faqItems: FAQItem[] = [
           marginTop: 'var(--pf-t--global--spacer--sm)',
           overflow: 'auto',
         }}>
-          docker pull registry.redhat.io/hummingbird/python:latest
+          docker pull registry.access.redhat.com/hummingbird/python:latest
         </pre>
       </>
     ),
@@ -120,7 +142,7 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
           marginTop: 'var(--pf-t--global--spacer--sm)',
           overflow: 'auto',
         }}>
-          cosign verify --key key.pub --insecure-ignore-tlog registry.redhat.io/hummingbird/python:latest
+          cosign verify --key key.pub --insecure-ignore-tlog registry.access.redhat.com/hummingbird/python:latest
         </pre>
       </>
     ),
@@ -263,10 +285,10 @@ const FAQDrawer: React.FC<FAQDrawerProps> = ({ isOpen, onClose }) => {
             </FlexItem>
             <FlexItem flex={{ default: 'flex_1' }}>
               <Content component="p" style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
-                Hummingbird Documentation
+                Hummingbird Documentation<TypeLabel level="SM" />
               </Content>
-              <Content component="h1" style={{ margin: 0, marginTop: 'var(--pf-t--global--spacer--xs)' }}>
-                Frequently Asked Questions
+              <Content component="h1" style={{ margin: 0, marginTop: 'var(--pf-t--global--spacer--xs)', fontSize: 'var(--pf-t--global--font--size--heading--h1)' }}>
+                Frequently Asked Questions<TypeLabel level="H1-DISPLAY-BOLD" />
               </Content>
             </FlexItem>
             <FlexItem>
@@ -313,8 +335,8 @@ const FAQDrawer: React.FC<FAQDrawerProps> = ({ isOpen, onClose }) => {
           {/* Additional Resources */}
           <CompassPanel style={{ marginTop: 'var(--pf-t--global--spacer--lg)' }}>
             <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
-              <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
-                Additional Resources
+              <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
+                Additional Resources<TypeLabel level="H3-DISPLAY-BOLD" />
               </Content>
               <Flex gap={{ default: 'gapMd' }} flexWrap={{ default: 'wrap' }}>
                 <FlexItem>

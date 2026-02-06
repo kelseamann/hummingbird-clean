@@ -24,12 +24,13 @@ import {
   Tooltip,
 } from '@patternfly/react-core';
 import { useTheme } from '@app/utils/ThemeContext';
-import { useCardStyle } from '@app/utils/CardStyleContext';
+import { useCardStyle, useTypographyLabels } from '@app/utils/CardStyleContext';
 import CubeIcon from '@patternfly/react-icons/dist/esm/icons/cube-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
 import MoonIcon from '@patternfly/react-icons/dist/esm/icons/moon-icon';
 import SunIcon from '@patternfly/react-icons/dist/esm/icons/sun-icon';
+import FontIcon from '@patternfly/react-icons/dist/esm/icons/font-icon';
 import pfBackground from '../bgimages/pf-background.svg';
 import avatarSvg from '../bgimages/avatar.svg';
 import imageLogo from '../../hummingbird_full_color_logomark.png';
@@ -43,6 +44,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const location = useLocation();
   const { isDarkTheme, toggleTheme } = useTheme();
   const { cardStyle, setCardStyle } = useCardStyle();
+  const { showTypographyLabels, setShowTypographyLabels } = useTypographyLabels();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showFab, setShowFab] = useState(false);
 
@@ -61,6 +63,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       mainContent.addEventListener('scroll', handleScroll);
       return () => mainContent.removeEventListener('scroll', handleScroll);
     }
+    return undefined;
   }, []);
 
   // Determine active tabs based on current route
@@ -178,6 +181,19 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
               >
                 C
               </Button>
+            </Tooltip>
+          </ActionListItem>
+        </ActionListGroup>
+        <ActionListGroup>
+          <ActionListItem>
+            <Tooltip content={showTypographyLabels ? 'Hide typography labels' : 'Show typography labels'}>
+              <Button
+                isCircle
+                variant={showTypographyLabels ? 'primary' : 'plain'}
+                icon={<FontIcon />}
+                aria-label={showTypographyLabels ? 'Hide typography labels' : 'Show typography labels'}
+                onClick={() => setShowTypographyLabels(!showTypographyLabels)}
+              />
             </Tooltip>
           </ActionListItem>
         </ActionListGroup>

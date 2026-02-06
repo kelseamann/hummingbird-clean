@@ -26,3 +26,29 @@ export const useCardStyle = (): CardStyleContextType => {
   }
   return context;
 };
+
+// Typography Labels Context
+interface TypographyLabelsContextType {
+  showTypographyLabels: boolean;
+  setShowTypographyLabels: (show: boolean) => void;
+}
+
+const TypographyLabelsContext = createContext<TypographyLabelsContextType | undefined>(undefined);
+
+export const TypographyLabelsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [showTypographyLabels, setShowTypographyLabels] = useState<boolean>(false);
+
+  return (
+    <TypographyLabelsContext.Provider value={{ showTypographyLabels, setShowTypographyLabels }}>
+      {children}
+    </TypographyLabelsContext.Provider>
+  );
+};
+
+export const useTypographyLabels = (): TypographyLabelsContextType => {
+  const context = useContext(TypographyLabelsContext);
+  if (!context) {
+    throw new Error('useTypographyLabels must be used within a TypographyLabelsProvider');
+  }
+  return context;
+};

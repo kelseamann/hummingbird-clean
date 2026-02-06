@@ -22,6 +22,28 @@ import {
   ExternalLinkAltIcon,
   CheckCircleIcon,
 } from '@patternfly/react-icons';
+import { useTypographyLabels } from '@app/utils/CardStyleContext';
+
+// Typography label component - shows semantic level in pink/red
+const TypeLabel: React.FC<{ level: string }> = ({ level }) => {
+  const { showTypographyLabels } = useTypographyLabels();
+  if (!showTypographyLabels) return null;
+  return (
+    <span style={{
+      backgroundColor: '#E91E63',
+      color: 'white',
+      fontSize: '10px',
+      fontWeight: 'bold',
+      padding: '2px 6px',
+      borderRadius: '4px',
+      marginLeft: '8px',
+      verticalAlign: 'middle',
+      fontFamily: 'monospace',
+    }}>
+      {level}
+    </span>
+  );
+};
 
 const About: React.FunctionComponent = () => {
   const [expanded, setExpanded] = React.useState<string>('faq-1');
@@ -115,11 +137,11 @@ const About: React.FunctionComponent = () => {
         }}
       >
         <div style={{ maxWidth: '800px', padding: 'var(--pf-t--global--spacer--2xl)' }}>
-          <Content component="h1" style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
-            About Project Hummingbird
+          <Content component="h1" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--heading--h1)' }}>
+            About Project Hummingbird<TypeLabel level="H1-DISPLAY-BOLD" />
           </Content>
-          <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>
-            Building minimal, hardened, and secure container images with a significantly reduced attack surface.
+          <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>
+            Building minimal, hardened, and secure container images with a significantly reduced attack surface.<TypeLabel level="BODY" />
           </Content>
         </div>
       </div>
@@ -127,8 +149,8 @@ const About: React.FunctionComponent = () => {
       {/* Mission Statement */}
       <CompassPanel style={{ marginBottom: 'var(--pf-t--global--spacer--xl)' }}>
         <div style={{ padding: 'var(--pf-t--global--spacer--xl)' }}>
-          <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
-            Our Mission
+          <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--lg)', fontSize: 'var(--pf-t--global--font--size--heading--h2)' }}>
+            Our Mission<TypeLabel level="H2-DISPLAY-BOLD" />
           </Content>
           <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--lg)', lineHeight: '1.6' }}>
             Project Hummingbird builds a collection of minimal, hardened, and secure container images, aiming to provide purpose-built containers with a significantly reduced attack surface. This strong focus on security combined with a highly automated update workflow results in containers with nearly zero CVEs.
@@ -148,8 +170,8 @@ const About: React.FunctionComponent = () => {
       </CompassPanel>
 
       {/* Security Features Grid */}
-      <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
-        Security Features
+      <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--lg)', fontSize: 'var(--pf-t--global--font--size--heading--h2)' }}>
+        Security Features<TypeLabel level="H2-DISPLAY-BOLD" />
       </Content>
       <Grid hasGutter style={{ marginBottom: 'var(--pf-t--global--spacer--xl)' }}>
         {features.map((feature, index) => (
@@ -171,8 +193,8 @@ const About: React.FunctionComponent = () => {
                     </div>
                   </FlexItem>
                   <FlexItem flex={{ default: 'flex_1' }}>
-                    <Content component="h4" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
-                      {feature.title}
+                    <Content component="h4" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--md)' }}>
+                      {feature.title}<TypeLabel level="H4-DISPLAY-BOLD" />
                     </Content>
                     <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
                       {feature.description}
@@ -186,18 +208,18 @@ const About: React.FunctionComponent = () => {
       </Grid>
 
       {/* FAQ Section */}
-      <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
-        Frequently Asked Questions
+      <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--lg)', fontSize: 'var(--pf-t--global--font--size--heading--h2)' }}>
+        Frequently Asked Questions<TypeLabel level="H2-DISPLAY-BOLD" />
       </Content>
       <CompassPanel style={{ marginBottom: 'var(--pf-t--global--spacer--xl)' }}>
         <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
           <Accordion asDefinitionList>
             {faqItems.map((item) => (
               <AccordionItem key={item.id}>
-                <AccordionToggle onClick={() => onToggle(item.id)} isExpanded={expanded === item.id} id={item.id}>
+                <AccordionToggle onClick={() => onToggle(item.id)} id={item.id}>
                   {item.question}
                 </AccordionToggle>
-                <AccordionContent id={`${item.id}-content`} isHidden={expanded !== item.id}>
+                <AccordionContent id={`${item.id}-content`} hidden={expanded !== item.id}>
                   <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>
                     {item.answer}
                   </Content>
@@ -209,8 +231,8 @@ const About: React.FunctionComponent = () => {
       </CompassPanel>
 
       {/* Additional Resources */}
-      <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
-        Additional Resources
+      <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--lg)', fontSize: 'var(--pf-t--global--font--size--heading--h2)' }}>
+        Additional Resources<TypeLabel level="H2-DISPLAY-BOLD" />
       </Content>
       <Grid hasGutter style={{ marginBottom: 'var(--pf-t--global--spacer--xl)' }}>
         <GridItem span={12} md={6} lg={4}>
@@ -221,7 +243,7 @@ const About: React.FunctionComponent = () => {
                   <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
                 </FlexItem>
                 <FlexItem>
-                  <Content component="h4" style={{ margin: 0 }}>GitLab Repository</Content>
+                  <Content component="h4" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--md)' }}>GitLab Repository<TypeLabel level="H4-DISPLAY-BOLD" /></Content>
                 </FlexItem>
               </Flex>
               <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
@@ -249,7 +271,7 @@ const About: React.FunctionComponent = () => {
                   <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
                 </FlexItem>
                 <FlexItem>
-                  <Content component="h4" style={{ margin: 0 }}>Documentation</Content>
+                  <Content component="h4" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--md)' }}>Documentation<TypeLabel level="H4-DISPLAY-BOLD" /></Content>
                 </FlexItem>
               </Flex>
               <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
@@ -277,7 +299,7 @@ const About: React.FunctionComponent = () => {
                   <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
                 </FlexItem>
                 <FlexItem>
-                  <Content component="h4" style={{ margin: 0 }}>Support</Content>
+                  <Content component="h4" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--md)' }}>Support<TypeLabel level="H4-DISPLAY-BOLD" /></Content>
                 </FlexItem>
               </Flex>
               <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
