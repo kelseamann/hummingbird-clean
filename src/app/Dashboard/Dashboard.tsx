@@ -111,6 +111,7 @@ interface ContainerImage {
   cveCount?: number;
   daysSincePublished?: number;
   size?: string;
+  upstreamSize?: string; // Size of the equivalent Docker Hub image for comparison
   availableVariants?: ('fips' | 'builder' | 'go-tools')[];
   lastUpdated?: string; // ISO date string
   lastScanned?: string; // ISO date string
@@ -129,6 +130,7 @@ const languageRuntimes: ContainerImage[] = [
     cveCount: 0,
     daysSincePublished: 7,
     size: '32 MB',
+    upstreamSize: '850 MB',
     availableVariants: ['fips', 'go-tools'],
     lastUpdated: '2026-01-23T11:45:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -143,6 +145,7 @@ const languageRuntimes: ContainerImage[] = [
     cveCount: 2,
     daysSincePublished: 3,
     size: '45 MB',
+    upstreamSize: '1.1 GB',
     availableVariants: ['builder'],
     lastUpdated: '2026-01-27T09:10:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -157,6 +160,7 @@ const languageRuntimes: ContainerImage[] = [
     cveCount: 0,
     daysSincePublished: 10,
     size: '85 MB',
+    upstreamSize: '470 MB',
     availableVariants: ['fips', 'builder'],
     lastUpdated: '2026-01-20T14:30:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -171,6 +175,7 @@ const languageRuntimes: ContainerImage[] = [
     cveCount: 0,
     daysSincePublished: 12,
     size: '24 MB',
+    upstreamSize: '1.0 GB',
     availableVariants: ['fips', 'builder', 'go-tools'],
     lastUpdated: '2026-01-18T14:32:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -185,6 +190,7 @@ const languageRuntimes: ContainerImage[] = [
     cveCount: 0,
     daysSincePublished: 6,
     size: '28 MB',
+    upstreamSize: '900 MB',
     availableVariants: ['builder'],
     lastUpdated: '2026-01-24T08:20:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -203,6 +209,7 @@ const databases: ContainerImage[] = [
     cveCount: 0,
     daysSincePublished: 9,
     size: '120 MB',
+    upstreamSize: '405 MB',
     availableVariants: ['fips'],
     lastUpdated: '2026-01-21T12:00:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -217,6 +224,7 @@ const databases: ContainerImage[] = [
     cveCount: 0,
     daysSincePublished: 4,
     size: '8 MB',
+    upstreamSize: '85 MB',
     availableVariants: [],
     lastUpdated: '2026-01-26T15:30:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -231,6 +239,7 @@ const databases: ContainerImage[] = [
     cveCount: 0,
     daysSincePublished: 11,
     size: '95 MB',
+    upstreamSize: '425 MB',
     availableVariants: ['fips', 'builder'],
     lastUpdated: '2026-01-19T10:15:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -249,6 +258,7 @@ const devTools: ContainerImage[] = [
     cveCount: 0,
     daysSincePublished: 5,
     size: '12 MB',
+    upstreamSize: '130 MB',
     availableVariants: ['fips', 'builder'],
     lastUpdated: '2026-01-25T10:45:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -263,6 +273,7 @@ const devTools: ContainerImage[] = [
     cveCount: 0,
     daysSincePublished: 8,
     size: '15 MB',
+    upstreamSize: '200 MB',
     availableVariants: ['builder'],
     lastUpdated: '2026-01-22T09:00:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -277,6 +288,7 @@ const devTools: ContainerImage[] = [
     cveCount: 0,
     daysSincePublished: 2,
     size: '5 MB',
+    upstreamSize: '20 MB',
     availableVariants: [],
     lastUpdated: '2026-01-28T14:20:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -1414,7 +1426,7 @@ const Dashboard: React.FunctionComponent<DashboardProps> = ({ previewMode = fals
                 <Tab eventKey="overview" title={<TabTitleText>Overview</TabTitleText>} />
                 <Tab eventKey="security" title={<TabTitleText>Security Feed</TabTitleText>} />
                 <Tab eventKey="technical" title={<TabTitleText>Technical Information</TabTitleText>} />
-                <Tab eventKey="packages" title={<TabTitleText>Packages</TabTitleText>} />
+                <Tab eventKey="packages" title={<TabTitleText>SBOM</TabTitleText>} />
                 <Tab eventKey="containerfile" title={<TabTitleText>Containerfile</TabTitleText>} />
               </Tabs>
             </CompassPanel>
@@ -1525,22 +1537,24 @@ const Dashboard: React.FunctionComponent<DashboardProps> = ({ previewMode = fals
                               </Button>
                             </FlexItem>
                             <FlexItem>
-                              <Button 
-                                variant={selectedVariants.has('builder') ? 'primary' : 'secondary'}
-                                size="sm"
-                                onClick={() => {
-                                  const newVariants = new Set(selectedVariants);
-                                  if (newVariants.has('builder')) {
-                                    newVariants.delete('builder');
-                                  } else {
-                                    newVariants.add('builder');
-                                  }
-                                  setSelectedVariants(newVariants);
-                                }}
-                                style={{ borderRadius: '20px' }}
-                              >
-                                Builder
-                              </Button>
+                              <Tooltip content="For development environments only">
+                                <Button 
+                                  variant={selectedVariants.has('builder') ? 'primary' : 'secondary'}
+                                  size="sm"
+                                  onClick={() => {
+                                    const newVariants = new Set(selectedVariants);
+                                    if (newVariants.has('builder')) {
+                                      newVariants.delete('builder');
+                                    } else {
+                                      newVariants.add('builder');
+                                    }
+                                    setSelectedVariants(newVariants);
+                                  }}
+                                  style={{ borderRadius: '20px' }}
+                                >
+                                  Builder (Dev)
+                                </Button>
+                              </Tooltip>
                             </FlexItem>
                             <FlexItem>
                               <Button 
@@ -1652,7 +1666,7 @@ const Dashboard: React.FunctionComponent<DashboardProps> = ({ previewMode = fals
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                               <div style={{ height: '18px' }} />
                               <Flex gap={{ default: 'gapSm' }}>
-                                <Button variant={selectedVariants.has('builder') ? 'primary' : 'secondary'} onClick={() => toggleVariant('builder')} icon={<PlusIcon />} style={{ borderRadius: '20px', paddingLeft: '12px', paddingRight: '16px' }}>Builder</Button>
+                                <Tooltip content="For development environments only"><Button variant={selectedVariants.has('builder') ? 'primary' : 'secondary'} onClick={() => toggleVariant('builder')} icon={<PlusIcon />} style={{ borderRadius: '20px', paddingLeft: '12px', paddingRight: '16px' }}>Builder (Dev)</Button></Tooltip>
                                 <Button variant={selectedVariants.has('go-tools') ? 'primary' : 'secondary'} onClick={() => toggleVariant('go-tools')} icon={<PlusIcon />} style={{ borderRadius: '20px', paddingLeft: '12px', paddingRight: '16px' }}>Go Tools</Button>
                               </Flex>
                             </div>
@@ -1676,6 +1690,226 @@ const Dashboard: React.FunctionComponent<DashboardProps> = ({ previewMode = fals
                           })}
                         </Tbody>
                       </Table>
+                    </div>
+                  </CompassPanel>
+                </div>
+
+                {/* Deployment Section */}
+                <div id="deployment" style={{ marginBottom: 'var(--pf-t--global--spacer--xl)', scrollMarginTop: '24px' }}>
+                  <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Deployment<TypeLabel level="H2" /></Content>
+                  <CompassPanel>
+                    <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--lg)', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                        Use the following snippets to deploy this image in your preferred environment. Choose the appropriate tag for your use case.
+                      </Content>
+
+                      {/* Available Tags Overview */}
+                      <div style={{ 
+                        backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+                        borderRadius: '8px',
+                        padding: 'var(--pf-t--global--spacer--md)',
+                        marginBottom: 'var(--pf-t--global--spacer--lg)'
+                      }}>
+                        <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
+                          Tag Reference<TypeLabel level="H3" />
+                        </Content>
+                        <Grid hasGutter>
+                          <GridItem span={6} md={3}>
+                            <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                              <code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontWeight: 'bold' }}>:latest</code>
+                              <span style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Stable production release</span>
+                            </Flex>
+                          </GridItem>
+                          <GridItem span={6} md={3}>
+                            <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                              <code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontWeight: 'bold' }}>:latest-fips</code>
+                              <span style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>FIPS 140-2 compliant</span>
+                            </Flex>
+                          </GridItem>
+                          <GridItem span={6} md={3}>
+                            <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                              <code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontWeight: 'bold' }}>:latest-dev</code>
+                              <span style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>For development only</span>
+                            </Flex>
+                          </GridItem>
+                          <GridItem span={6} md={3}>
+                            <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                              <code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontWeight: 'bold' }}>:3.12</code>
+                              <span style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Pinned version</span>
+                            </Flex>
+                          </GridItem>
+                        </Grid>
+                      </div>
+
+                      {/* Container Pull Commands */}
+                      <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
+                        Container Pull Commands<TypeLabel level="H3" />
+                      </Content>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                        Pull the image directly with Podman or Docker:
+                      </Content>
+                      <Grid hasGutter style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
+                        <GridItem span={12} md={6}>
+                          <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--xs)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>Production (latest)</Content>
+                          <CodeBlock actions={<CodeBlockAction><Button variant="plain" aria-label="Copy" onClick={() => navigator.clipboard.writeText(`podman pull registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:latest`)}><CopyIcon /></Button></CodeBlockAction>}>
+                            <CodeBlockCode style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>{`podman pull registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:latest`}</CodeBlockCode>
+                          </CodeBlock>
+                        </GridItem>
+                        <GridItem span={12} md={6}>
+                          <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--xs)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>FIPS Compliant</Content>
+                          <CodeBlock actions={<CodeBlockAction><Button variant="plain" aria-label="Copy" onClick={() => navigator.clipboard.writeText(`podman pull registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:latest-fips`)}><CopyIcon /></Button></CodeBlockAction>}>
+                            <CodeBlockCode style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>{`podman pull registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:latest-fips`}</CodeBlockCode>
+                          </CodeBlock>
+                        </GridItem>
+                        <GridItem span={12} md={6}>
+                          <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--xs)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>Development (Builder)</Content>
+                          <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--xs)', fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Includes package managers & build tools. Not for production.</Content>
+                          <CodeBlock actions={<CodeBlockAction><Button variant="plain" aria-label="Copy" onClick={() => navigator.clipboard.writeText(`podman pull registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:latest-dev`)}><CopyIcon /></Button></CodeBlockAction>}>
+                            <CodeBlockCode style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>{`podman pull registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:latest-dev`}</CodeBlockCode>
+                          </CodeBlock>
+                        </GridItem>
+                        <GridItem span={12} md={6}>
+                          <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--xs)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>Pinned Version</Content>
+                          <CodeBlock actions={<CodeBlockAction><Button variant="plain" aria-label="Copy" onClick={() => navigator.clipboard.writeText(`podman pull registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:3.12`)}><CopyIcon /></Button></CodeBlockAction>}>
+                            <CodeBlockCode style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>{`podman pull registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:3.12`}</CodeBlockCode>
+                          </CodeBlock>
+                        </GridItem>
+                      </Grid>
+
+                      {/* Kubernetes / Helm */}
+                      <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
+                        Kubernetes / Helm<TypeLabel level="H3" />
+                      </Content>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                        Add this to your Helm values.yaml or Kubernetes deployment:
+                      </Content>
+                      <CodeBlock style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }} actions={<CodeBlockAction><Button variant="plain" aria-label="Copy Helm snippet" onClick={() => navigator.clipboard.writeText(`# values.yaml
+image:
+  repository: registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}
+  tag: "latest"        # or "latest-fips" for FIPS compliance
+  pullPolicy: IfNotPresent
+
+# For FIPS-compliant deployments:
+# tag: "latest-fips"
+
+# For development environments only (includes build tools, NOT for production):
+# tag: "latest-dev"
+
+# For pinned versions (recommended for production):
+# tag: "3.12"`)}><CopyIcon /></Button></CodeBlockAction>}>
+                        <CodeBlockCode style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>{`# values.yaml
+image:
+  repository: registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}
+  tag: "latest"        # or "latest-fips" for FIPS compliance
+  pullPolicy: IfNotPresent
+
+# For FIPS-compliant deployments:
+# tag: "latest-fips"
+
+# For development environments only (includes build tools, NOT for production):
+# tag: "latest-dev"
+
+# For pinned versions (recommended for production):
+# tag: "3.12"`}</CodeBlockCode>
+                      </CodeBlock>
+
+                      {/* Terraform */}
+                      <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
+                        Terraform<TypeLabel level="H3" />
+                      </Content>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                        Use this Terraform block for container deployments:
+                      </Content>
+                      <CodeBlock style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }} actions={<CodeBlockAction><Button variant="plain" aria-label="Copy Terraform block" onClick={() => navigator.clipboard.writeText(`# Terraform container resource
+resource "docker_image" "hummingbird_${selectedImage?.name.toLowerCase()}" {
+  name = "registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:latest"
+}
+
+resource "docker_container" "${selectedImage?.name.toLowerCase()}" {
+  name  = "${selectedImage?.name.toLowerCase()}-app"
+  image = docker_image.hummingbird_${selectedImage?.name.toLowerCase()}.image_id
+
+  ports {
+    internal = 8080
+    external = 8080
+  }
+
+  # For FIPS compliance, use:
+  # name = "registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:latest-fips"
+}`)}><CopyIcon /></Button></CodeBlockAction>}>
+                        <CodeBlockCode style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>{`# Terraform container resource
+resource "docker_image" "hummingbird_${selectedImage?.name.toLowerCase()}" {
+  name = "registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:latest"
+}
+
+resource "docker_container" "${selectedImage?.name.toLowerCase()}" {
+  name  = "${selectedImage?.name.toLowerCase()}-app"
+  image = docker_image.hummingbird_${selectedImage?.name.toLowerCase()}.image_id
+
+  ports {
+    internal = 8080
+    external = 8080
+  }
+
+  # For FIPS compliance, use:
+  # name = "registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:latest-fips"
+}`}</CodeBlockCode>
+                      </CodeBlock>
+
+                      {/* OpenShift / Kubernetes YAML */}
+                      <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
+                        OpenShift / Kubernetes YAML<TypeLabel level="H3" />
+                      </Content>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                        Deploy directly with kubectl or oc:
+                      </Content>
+                      <CodeBlock actions={<CodeBlockAction><Button variant="plain" aria-label="Copy K8s YAML" onClick={() => navigator.clipboard.writeText(`apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${selectedImage?.name.toLowerCase()}-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${selectedImage?.name.toLowerCase()}
+  template:
+    metadata:
+      labels:
+        app: ${selectedImage?.name.toLowerCase()}
+    spec:
+      containers:
+      - name: ${selectedImage?.name.toLowerCase()}
+        image: registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:latest
+        # For FIPS: registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:latest-fips
+        ports:
+        - containerPort: 8080
+        securityContext:
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false`)}><CopyIcon /></Button></CodeBlockAction>}>
+                        <CodeBlockCode style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>{`apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${selectedImage?.name.toLowerCase()}-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${selectedImage?.name.toLowerCase()}
+  template:
+    metadata:
+      labels:
+        app: ${selectedImage?.name.toLowerCase()}
+    spec:
+      containers:
+      - name: ${selectedImage?.name.toLowerCase()}
+        image: registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:latest
+        # For FIPS: registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:latest-fips
+        ports:
+        - containerPort: 8080
+        securityContext:
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false`}</CodeBlockCode>
+                      </CodeBlock>
                     </div>
                   </CompassPanel>
                 </div>
@@ -1747,7 +1981,39 @@ podman run -d -p 8080:8080 my-website`}</CodeBlockCode></CodeBlock>
                   <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Compatibility Notes<TypeLabel level="H2" /></Content>
                   <CompassPanel>
                     <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
-                      <Content component="p">The Hummingbird httpd image is aiming to be compatible with the docker.io/httpd:latest image. For details, see the compatibility table.</Content>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+                        The Hummingbird {selectedImage?.name} image is designed to be a drop-in compatible alternative for{' '}
+                        <code style={{ 
+                          fontFamily: 'var(--pf-t--global--font--family--mono)',
+                          fontSize: 'var(--pf-t--global--font--size--body--sm)',
+                          backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+                          padding: '2px 6px',
+                          borderRadius: '4px'
+                        }}>
+                          docker.io/library/{selectedImage?.name.toLowerCase()}:latest
+                        </code>
+                        {' '}({selectedImage?.upstreamSize || 'N/A'}).
+                      </Content>
+                      <Flex gap={{ default: 'gapLg' }} style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+                        <FlexItem>
+                          <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                            <span style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Upstream Size</span>
+                            <span style={{ fontWeight: 'bold' }}>{selectedImage?.upstreamSize || 'N/A'}</span>
+                          </Flex>
+                        </FlexItem>
+                        <FlexItem>
+                          <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                            <span style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Hummingbird Size</span>
+                            <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                              <span style={{ fontWeight: 'bold', color: 'var(--pf-t--global--icon--color--status--success--default)' }}>{selectedImage?.size || 'N/A'}</span>
+                              <Label color="green" isCompact>Optimized</Label>
+                            </Flex>
+                          </Flex>
+                        </FlexItem>
+                      </Flex>
+                      <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                        For detailed compatibility information and known differences, see the full compatibility table in the documentation.
+                      </Content>
                     </div>
                   </CompassPanel>
                 </div>
@@ -1795,6 +2061,7 @@ Q6VznCXqlzV3AO4AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
               >
                 <JumpLinksItem href="#get-started">Get Started</JumpLinksItem>
                 <JumpLinksItem href="#available-tags">Available Tags</JumpLinksItem>
+                <JumpLinksItem href="#deployment">Deployment</JumpLinksItem>
                 <JumpLinksItem href="#documentation">Documentation</JumpLinksItem>
                 <JumpLinksItem href="#compatibility-notes">Compatibility Notes</JumpLinksItem>
                 <JumpLinksItem href="#image-verification">Image Verification</JumpLinksItem>
@@ -1806,263 +2073,532 @@ Q6VznCXqlzV3AO4AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
 
         {/* Technical Information Tab */}
         {modalTab === 'technical' && (
-          <>
-          <Grid hasGutter>
-            {/* Left column - Architectures, Other, Licenses */}
-            <GridItem span={12} lg={4}>
-              <CompassPanel>
-                <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
-                  <Flex gap={{ default: 'gap2xl' }}>
-                    <FlexItem>
-                      <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>Architectures<TypeLabel level="H3" /></Content>
-                      <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
-                        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                          <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
-                          <span>x86_64</span>
+          <Flex>
+            {/* Left Side - Scrollable Content */}
+            <FlexItem flex={{ default: 'flex_1' }}>
+              <div
+                ref={scrollableRef}
+                style={{
+                  overflowY: 'auto',
+                  maxHeight: '70vh',
+                  paddingRight: 'var(--pf-t--global--spacer--md)'
+                }}
+              >
+                {/* Build Information Section */}
+                <div id="tech-build-info" style={{ marginBottom: 'var(--pf-t--global--spacer--xl)', scrollMarginTop: '24px' }}>
+                  <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Build Information<TypeLabel level="H2" /></Content>
+                  <CompassPanel>
+                    <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                      {/* Upstream Alternative Info */}
+                      <div style={{ 
+                        backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+                        borderRadius: '8px',
+                        padding: 'var(--pf-t--global--spacer--md)',
+                        marginBottom: 'var(--pf-t--global--spacer--lg)'
+                      }}>
+                        <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
+                          Drop-in Alternative For<TypeLabel level="H3" />
+                        </Content>
+                        <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>
+                          This Hummingbird image is designed as a <strong>secure, hardened drop-in alternative</strong> for:
+                        </Content>
+                        <Flex gap={{ default: 'gapMd' }} alignItems={{ default: 'alignItemsCenter' }} style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+                          <Label color="blue" isCompact>Docker Hub</Label>
+                          <code style={{ 
+                            fontFamily: 'var(--pf-t--global--font--family--mono)',
+                            fontSize: 'var(--pf-t--global--font--size--body--default)',
+                            backgroundColor: 'var(--pf-t--global--background--color--primary--default)',
+                            padding: '4px 8px',
+                            borderRadius: '4px'
+                          }}>
+                            docker.io/library/{selectedImage?.name.toLowerCase()}:latest
+                          </code>
                         </Flex>
-                        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                          <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
-                          <span>arm64</span>
-                        </Flex>
-                      </Flex>
-                    </FlexItem>
-                    <FlexItem>
-                      <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>Other<TypeLabel level="H3" /></Content>
-                      <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
-                        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                          <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
-                          <span>RHEL 9</span>
-                        </Flex>
-                        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                          <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
-                          <span>OpenShift 4.14+</span>
-                        </Flex>
-                      </Flex>
-                    </FlexItem>
-                  </Flex>
-                  
-                  <div style={{ marginTop: 'var(--pf-t--global--spacer--lg)' }}>
-                    <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>Licenses<TypeLabel level="H3" /></Content>
-                    <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
-                      <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                        <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
-                        <span>MIT</span>
-                      </Flex>
-                      <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                        <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
-                        <span>Apache-2.0</span>
-                      </Flex>
-                      <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                        <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
-                        <span>PSF-2.0</span>
-                      </Flex>
-                    </Flex>
-                        </div>
-                </div>
-              </CompassPanel>
-            </GridItem>
 
-            {/* Right column - Image Verification */}
-            <GridItem span={12} lg={8}>
-              <CompassPanel>
-                <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
-                  <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
-                    Image Verification<TypeLabel level="H3" />
-                  </Content>
-                  <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
-                    You can use the following public key to verify Hummingbird images:
-                  </Content>
-                  
-                  {/* Public Key Block */}
-                <div style={{
-                  backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
-                  padding: 'var(--pf-t--global--spacer--md)',
-                  borderRadius: 'var(--pf-t--global--border--radius--small)',
-                    fontFamily: 'var(--pf-t--global--font--family--mono)',
-                    fontSize: 'var(--pf-t--global--font--size--body--sm)',
-                    marginBottom: 'var(--pf-t--global--spacer--md)',
-                    overflowX: 'auto',
-                  }}>
-                    <pre style={{ margin: 0 }}>
+                        {/* Size Comparison */}
+                        <div style={{ 
+                          backgroundColor: 'var(--pf-t--global--background--color--primary--default)',
+                          borderRadius: '8px',
+                          padding: 'var(--pf-t--global--spacer--md)',
+                          marginBottom: 'var(--pf-t--global--spacer--md)'
+                        }}>
+                          <Content component="h4" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>
+                            Size Comparison
+                          </Content>
+                          <Grid hasGutter>
+                            <GridItem span={6}>
+                              <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                                <span style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Upstream (Docker Hub)</span>
+                                <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                                  <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--pf-t--global--icon--color--status--danger--default)' }}>{selectedImage?.upstreamSize || 'N/A'}</span>
+                                </Flex>
+                              </Flex>
+                            </GridItem>
+                            <GridItem span={6}>
+                              <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                                <span style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Hummingbird</span>
+                                <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                                  <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--pf-t--global--icon--color--status--success--default)' }}>{selectedImage?.size || 'N/A'}</span>
+                                  <Label color="green" isCompact>
+                                    {selectedImage?.upstreamSize && selectedImage?.size ? 
+                                      `${Math.round((1 - parseFloat(selectedImage.size) / (selectedImage.upstreamSize.includes('GB') ? parseFloat(selectedImage.upstreamSize) * 1000 : parseFloat(selectedImage.upstreamSize))) * 100)}% smaller` 
+                                      : ''}
+                                  </Label>
+                                </Flex>
+                              </Flex>
+                            </GridItem>
+                          </Grid>
+                        </div>
+
+                        <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)', margin: 0 }}>
+                          Hummingbird {selectedImage?.name} provides the same functionality with a significantly reduced attack surface, 
+                          near-zero CVEs, and full compatibility with existing workflows. Simply swap the image reference in your 
+                          Containerfile or deployment configuration.
+                        </Content>
+                      </div>
+
+                      {/* Build Pipeline Info */}
+                      <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
+                        Build Pipeline<TypeLabel level="H3" />
+                      </Content>
+                      <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                        This image is built using Red Hat's Trusted Application Pipeline with full supply chain attestation.
+                      </Content>
+                      
+                      <Grid hasGutter style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+                        <GridItem span={6}>
+                          <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                            <Content component="p" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Build System</Content>
+                            <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>Konflux (Tekton Chains)</Content>
+                          </Flex>
+                        </GridItem>
+                        <GridItem span={6}>
+                          <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                            <Content component="p" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Last Build</Content>
+                            <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>January 28, 2026 at 14:30 UTC</Content>
+                          </Flex>
+                        </GridItem>
+                        <GridItem span={6}>
+                          <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                            <Content component="p" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Build ID</Content>
+                            <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>
+                              <code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                                hb-{selectedImage?.name.toLowerCase()}-20260128-1430
+                              </code>
+                            </Content>
+                          </Flex>
+                        </GridItem>
+                        <GridItem span={6}>
+                          <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                            <Content component="p" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>SLSA Level</Content>
+                            <Flex gap={{ default: 'gapSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                              <Label color="green" icon={<CheckCircleIcon />} isCompact>Level 3</Label>
+                            </Flex>
+                          </Flex>
+                        </GridItem>
+                      </Grid>
+
+                      <Flex gap={{ default: 'gapSm' }}>
+                        <Button 
+                          variant="primary" 
+                          icon={<ExternalLinkAltIcon />} 
+                          iconPosition="end"
+                          component="a" 
+                          href={`https://konflux.ci/builds/hummingbird/${selectedImage?.name.toLowerCase()}`} 
+                          target="_blank"
+                        >
+                          View Build Pipeline
+                        </Button>
+                        <Button 
+                          variant="secondary" 
+                          icon={<ExternalLinkAltIcon />} 
+                          iconPosition="end"
+                          component="a" 
+                          href={`https://github.com/redhat/hummingbird-${selectedImage?.name.toLowerCase()}`} 
+                          target="_blank"
+                        >
+                          Source Repository
+                        </Button>
+                      </Flex>
+                    </div>
+                  </CompassPanel>
+                </div>
+
+                {/* System Requirements Section */}
+                <div id="tech-system-requirements" style={{ marginBottom: 'var(--pf-t--global--spacer--xl)', scrollMarginTop: '24px' }}>
+                  <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>System Requirements<TypeLabel level="H2" /></Content>
+                  <CompassPanel>
+                    <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                      {/* Architecture Support with Badges */}
+                      <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
+                        Architecture Support<TypeLabel level="H3" />
+                      </Content>
+                      <Flex gap={{ default: 'gapMd' }} style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
+                        <Label color="blue" icon={<CheckCircleIcon />}>amd64 / x86_64</Label>
+                        <Label color="blue" icon={<CheckCircleIcon />}>arm64 / aarch64</Label>
+                        <Label color="grey" variant="outline">s390x (coming soon)</Label>
+                      </Flex>
+
+                      <Grid hasGutter style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
+                        {/* Default User ID */}
+                        <GridItem span={12} md={6}>
+                          <div style={{ 
+                            backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+                            borderRadius: '8px',
+                            padding: 'var(--pf-t--global--spacer--md)',
+                            height: '100%'
+                          }}>
+                            <Content component="h4" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold' }}>
+                              Default User ID
+                            </Content>
+                            <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }} style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
+                              <Label color="green" icon={<CheckCircleIcon />}>Non-root</Label>
+                              <code style={{ 
+                                fontFamily: 'var(--pf-t--global--font--family--mono)',
+                                fontSize: 'var(--pf-t--global--font--size--body--default)',
+                                fontWeight: 'bold'
+                              }}>
+                                UID 65532
+                              </code>
+                            </Flex>
+                            <Content component="p" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                              This image runs as a non-root user by default for enhanced security. 
+                              The container will not have elevated privileges unless explicitly granted.
+                            </Content>
+                          </div>
+                        </GridItem>
+
+                        {/* Platform Compatibility */}
+                        <GridItem span={12} md={6}>
+                          <div style={{ 
+                            backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+                            borderRadius: '8px',
+                            padding: 'var(--pf-t--global--spacer--md)',
+                            height: '100%'
+                          }}>
+                            <Content component="h4" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold' }}>
+                              Platform Compatibility
+                            </Content>
+                            <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                              <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                                <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
+                                <span>RHEL 9+</span>
+                              </Flex>
+                              <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                                <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
+                                <span>OpenShift 4.14+</span>
+                              </Flex>
+                              <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                                <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
+                                <span>Kubernetes 1.28+</span>
+                              </Flex>
+                              <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                                <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
+                                <span>Podman / Docker</span>
+                              </Flex>
+                            </Flex>
+                          </div>
+                        </GridItem>
+                      </Grid>
+                    </div>
+                  </CompassPanel>
+                </div>
+
+                {/* Runtime Configuration Section */}
+                <div id="tech-runtime-config" style={{ marginBottom: 'var(--pf-t--global--spacer--xl)', scrollMarginTop: '24px' }}>
+                  <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Runtime Configuration<TypeLabel level="H2" /></Content>
+                  <CompassPanel>
+                    <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                      {/* Entrypoint & Command */}
+                      <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
+                        Entrypoint & Command<TypeLabel level="H3" />
+                      </Content>
+                      <div style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
+                        <Grid hasGutter>
+                          <GridItem span={12} md={6}>
+                            <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--xs)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>ENTRYPOINT</Content>
+                            <CodeBlock>
+                              <CodeBlockCode style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>["/usr/bin/{selectedImage?.name.toLowerCase()}"]</CodeBlockCode>
+                            </CodeBlock>
+                          </GridItem>
+                          <GridItem span={12} md={6}>
+                            <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--xs)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>CMD (default)</Content>
+                            <CodeBlock>
+                              <CodeBlockCode style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>["--help"]</CodeBlockCode>
+                            </CodeBlock>
+                          </GridItem>
+                        </Grid>
+                      </div>
+
+                      {/* Environment Variables */}
+                      <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
+                        Default Environment Variables<TypeLabel level="H3" />
+                      </Content>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                        These environment variables are set by default in the container image:
+                      </Content>
+                      <Table variant="compact" borders={false}>
+                        <Thead>
+                          <Tr>
+                            <Th>Variable</Th>
+                            <Th>Default Value</Th>
+                            <Th>Description</Th>
+                          </Tr>
+                        </Thead>
+                        <Tbody>
+                          <Tr>
+                            <Td><code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>HOME</code></Td>
+                            <Td><code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>/home/hummingbird</code></Td>
+                            <Td style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>Home directory for the non-root user</Td>
+                          </Tr>
+                          <Tr>
+                            <Td><code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>USER</code></Td>
+                            <Td><code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>hummingbird</code></Td>
+                            <Td style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>Username of the container user</Td>
+                          </Tr>
+                          <Tr>
+                            <Td><code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>PATH</code></Td>
+                            <Td><code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>/usr/local/bin:/usr/bin</code></Td>
+                            <Td style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>System path for executables</Td>
+                          </Tr>
+                          <Tr>
+                            <Td><code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>LANG</code></Td>
+                            <Td><code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>C.UTF-8</code></Td>
+                            <Td style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>Default locale setting</Td>
+                          </Tr>
+                          <Tr>
+                            <Td><code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>TZ</code></Td>
+                            <Td><code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>UTC</code></Td>
+                            <Td style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>Timezone (override with -e TZ=...)</Td>
+                          </Tr>
+                        </Tbody>
+                      </Table>
+
+                      {/* Exposed Ports */}
+                      <Content component="h3" style={{ marginTop: 'var(--pf-t--global--spacer--lg)', marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
+                        Exposed Ports<TypeLabel level="H3" />
+                      </Content>
+                      <Flex gap={{ default: 'gapMd' }}>
+                        <Label color="blue" isCompact>8080/tcp (HTTP)</Label>
+                        <Label color="grey" variant="outline" isCompact>8443/tcp (HTTPS, optional)</Label>
+                      </Flex>
+                      <Content component="p" style={{ marginTop: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                        Port 8080 is used instead of 80 because the container runs as a non-root user and cannot bind to privileged ports (&lt;1024).
+                      </Content>
+                    </div>
+                  </CompassPanel>
+                </div>
+
+                {/* Licenses Section */}
+                <div id="tech-licenses" style={{ marginBottom: 'var(--pf-t--global--spacer--xl)', scrollMarginTop: '24px' }}>
+                  <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Licenses<TypeLabel level="H2" /></Content>
+                  <CompassPanel>
+                    <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                      <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                          <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
+                          <span>MIT</span>
+                        </Flex>
+                        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                          <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
+                          <span>Apache-2.0</span>
+                        </Flex>
+                        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                          <CheckCircleIcon style={{ color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
+                          <span>PSF-2.0</span>
+                        </Flex>
+                      </Flex>
+                    </div>
+                  </CompassPanel>
+                </div>
+
+                {/* Image Verification Section */}
+                <div id="tech-image-verification" style={{ marginBottom: 'var(--pf-t--global--spacer--xl)', scrollMarginTop: '24px' }}>
+                  <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Image Verification<TypeLabel level="H2" /></Content>
+                  <CompassPanel>
+                    <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                      <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                        You can use the following public key to verify Hummingbird images:
+                      </Content>
+                      
+                      <div style={{
+                        backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+                        padding: 'var(--pf-t--global--spacer--md)',
+                        borderRadius: 'var(--pf-t--global--border--radius--small)',
+                        fontFamily: 'var(--pf-t--global--font--family--mono)',
+                        fontSize: 'var(--pf-t--global--font--size--body--sm)',
+                        marginBottom: 'var(--pf-t--global--spacer--md)',
+                        overflowX: 'auto',
+                      }}>
+                        <pre style={{ margin: 0 }}>
 {`-----BEGIN PUBLIC KEY-----
 MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEtYRltxRJvXLMpXT+pIIu86CLhDP7
 Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
 -----END PUBLIC KEY-----`}
-                    </pre>
+                        </pre>
+                      </div>
+
+                      <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                        First, copy the key to a file (e.g., <Button variant="link" isInline style={{ padding: 0 }}>key.pub</Button>). Then verify with cosign:
+                      </Content>
+
+                      <div style={{
+                        backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+                        padding: 'var(--pf-t--global--spacer--md)',
+                        borderRadius: 'var(--pf-t--global--border--radius--small)',
+                        fontFamily: 'var(--pf-t--global--font--family--mono)',
+                        fontSize: 'var(--pf-t--global--font--size--body--sm)',
+                        marginBottom: 'var(--pf-t--global--spacer--md)',
+                      }}>
+                        <span style={{ color: 'var(--pf-t--global--color--nonstatus--red--default)' }}>cosign</span> verify --key key.pub --insecure-ignore-tlog registry.access.redhat.com/hummingbird/{selectedImage?.name.toLowerCase()}:latest
+                      </div>
+
+                      <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                        Note: The key verifies images built in Hummingbird&apos;s Tekton pipeline. Official releases will be signed with Red Hat&apos;s publishing key.
+                      </Content>
                     </div>
-
-                  <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
-                    First, copy the key to a file (e.g., <Button variant="link" isInline style={{ padding: 0 }}>key.pub</Button>). Then verify with cosign:
-                  </Content>
-
-                  {/* Cosign Command */}
-                  <div style={{
-                    backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
-                    padding: 'var(--pf-t--global--spacer--md)',
-                    borderRadius: 'var(--pf-t--global--border--radius--small)',
-                    fontFamily: 'var(--pf-t--global--font--family--mono)',
-                    fontSize: 'var(--pf-t--global--font--size--body--sm)',
-                    marginBottom: 'var(--pf-t--global--spacer--md)',
-                  }}>
-                    <span style={{ color: 'var(--pf-t--global--color--nonstatus--red--default)' }}>cosign</span> verify --key key.pub --insecure-ignore-tlog registry.access.redhat.com/hummingbird/{selectedImage?.name.toLowerCase()}:latest
+                  </CompassPanel>
                 </div>
 
-                  <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
-                    Note: The key verifies images built in Hummingbird&apos;s Tekton pipeline. Official releases will be signed with Red Hat&apos;s publishing key.
-                  </Content>
-            </div>
-              </CompassPanel>
+                {/* Vulnerability Scanning Section */}
+                <div id="tech-vulnerability-scanning" style={{ marginBottom: 'var(--pf-t--global--spacer--xl)', scrollMarginTop: '24px' }}>
+                  <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Vulnerability Scanning<TypeLabel level="H2" /></Content>
+                  <CompassPanel>
+                    <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                      <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                        Hummingbird uses <Button variant="link" isInline style={{ padding: 0 }}>Syft</Button> for SBOM generation and <Button variant="link" isInline style={{ padding: 0 }}>Grype</Button> for vulnerability detection. Run the scan locally:
+                      </Content>
 
-              {/* Vulnerability Scanning */}
-              <CompassPanel style={{ marginTop: 'var(--pf-t--global--spacer--lg)' }}>
-                <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
-                  <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
-                    Vulnerability Scanning<TypeLabel level="H3" />
-                  </Content>
-                  <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
-                    Hummingbird uses <Button variant="link" isInline style={{ padding: 0 }}>Syft</Button> for SBOM generation and <Button variant="link" isInline style={{ padding: 0 }}>Grype</Button> for vulnerability detection. Run the scan locally:
-                  </Content>
+                      <div style={{
+                        backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+                        padding: 'var(--pf-t--global--spacer--md)',
+                        borderRadius: 'var(--pf-t--global--border--radius--small)',
+                        fontFamily: 'var(--pf-t--global--font--family--mono)',
+                        fontSize: 'var(--pf-t--global--font--size--body--sm)',
+                        marginBottom: 'var(--pf-t--global--spacer--md)',
+                        overflowX: 'auto',
+                      }}>
+                        <span style={{ color: 'var(--pf-t--global--color--nonstatus--red--default)' }}>podman</span> run --volume vuln-db:/tmp/.cache registry.access.redhat.com/hummingbird-ci/grype-hummingbird.sh registry.access.redhat.com/hummingbird/{selectedImage?.name.toLowerCase()}:latest
+                      </div>
 
-                  {/* Scan Command */}
-                  <div style={{
-                    backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
-                    padding: 'var(--pf-t--global--spacer--md)',
-                    borderRadius: 'var(--pf-t--global--border--radius--small)',
-                    fontFamily: 'var(--pf-t--global--font--family--mono)',
-                    fontSize: 'var(--pf-t--global--font--size--body--sm)',
-                    marginBottom: 'var(--pf-t--global--spacer--md)',
-                    overflowX: 'auto',
-                  }}>
-                    <span style={{ color: 'var(--pf-t--global--color--nonstatus--red--default)' }}>podman</span> run --volume vuln-db:/tmp/.cache registry.access.redhat.com/hummingbird-ci/grype-hummingbird.sh registry.access.redhat.com/hummingbird/{selectedImage?.name.toLowerCase()}:latest
-                  </div>
+                      <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                        For detailed scanning documentation, see the <Button variant="link" isInline icon={<ExternalLinkAltIcon />} iconPosition="end" style={{ padding: 0 }}>vulnerability scanning guide</Button>.
+                      </Content>
 
-                  <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
-                    For detailed scanning documentation, see the <Button variant="link" isInline icon={<ExternalLinkAltIcon />} iconPosition="end" style={{ padding: 0 }}>vulnerability scanning guide</Button>.
-                  </Content>
-
-                  {/* Vulnerabilities Summary */}
-                  <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
-                    Current Scan Results<TypeLabel level="H3" />
-                  </Content>
-                  <Flex gap={{ default: 'gapMd' }}>
-                    <Label color="green" icon={<CheckCircleIcon />}>0 Critical</Label>
-                    <Label color="green" icon={<CheckCircleIcon />}>0 High</Label>
-                    <Label color="green" icon={<CheckCircleIcon />}>0 Medium</Label>
-                    <Label color="blue">2 Low</Label>
-                  </Flex>
+                      <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
+                        Current Scan Results<TypeLabel level="H3" />
+                      </Content>
+                      <Flex gap={{ default: 'gapMd' }}>
+                        <Label color="green" icon={<CheckCircleIcon />}>0 Critical</Label>
+                        <Label color="green" icon={<CheckCircleIcon />}>0 High</Label>
+                        <Label color="green" icon={<CheckCircleIcon />}>0 Medium</Label>
+                        <Label color="blue">2 Low</Label>
+                      </Flex>
+                    </div>
+                  </CompassPanel>
                 </div>
-              </CompassPanel>
-        </GridItem>
-          </Grid>
 
-          {/* Inventory Section */}
-          <CompassPanel style={{ marginTop: 'var(--pf-t--global--spacer--lg)' }}>
-            <div style={{ padding: 'var(--pf-t--global--spacer--xl)' }}>
-              <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--lg)', fontSize: 'var(--pf-t--global--font--size--heading--h2)' }}>
-                Inventory<TypeLabel level="H2" />
-              </Content>
-              
-              {/* Inventory items as a list */}
-              <div>
-                {/* Layers */}
-                <Flex 
-                  justifyContent={{ default: 'justifyContentSpaceBetween' }} 
-                  alignItems={{ default: 'alignItemsCenter' }}
-                  style={{ 
-                    padding: 'var(--pf-t--global--spacer--md) 0',
-                    borderBottom: '1px solid var(--pf-t--global--border--color--default)',
-                  }}
-                >
-                  <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>12 Layers</Content>
-                  <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                    <span style={{ color: 'var(--pf-t--global--color--brand--default)', fontWeight: 'bold' }}>12</span>
-                    <CheckCircleIcon style={{ color: 'var(--pf-t--global--color--brand--default)' }} />
-                  </Flex>
-                </Flex>
-
-                {/* Packages */}
-                <Flex 
-                  justifyContent={{ default: 'justifyContentSpaceBetween' }} 
-                  alignItems={{ default: 'alignItemsCenter' }}
-                  style={{ 
-                    padding: 'var(--pf-t--global--spacer--md) 0',
-                    borderBottom: '1px solid var(--pf-t--global--border--color--default)',
-                  }}
-                >
-                  <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>42 Packages</Content>
-                  <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                    <span style={{ color: 'var(--pf-t--global--color--brand--default)', fontWeight: 'bold' }}>42</span>
-                    <CheckCircleIcon style={{ color: 'var(--pf-t--global--color--brand--default)' }} />
+                {/* Inventory Section */}
+                <div id="tech-inventory" style={{ marginBottom: 'var(--pf-t--global--spacer--xl)', scrollMarginTop: '24px' }}>
+                  <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Inventory<TypeLabel level="H2" /></Content>
+                  <CompassPanel>
+                    <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                      <Flex 
+                        justifyContent={{ default: 'justifyContentSpaceBetween' }} 
+                        alignItems={{ default: 'alignItemsCenter' }}
+                        style={{ padding: 'var(--pf-t--global--spacer--md) 0', borderBottom: '1px solid var(--pf-t--global--border--color--default)' }}
+                      >
+                        <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>12 Layers</Content>
+                        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                          <span style={{ color: 'var(--pf-t--global--color--brand--default)', fontWeight: 'bold' }}>12</span>
+                          <CheckCircleIcon style={{ color: 'var(--pf-t--global--color--brand--default)' }} />
+                        </Flex>
                       </Flex>
-                </Flex>
 
-                {/* Dependencies */}
-                <Flex 
-                  justifyContent={{ default: 'justifyContentSpaceBetween' }} 
-                  alignItems={{ default: 'alignItemsCenter' }}
-                  style={{ 
-                    padding: 'var(--pf-t--global--spacer--md) 0',
-                    borderBottom: '1px solid var(--pf-t--global--border--color--default)',
-                  }}
-                >
-                  <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>156 Dependencies</Content>
-                              <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                    <span style={{ color: 'var(--pf-t--global--color--brand--default)', fontWeight: 'bold' }}>156</span>
-                    <CheckCircleIcon style={{ color: 'var(--pf-t--global--color--brand--default)' }} />
-                              </Flex>
-                </Flex>
-
-                {/* Files */}
-                <Flex 
-                  justifyContent={{ default: 'justifyContentSpaceBetween' }} 
-                  alignItems={{ default: 'alignItemsCenter' }}
-                  style={{ 
-                    padding: 'var(--pf-t--global--spacer--md) 0',
-                    borderBottom: '1px solid var(--pf-t--global--border--color--default)',
-                  }}
-                >
-                  <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>2,847 Files</Content>
-                              <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                    <span style={{ color: 'var(--pf-t--global--color--brand--default)', fontWeight: 'bold' }}>2,847</span>
-                    <CheckCircleIcon style={{ color: 'var(--pf-t--global--color--brand--default)' }} />
-                              </Flex>
-                </Flex>
-
-                {/* Size */}
-                <Flex 
-                  justifyContent={{ default: 'justifyContentSpaceBetween' }} 
-                  alignItems={{ default: 'alignItemsCenter' }}
-                  style={{ 
-                    padding: 'var(--pf-t--global--spacer--md) 0',
-                    borderBottom: '1px solid var(--pf-t--global--border--color--default)',
-                  }}
-                >
-                  <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>24 MB Compressed</Content>
-                              <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                    <span style={{ color: 'var(--pf-t--global--color--brand--default)', fontWeight: 'bold' }}>24</span>
-                    <CheckCircleIcon style={{ color: 'var(--pf-t--global--color--brand--default)' }} />
-                              </Flex>
-                </Flex>
-
-                {/* Architectures */}
-                <Flex 
-                  justifyContent={{ default: 'justifyContentSpaceBetween' }} 
-                  alignItems={{ default: 'alignItemsCenter' }}
-                  style={{ 
-                    padding: 'var(--pf-t--global--spacer--md) 0',
-                  }}
-                >
-                  <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>3 Architectures</Content>
-                              <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                    <span style={{ color: 'var(--pf-t--global--color--brand--default)', fontWeight: 'bold' }}>3</span>
-                    <CheckCircleIcon style={{ color: 'var(--pf-t--global--color--brand--default)' }} />
-                              </Flex>
+                      <Flex 
+                        justifyContent={{ default: 'justifyContentSpaceBetween' }} 
+                        alignItems={{ default: 'alignItemsCenter' }}
+                        style={{ padding: 'var(--pf-t--global--spacer--md) 0', borderBottom: '1px solid var(--pf-t--global--border--color--default)' }}
+                      >
+                        <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>42 Packages</Content>
+                        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                          <span style={{ color: 'var(--pf-t--global--color--brand--default)', fontWeight: 'bold' }}>42</span>
+                          <CheckCircleIcon style={{ color: 'var(--pf-t--global--color--brand--default)' }} />
+                        </Flex>
                       </Flex>
+
+                      <Flex 
+                        justifyContent={{ default: 'justifyContentSpaceBetween' }} 
+                        alignItems={{ default: 'alignItemsCenter' }}
+                        style={{ padding: 'var(--pf-t--global--spacer--md) 0', borderBottom: '1px solid var(--pf-t--global--border--color--default)' }}
+                      >
+                        <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>156 Dependencies</Content>
+                        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                          <span style={{ color: 'var(--pf-t--global--color--brand--default)', fontWeight: 'bold' }}>156</span>
+                          <CheckCircleIcon style={{ color: 'var(--pf-t--global--color--brand--default)' }} />
+                        </Flex>
+                      </Flex>
+
+                      <Flex 
+                        justifyContent={{ default: 'justifyContentSpaceBetween' }} 
+                        alignItems={{ default: 'alignItemsCenter' }}
+                        style={{ padding: 'var(--pf-t--global--spacer--md) 0', borderBottom: '1px solid var(--pf-t--global--border--color--default)' }}
+                      >
+                        <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>2,847 Files</Content>
+                        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                          <span style={{ color: 'var(--pf-t--global--color--brand--default)', fontWeight: 'bold' }}>2,847</span>
+                          <CheckCircleIcon style={{ color: 'var(--pf-t--global--color--brand--default)' }} />
+                        </Flex>
+                      </Flex>
+
+                      <Flex 
+                        justifyContent={{ default: 'justifyContentSpaceBetween' }} 
+                        alignItems={{ default: 'alignItemsCenter' }}
+                        style={{ padding: 'var(--pf-t--global--spacer--md) 0', borderBottom: '1px solid var(--pf-t--global--border--color--default)' }}
+                      >
+                        <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>24 MB Compressed</Content>
+                        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                          <span style={{ color: 'var(--pf-t--global--color--brand--default)', fontWeight: 'bold' }}>24</span>
+                          <CheckCircleIcon style={{ color: 'var(--pf-t--global--color--brand--default)' }} />
+                        </Flex>
+                      </Flex>
+
+                      <Flex 
+                        justifyContent={{ default: 'justifyContentSpaceBetween' }} 
+                        alignItems={{ default: 'alignItemsCenter' }}
+                        style={{ padding: 'var(--pf-t--global--spacer--md) 0' }}
+                      >
+                        <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>3 Architectures</Content>
+                        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                          <span style={{ color: 'var(--pf-t--global--color--brand--default)', fontWeight: 'bold' }}>3</span>
+                          <CheckCircleIcon style={{ color: 'var(--pf-t--global--color--brand--default)' }} />
+                        </Flex>
+                      </Flex>
+                    </div>
+                  </CompassPanel>
+                </div>
               </div>
-            </div>
-          </CompassPanel>
+            </FlexItem>
 
-          </>
+            {/* Right Side - Jump Links */}
+            <FlexItem style={{ width: '200px', minWidth: '200px', paddingLeft: 'var(--pf-t--global--spacer--md)' }}>
+              <JumpLinks
+                isVertical
+                scrollableRef={scrollableRef}
+                offset={160}
+                aria-label="Technical information navigation"
+                style={{ '--pf-v6-c-jump-links__list--before--BorderLeftWidth': '0' } as React.CSSProperties}
+              >
+                <JumpLinksItem href="#tech-build-info">Build Information</JumpLinksItem>
+                <JumpLinksItem href="#tech-system-requirements">System Requirements</JumpLinksItem>
+                <JumpLinksItem href="#tech-runtime-config">Runtime Configuration</JumpLinksItem>
+                <JumpLinksItem href="#tech-licenses">Licenses</JumpLinksItem>
+                <JumpLinksItem href="#tech-image-verification">Image Verification</JumpLinksItem>
+                <JumpLinksItem href="#tech-vulnerability-scanning">Vulnerability Scanning</JumpLinksItem>
+                <JumpLinksItem href="#tech-inventory">Inventory</JumpLinksItem>
+              </JumpLinks>
+            </FlexItem>
+          </Flex>
         )}
 
         {/* Security Feed Tab */}
@@ -2176,21 +2712,37 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
             sbomPage * sbomPerPage
           );
           return (
+          <>
           <CompassPanel>
             <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
-              <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h2)' }}>Software Bill of Materials (SBOM)<TypeLabel level="H2" /></Content>
-              <Flex gap={{ default: 'gapMd' }} alignItems={{ default: 'alignItemsCenter' }} style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
-                <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
-                  Generated: <strong>January 28, 2026 at 14:32 UTC</strong>
-                </Content>
-                <span style={{ color: 'var(--pf-t--global--border--color--default)' }}>|</span>
-                <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
-                  Format: <strong>SPDX 2.3</strong>
-                </Content>
-                <span style={{ color: 'var(--pf-t--global--border--color--default)' }}>|</span>
-                <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
-                  Tool: <strong>Syft v1.0.1</strong>
-                </Content>
+              <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} alignItems={{ default: 'alignItemsFlexStart' }} style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+                <div>
+                  <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h2)' }}>Software Bill of Materials (SBOM)<TypeLabel level="H2" /></Content>
+                  <Flex gap={{ default: 'gapMd' }} alignItems={{ default: 'alignItemsCenter' }}>
+                    <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                      Generated: <strong>January 28, 2026 at 14:32 UTC</strong>
+                    </Content>
+                    <span style={{ color: 'var(--pf-t--global--border--color--default)' }}>|</span>
+                    <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                      Format: <strong>SPDX 2.3</strong>
+                    </Content>
+                    <span style={{ color: 'var(--pf-t--global--border--color--default)' }}>|</span>
+                    <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                      Tool: <strong>Syft v1.0.1</strong>
+                    </Content>
+                  </Flex>
+                </div>
+                <Flex gap={{ default: 'gapSm' }}>
+                  <Button variant="secondary" icon={<DownloadIcon />} component="a" href={`https://registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}/sbom/spdx.json`} target="_blank">
+                    SPDX JSON
+                  </Button>
+                  <Button variant="secondary" icon={<DownloadIcon />} component="a" href={`https://registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}/sbom/spdx.rdf`} target="_blank">
+                    SPDX RDF
+                  </Button>
+                  <Button variant="link" icon={<ExternalLinkAltIcon />} iconPosition="end" component="a" href="https://spdx.dev/learn/overview/" target="_blank">
+                    About SPDX
+                  </Button>
+                </Flex>
               </Flex>
 
               {/* Toolbar with search, download action, and pagination */}
@@ -2210,11 +2762,6 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
                         }}
                       style={{ width: '250px' }}
                     />
-                  </ToolbarItem>
-                  <ToolbarItem>
-                    <Button variant="link" icon={<ExternalLinkAltIcon />} iconPosition="end">
-                      Download SPDX
-                    </Button>
                   </ToolbarItem>
                   <ToolbarItem variant="pagination" align={{ default: 'alignEnd' }}>
                       <Pagination
@@ -2289,17 +2836,336 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
               )}
                   </div>
           </CompassPanel>
+
+          {/* Attestations Section */}
+          <div style={{ marginTop: 'var(--pf-t--global--spacer--lg)' }}>
+            <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--heading--h2)' }}>
+              Attestations<TypeLabel level="H2" />
+            </Content>
+            <CompassPanel>
+              <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+                  Build attestations provide cryptographic proof of how this image was built, including the build environment, 
+                  source code provenance, and build process integrity.
+                </Content>
+                
+                <Grid hasGutter style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
+                  <GridItem span={12} md={6}>
+                    <div style={{ 
+                      padding: 'var(--pf-t--global--spacer--md)', 
+                      backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+                      borderRadius: '8px'
+                    }}>
+                      <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
+                        SLSA Provenance<TypeLabel level="H3" />
+                      </Content>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                        Supply-chain Levels for Software Artifacts (SLSA Level 3)
+                      </Content>
+                      <Flex gap={{ default: 'gapSm' }} style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
+                        <Label color="green" icon={<CheckCircleIcon />} isCompact>Verified</Label>
+                        <Label color="blue" isCompact>Level 3</Label>
+                      </Flex>
+                      <Content component="p" style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                        <strong>Builder:</strong> Red Hat Trusted Application Pipeline<br />
+                        <strong>Build Type:</strong> Tekton Chains<br />
+                        <strong>Build Date:</strong> January 28, 2026 at 14:30 UTC
+                      </Content>
+                    </div>
+                  </GridItem>
+                  <GridItem span={12} md={6}>
+                    <div style={{ 
+                      padding: 'var(--pf-t--global--spacer--md)', 
+                      backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+                      borderRadius: '8px'
+                    }}>
+                      <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
+                        Source Provenance<TypeLabel level="H3" />
+                      </Content>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                        Verified source code origin and commit integrity
+                      </Content>
+                      <Flex gap={{ default: 'gapSm' }} style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
+                        <Label color="green" icon={<CheckCircleIcon />} isCompact>Signed Commit</Label>
+                      </Flex>
+                      <Content component="p" style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                        <strong>Repository:</strong> github.com/redhat/hummingbird-{selectedImage?.name.toLowerCase()}<br />
+                        <strong>Commit:</strong> <code style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>a1b2c3d4e5f6</code><br />
+                        <strong>Branch:</strong> main
+                      </Content>
+                    </div>
+                  </GridItem>
+                </Grid>
+
+                <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
+                  View Attestation<TypeLabel level="H3" />
+                </Content>
+                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                  Download or inspect the full attestation bundle for this image.
+                </Content>
+                <Flex gap={{ default: 'gapSm' }}>
+                  <Button variant="secondary" icon={<DownloadIcon />} component="a" href={`https://registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}/attestation.json`} target="_blank">
+                    Download Attestation (JSON)
+                  </Button>
+                  <Button variant="link" icon={<ExternalLinkAltIcon />} iconPosition="end" component="a" href="https://slsa.dev/spec/v1.0/provenance" target="_blank">
+                    About SLSA Provenance
+                  </Button>
+                </Flex>
+              </div>
+            </CompassPanel>
+          </div>
+
+          {/* Signature Verification Section */}
+          <div style={{ marginTop: 'var(--pf-t--global--spacer--lg)' }}>
+            <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--heading--h2)' }}>
+              Signature Verification<TypeLabel level="H2" />
+            </Content>
+            <CompassPanel>
+              <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+                  All Hummingbird images are signed using Sigstore/Cosign. Verify the image signature before deploying to ensure 
+                  the image has not been tampered with and originates from Red Hat.
+                </Content>
+
+                <div style={{ 
+                  padding: 'var(--pf-t--global--spacer--md)', 
+                  backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+                  borderRadius: '8px',
+                  marginBottom: 'var(--pf-t--global--spacer--lg)'
+                }}>
+                  <Flex gap={{ default: 'gapMd' }} alignItems={{ default: 'alignItemsCenter' }} style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
+                    <Content component="h3" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
+                      Signature Status<TypeLabel level="H3" />
+                    </Content>
+                    <Label color="green" icon={<CheckCircleIcon />}>Valid Signature</Label>
+                  </Flex>
+                  <Content component="p" style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                    <strong>Signing Key:</strong> Red Hat Release Key (cosign)<br />
+                    <strong>Signature Algorithm:</strong> ECDSA-P256<br />
+                    <strong>Transparency Log:</strong> Rekor (rekor.sigstore.dev)
+                  </Content>
+                </div>
+
+                <Content component="h3" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
+                  Verify with Cosign<TypeLabel level="H3" />
+                </Content>
+                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                  Use the following command to verify the image signature locally:
+                </Content>
+                <CodeBlock>
+                  <CodeBlockAction>
+                    <Button
+                      variant="plain"
+                      aria-label="Copy verification command"
+                      onClick={() => {
+                        navigator.clipboard.writeText(`cosign verify \\
+  --key https://access.redhat.com/security/team/key/cosign.pub \\
+  registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:latest`);
+                      }}
+                    >
+                      <CopyIcon />
+                    </Button>
+                  </CodeBlockAction>
+                  <CodeBlockCode style={{ 
+                    fontFamily: 'var(--pf-t--global--font--family--mono)',
+                    fontSize: 'var(--pf-t--global--font--size--body--default)',
+                    padding: '8px',
+                    paddingRight: '48px'
+                  }}>
+{`cosign verify \\
+  --key https://access.redhat.com/security/team/key/cosign.pub \\
+  registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:latest`}
+                  </CodeBlockCode>
+                </CodeBlock>
+
+                <Content component="h3" style={{ marginTop: 'var(--pf-t--global--spacer--lg)', marginBottom: 'var(--pf-t--global--spacer--sm)', fontSize: 'var(--pf-t--global--font--size--heading--h3)' }}>
+                  Verify Attestation with Cosign<TypeLabel level="H3" />
+                </Content>
+                <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                  Verify the SLSA provenance attestation:
+                </Content>
+                <CodeBlock>
+                  <CodeBlockAction>
+                    <Button
+                      variant="plain"
+                      aria-label="Copy attestation verification command"
+                      onClick={() => {
+                        navigator.clipboard.writeText(`cosign verify-attestation \\
+  --type slsaprovenance \\
+  --key https://access.redhat.com/security/team/key/cosign.pub \\
+  registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:latest`);
+                      }}
+                    >
+                      <CopyIcon />
+                    </Button>
+                  </CodeBlockAction>
+                  <CodeBlockCode style={{ 
+                    fontFamily: 'var(--pf-t--global--font--family--mono)',
+                    fontSize: 'var(--pf-t--global--font--size--body--default)',
+                    padding: '8px',
+                    paddingRight: '48px'
+                  }}>
+{`cosign verify-attestation \\
+  --type slsaprovenance \\
+  --key https://access.redhat.com/security/team/key/cosign.pub \\
+  registry.access.redhat.com/hummingbird/${selectedImage?.name.toLowerCase()}:latest`}
+                  </CodeBlockCode>
+                </CodeBlock>
+
+                <Flex gap={{ default: 'gapSm' }} style={{ marginTop: 'var(--pf-t--global--spacer--lg)' }}>
+                  <Button variant="secondary" icon={<DownloadIcon />} component="a" href="https://access.redhat.com/security/team/key/cosign.pub" target="_blank">
+                    Download Public Key
+                  </Button>
+                  <Button variant="link" icon={<ExternalLinkAltIcon />} iconPosition="end" component="a" href="https://docs.sigstore.dev/cosign/verify/" target="_blank">
+                    Cosign Documentation
+                  </Button>
+                  <Button variant="link" icon={<ExternalLinkAltIcon />} iconPosition="end" component="a" href="https://access.redhat.com/articles/container-image-signing" target="_blank">
+                    Red Hat Signing Policy
+                  </Button>
+                </Flex>
+              </div>
+            </CompassPanel>
+          </div>
+          </>
           );
         })()}
 
         {modalTab === 'containerfile' && (
           <CompassPanel>
             <div style={{ padding: 'var(--pf-t--global--spacer--xl)' }}>
-              <Content component="h2">Containerfile</Content>
-              <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>
-                Containerfile content coming soon...
-              </Content>
-                </div>
+              <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} alignItems={{ default: 'alignItemsCenter' }} style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
+                <Content component="h2" style={{ margin: 0 }}>Containerfile<TypeLabel level="H2" /></Content>
+                <Button 
+                  variant="secondary" 
+                  icon={<CopyIcon />}
+                  onClick={() => {
+                    const containerfile = `# Hummingbird ${selectedImage?.name || 'Image'} Container
+# Minimal, hardened container image with reduced attack surface
+# Built with distroless principles for enhanced security
+
+FROM registry.access.redhat.com/ubi9/ubi-micro:latest AS base
+
+# Build stage for compilation (if needed)
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest AS builder
+
+# Install build dependencies
+RUN microdnf install -y \\
+    gcc \\
+    make \\
+    && microdnf clean all
+
+# Final minimal image
+FROM base
+
+# Labels for container metadata
+LABEL name="hummingbird/${selectedImage?.name.toLowerCase() || 'image'}" \\
+      version="latest" \\
+      summary="Hummingbird ${selectedImage?.name || 'Image'} - Minimal hardened container" \\
+      description="A minimal, hardened container image built with security-first principles" \\
+      maintainer="Red Hat Hummingbird Team" \\
+      io.k8s.display-name="Hummingbird ${selectedImage?.name || 'Image'}" \\
+      io.openshift.tags="hummingbird,minimal,hardened,fips"
+
+# Set environment variables
+ENV HOME=/app \\
+    USER_NAME=hummingbird \\
+    USER_UID=1001
+
+# Create non-root user for security
+RUN echo "hummingbird:x:\${USER_UID}:0:Hummingbird User:\${HOME}:/sbin/nologin" >> /etc/passwd
+
+# Copy application binaries from builder
+COPY --from=builder --chown=\${USER_UID}:0 /app /app
+
+# Set working directory
+WORKDIR \${HOME}
+
+# Switch to non-root user
+USER \${USER_UID}
+
+# Expose application port (non-privileged)
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \\
+    CMD curl -f http://localhost:8080/health || exit 1
+
+# Default command
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["--help"]`;
+                    navigator.clipboard.writeText(containerfile);
+                  }}
+                >
+                  Copy Containerfile
+                </Button>
+              </Flex>
+              <div style={{
+                backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+                padding: 'var(--pf-t--global--spacer--lg)',
+                borderRadius: 'var(--pf-t--global--border--radius--medium)',
+                fontFamily: 'var(--pf-t--global--font--family--mono)',
+                fontSize: 'var(--pf-t--global--font--size--body--sm)',
+                overflowX: 'auto',
+                lineHeight: '1.6',
+              }}>
+                <pre style={{ margin: 0 }}>
+{`# Hummingbird ${selectedImage?.name || 'Image'} Container
+# Minimal, hardened container image with reduced attack surface
+# Built with distroless principles for enhanced security
+
+`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--purple--default)' }}>FROM</span>{` registry.access.redhat.com/ubi9/ubi-micro:latest `}<span style={{ color: 'var(--pf-t--global--color--nonstatus--purple--default)' }}>AS</span>{` base
+
+`}<span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}># Build stage for compilation (if needed)</span>{`
+`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--purple--default)' }}>FROM</span>{` registry.access.redhat.com/ubi9/ubi-minimal:latest `}<span style={{ color: 'var(--pf-t--global--color--nonstatus--purple--default)' }}>AS</span>{` builder
+
+`}<span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}># Install build dependencies</span>{`
+`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--purple--default)' }}>RUN</span>{` microdnf install -y \\
+    gcc \\
+    make \\
+    && microdnf clean all
+
+`}<span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}># Final minimal image</span>{`
+`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--purple--default)' }}>FROM</span>{` base
+
+`}<span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}># Labels for container metadata</span>{`
+`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--purple--default)' }}>LABEL</span>{` name=`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--green--default)' }}>"hummingbird/{selectedImage?.name.toLowerCase() || 'image'}"</span>{` \\
+      version=`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--green--default)' }}>"latest"</span>{` \\
+      summary=`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--green--default)' }}>"Hummingbird {selectedImage?.name || 'Image'} - Minimal hardened container"</span>{` \\
+      description=`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--green--default)' }}>"A minimal, hardened container image built with security-first principles"</span>{` \\
+      maintainer=`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--green--default)' }}>"Red Hat Hummingbird Team"</span>{` \\
+      io.k8s.display-name=`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--green--default)' }}>"Hummingbird {selectedImage?.name || 'Image'}"</span>{` \\
+      io.openshift.tags=`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--green--default)' }}>"hummingbird,minimal,hardened,fips"</span>{`
+
+`}<span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}># Set environment variables</span>{`
+`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--purple--default)' }}>ENV</span>{` HOME=/app \\
+    USER_NAME=hummingbird \\
+    USER_UID=1001
+
+`}<span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}># Create non-root user for security</span>{`
+`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--purple--default)' }}>RUN</span>{` echo "hummingbird:x:\${USER_UID}:0:Hummingbird User:\${HOME}:/sbin/nologin" >> /etc/passwd
+
+`}<span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}># Copy application binaries from builder</span>{`
+`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--purple--default)' }}>COPY</span>{` --from=builder --chown=\${USER_UID}:0 /app /app
+
+`}<span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}># Set working directory</span>{`
+`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--purple--default)' }}>WORKDIR</span>{` \${HOME}
+
+`}<span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}># Switch to non-root user</span>{`
+`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--purple--default)' }}>USER</span>{` \${USER_UID}
+
+`}<span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}># Expose application port (non-privileged)</span>{`
+`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--purple--default)' }}>EXPOSE</span>{` 8080
+
+`}<span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}># Health check</span>{`
+`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--purple--default)' }}>HEALTHCHECK</span>{` --interval=30s --timeout=3s --start-period=5s --retries=3 \\
+    CMD curl -f http://localhost:8080/health || exit 1
+
+`}<span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}># Default command</span>{`
+`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--purple--default)' }}>ENTRYPOINT</span>{` [`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--green--default)' }}>"/app/entrypoint.sh"</span>{`]
+`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--purple--default)' }}>CMD</span>{` [`}<span style={{ color: 'var(--pf-t--global--color--nonstatus--green--default)' }}>"--help"</span>{`]`}
+                </pre>
+              </div>
+            </div>
           </CompassPanel>
         )}
                 </div>
@@ -2551,23 +3417,25 @@ Q6VznCXqlzV3A04AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
                     <label style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>
                       Add to tags
                     </label>
-                    <Tooltip content="Select builder to add package manager and Go Tools">
+                    <Tooltip content="Builder images include package managers and build tools for development environments. Use base images for production.">
                       <QuestionCircleIcon style={{ fontSize: '0.875rem', color: 'var(--pf-t--global--text--color--subtle)' }} />
                     </Tooltip>
                   </Flex>
                   <Flex gap={{ default: 'gapSm' }}>
-                    <Button 
-                      variant={addBuilderTag ? 'primary' : 'secondary'}
-                      onClick={() => setAddBuilderTag(!addBuilderTag)}
-                      icon={<PlusIcon />}
-                      style={{ 
-                        borderRadius: '20px',
-                        paddingLeft: '12px',
-                        paddingRight: '16px',
-                      }}
-                    >
-                      Builder
-                    </Button>
+                    <Tooltip content="For development environments only">
+                      <Button 
+                        variant={addBuilderTag ? 'primary' : 'secondary'}
+                        onClick={() => setAddBuilderTag(!addBuilderTag)}
+                        icon={<PlusIcon />}
+                        style={{ 
+                          borderRadius: '20px',
+                          paddingLeft: '12px',
+                          paddingRight: '16px',
+                        }}
+                      >
+                        Builder (Dev)
+                      </Button>
+                    </Tooltip>
                     <Button 
                       variant={addGoToolsTag ? 'primary' : 'secondary'}
                       onClick={() => setAddGoToolsTag(!addGoToolsTag)}

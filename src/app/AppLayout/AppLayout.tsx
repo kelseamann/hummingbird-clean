@@ -204,6 +204,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
               <Button isCircle  variant="plain" icon={<HelpIcon />} aria-label="Help" />
             </Tooltip>
           </ActionListItem>
+          {/* Theme toggle hidden for now - dark mode not fully styled
           <ActionListItem>
             <Tooltip content={isDarkTheme ? 'Switch to light theme' : 'Switch to dark theme'}>
               <Button
@@ -215,6 +216,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
               />
             </Tooltip>
           </ActionListItem>
+          */}
         </ActionListGroup>
       </ActionList>
     </CompassPanel>

@@ -6,6 +6,8 @@ import {
   Content,
   Flex,
   FlexItem,
+  Grid,
+  GridItem,
   Label,
   MenuToggle,
   MenuToggleElement,
@@ -24,6 +26,10 @@ import {
   SecurityIcon,
   InfoCircleIcon,
   SyncAltIcon,
+  ClockIcon,
+  TachometerAltIcon,
+  ShieldAltIcon,
+  CubesIcon,
 } from '@patternfly/react-icons';
 import { Table, Thead, Tr, Th, Tbody, Td, ThProps } from '@patternfly/react-table';
 import { useTypographyLabels } from '@app/utils/CardStyleContext';
@@ -229,6 +235,306 @@ const SecurityFeed: React.FunctionComponent = () => {
                 </Flex>
               </div>
             </div>
+
+            {/* Vanity Metrics Section */}
+            <Grid hasGutter style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
+              <GridItem span={12} md={6} lg={3}>
+                <CompassPanel style={{ height: '100%' }}>
+                  <div style={{ padding: 'var(--pf-t--global--spacer--lg)', textAlign: 'center' }}>
+                    <div style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
+                      <ClockIcon style={{ fontSize: '2rem', color: 'var(--pf-t--global--color--brand--default)' }} />
+                    </div>
+                    <Content component="h2" style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold' }}>
+                      &lt;24h<TypeLabel level="STAT" />
+                    </Content>
+                    <Content component="p" style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                      Avg. Resolution Time
+                    </Content>
+                    <Button variant="link" isInline icon={<ArrowRightIcon />} iconPosition="end" style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}>
+                      View metrics
+                    </Button>
+                  </div>
+                </CompassPanel>
+              </GridItem>
+              <GridItem span={12} md={6} lg={3}>
+                <CompassPanel style={{ height: '100%' }}>
+                  <div style={{ padding: 'var(--pf-t--global--spacer--lg)', textAlign: 'center' }}>
+                    <div style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
+                      <ShieldAltIcon style={{ fontSize: '2rem', color: 'var(--pf-t--global--icon--color--status--success--default)' }} />
+                    </div>
+                    <Content component="h2" style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold' }}>
+                      127<TypeLabel level="STAT" />
+                    </Content>
+                    <Content component="p" style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                      CVEs Resolved (30d)
+                    </Content>
+                    <Button variant="link" isInline icon={<ArrowRightIcon />} iconPosition="end" style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}>
+                      View resolved
+                    </Button>
+                  </div>
+                </CompassPanel>
+              </GridItem>
+              <GridItem span={12} md={6} lg={3}>
+                <CompassPanel style={{ height: '100%' }}>
+                  <div style={{ padding: 'var(--pf-t--global--spacer--lg)', textAlign: 'center' }}>
+                    <div style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
+                      <CubesIcon style={{ fontSize: '2rem', color: 'var(--pf-t--global--color--nonstatus--purple--default)' }} />
+                    </div>
+                    <Content component="h2" style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold' }}>
+                      42<TypeLabel level="STAT" />
+                    </Content>
+                    <Content component="p" style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                      Images Scanned
+                    </Content>
+                    <Button variant="link" isInline icon={<ArrowRightIcon />} iconPosition="end" style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}>
+                      View images
+                    </Button>
+                  </div>
+                </CompassPanel>
+              </GridItem>
+              <GridItem span={12} md={6} lg={3}>
+                <CompassPanel style={{ height: '100%' }}>
+                  <div style={{ padding: 'var(--pf-t--global--spacer--lg)', textAlign: 'center' }}>
+                    <div style={{ marginBottom: 'var(--pf-t--global--spacer--sm)' }}>
+                      <TachometerAltIcon style={{ fontSize: '2rem', color: 'var(--pf-t--global--icon--color--status--warning--default)' }} />
+                    </div>
+                    <Content component="h2" style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold' }}>
+                      3<TypeLabel level="STAT" />
+                    </Content>
+                    <Content component="p" style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                      Active Vulnerabilities
+                    </Content>
+                    <Button variant="link" isInline icon={<ArrowRightIcon />} iconPosition="end" style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}>
+                      View active
+                    </Button>
+                  </div>
+                </CompassPanel>
+              </GridItem>
+            </Grid>
+
+            {/* Middle Row - Activity Chart and Recent Resolutions */}
+            <Grid hasGutter style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
+              <GridItem span={12} md={5}>
+                <CompassPanel style={{ height: '100%' }}>
+                  <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                    <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} alignItems={{ default: 'alignItemsCenter' }}>
+                      <Content component="h3" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <TachometerAltIcon /> Resolution activity
+                      </Content>
+                      <Button variant="plain" aria-label="More options">⋮</Button>
+                    </Flex>
+                    {/* Simple SVG Line Chart */}
+                    <div style={{ marginTop: 'var(--pf-t--global--spacer--md)', position: 'relative', height: '180px' }}>
+                      <svg width="100%" height="180" viewBox="0 0 300 180" preserveAspectRatio="xMidYMid meet">
+                        {/* Grid lines */}
+                        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+                          <line key={`h-${i}`} x1="30" y1={20 + i * 14} x2="290" y2={20 + i * 14} stroke="#e0e0e0" strokeWidth="1" />
+                        ))}
+                        {/* Y-axis labels */}
+                        {[10, 8, 6, 4, 2, 0].map((val, i) => (
+                          <text key={`y-${i}`} x="20" y={28 + i * 28} fontSize="10" fill="#666" textAnchor="end">{val}</text>
+                        ))}
+                        {/* X-axis labels */}
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((val, i) => (
+                          <text key={`x-${i}`} x={55 + i * 25} y="170" fontSize="10" fill="#666" textAnchor="middle">{val}</text>
+                        ))}
+                        {/* Line 1 - CVEs Resolved (solid blue) */}
+                        <polyline
+                          fill="none"
+                          stroke="#0066CC"
+                          strokeWidth="2"
+                          points="55,76 80,62 105,48 130,62 155,76 180,62 205,48 230,62 255,76 280,48"
+                        />
+                        {/* Line 2 - Target (dashed yellow) */}
+                        <polyline
+                          fill="none"
+                          stroke="#F0AB00"
+                          strokeWidth="2"
+                          strokeDasharray="5,5"
+                          points="55,90 80,76 105,90 130,76 155,90 180,76 205,90 230,76 255,62 280,76"
+                        />
+                        {/* Line 3 - Images Updated (teal) */}
+                        <polyline
+                          fill="none"
+                          stroke="#009596"
+                          strokeWidth="2"
+                          points="55,118 80,104 105,118 130,104 155,118 180,104 205,90 230,104 255,104 280,90"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </CompassPanel>
+              </GridItem>
+              <GridItem span={12} md={7}>
+                <CompassPanel style={{ height: '100%' }}>
+                  <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                    <Content component="h3" style={{ margin: 0, marginBottom: 'var(--pf-t--global--spacer--md)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <SyncAltIcon /> Recent resolutions
+                    </Content>
+                    <Table variant="compact" borders={false}>
+                      <Thead>
+                        <Tr>
+                          <Th>CVE</Th>
+                          <Th>Image</Th>
+                          <Th>Status</Th>
+                          <Th></Th>
+                        </Tr>
+                      </Thead>
+                      <Tbody>
+                        <Tr>
+                          <Td><Button variant="link" isInline>CVE-2026-1234</Button></Td>
+                          <Td><Button variant="link" isInline>python-test</Button></Td>
+                          <Td><Label color="green" icon={<CheckCircleIcon />}>Resolved</Label></Td>
+                          <Td><Button variant="plain" aria-label="More">⋮</Button></Td>
+                        </Tr>
+                        <Tr>
+                          <Td><Button variant="link" isInline>CVE-2026-1235</Button></Td>
+                          <Td><Button variant="link" isInline>nodejs-test</Button></Td>
+                          <Td><Label color="green" icon={<CheckCircleIcon />}>Resolved</Label></Td>
+                          <Td><Button variant="plain" aria-label="More">⋮</Button></Td>
+                        </Tr>
+                        <Tr>
+                          <Td><Button variant="link" isInline>CVE-2026-1236</Button></Td>
+                          <Td><Button variant="link" isInline>go-test</Button></Td>
+                          <Td><Label color="yellow" icon={<ExclamationTriangleIcon />}>Pending</Label></Td>
+                          <Td><Button variant="plain" aria-label="More">⋮</Button></Td>
+                        </Tr>
+                        <Tr>
+                          <Td><Button variant="link" isInline>CVE-2026-1237</Button></Td>
+                          <Td><Button variant="link" isInline>nginx-test</Button></Td>
+                          <Td><Label color="red" icon={<ExclamationCircleIcon />}>Critical</Label></Td>
+                          <Td><Button variant="plain" aria-label="More">⋮</Button></Td>
+                        </Tr>
+                      </Tbody>
+                    </Table>
+                  </div>
+                </CompassPanel>
+              </GridItem>
+            </Grid>
+
+            {/* Bottom Row - Donut Charts */}
+            <Grid hasGutter style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
+              <GridItem span={12} md={4}>
+                <CompassPanel style={{ height: '100%' }}>
+                  <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                    <Content component="h3" style={{ margin: 0, marginBottom: '4px' }}>Resolution Rate</Content>
+                    <Label color="green" icon={<CheckCircleIcon />} isCompact>Excellent</Label>
+                    {/* Donut Chart SVG */}
+                    <div style={{ display: 'flex', justifyContent: 'center', margin: 'var(--pf-t--global--spacer--lg) 0' }}>
+                      <svg width="140" height="140" viewBox="0 0 140 140">
+                        <circle cx="70" cy="70" r="55" fill="none" stroke="#e0e0e0" strokeWidth="15" />
+                        <circle 
+                          cx="70" cy="70" r="55" fill="none" 
+                          stroke="#3E8635" strokeWidth="15"
+                          strokeDasharray={`${0.92 * 345.58} ${345.58}`}
+                          strokeDashoffset="86.4"
+                          transform="rotate(-90 70 70)"
+                        />
+                        <text x="70" y="65" textAnchor="middle" fontSize="24" fontWeight="bold">92%</text>
+                        <text x="70" y="85" textAnchor="middle" fontSize="11" fill="#666">of CVEs</text>
+                      </svg>
+                    </div>
+                    <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+                      <FlexItem>
+                        <Content component="p" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>Resolved</Content>
+                        <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>92%</Content>
+                      </FlexItem>
+                      <FlexItem>
+                        <Content component="p" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>Pending</Content>
+                        <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>8%</Content>
+                      </FlexItem>
+                    </Flex>
+                    <div style={{ marginTop: 'var(--pf-t--global--spacer--sm)', height: '8px', borderRadius: '4px', background: '#e0e0e0', overflow: 'hidden' }}>
+                      <div style={{ width: '92%', height: '100%', background: '#3E8635' }} />
+                    </div>
+                    <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}>
+                      <Content component="p" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Performance</Content>
+                      <Label color="green" isCompact>↑ High</Label>
+                    </Flex>
+                  </div>
+                </CompassPanel>
+              </GridItem>
+              <GridItem span={12} md={4}>
+                <CompassPanel style={{ height: '100%' }}>
+                  <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                    <Content component="h3" style={{ margin: 0, marginBottom: '4px' }}>Scan Coverage</Content>
+                    <Label color="green" icon={<CheckCircleIcon />} isCompact>Complete</Label>
+                    {/* Donut Chart SVG */}
+                    <div style={{ display: 'flex', justifyContent: 'center', margin: 'var(--pf-t--global--spacer--lg) 0' }}>
+                      <svg width="140" height="140" viewBox="0 0 140 140">
+                        <circle cx="70" cy="70" r="55" fill="none" stroke="#e0e0e0" strokeWidth="15" />
+                        <circle 
+                          cx="70" cy="70" r="55" fill="none" 
+                          stroke="#3E8635" strokeWidth="15"
+                          strokeDasharray={`${1.0 * 345.58} ${345.58}`}
+                          strokeDashoffset="86.4"
+                          transform="rotate(-90 70 70)"
+                        />
+                        <text x="70" y="65" textAnchor="middle" fontSize="24" fontWeight="bold">100%</text>
+                        <text x="70" y="85" textAnchor="middle" fontSize="11" fill="#666">of images</text>
+                      </svg>
+                    </div>
+                    <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+                      <FlexItem>
+                        <Content component="p" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>Scanned</Content>
+                        <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>100%</Content>
+                      </FlexItem>
+                      <FlexItem>
+                        <Content component="p" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>Unscanned</Content>
+                        <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>0%</Content>
+                      </FlexItem>
+                    </Flex>
+                    <div style={{ marginTop: 'var(--pf-t--global--spacer--sm)', height: '8px', borderRadius: '4px', background: '#e0e0e0', overflow: 'hidden' }}>
+                      <div style={{ width: '100%', height: '100%', background: '#3E8635' }} />
+                    </div>
+                    <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}>
+                      <Content component="p" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Coverage</Content>
+                      <Label color="green" isCompact>↓ Low Risk</Label>
+                    </Flex>
+                  </div>
+                </CompassPanel>
+              </GridItem>
+              <GridItem span={12} md={4}>
+                <CompassPanel style={{ height: '100%' }}>
+                  <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                    <Content component="h3" style={{ margin: 0, marginBottom: '4px' }}>Image Health</Content>
+                    <Label color="yellow" icon={<ExclamationTriangleIcon />} isCompact>Attention</Label>
+                    {/* Donut Chart SVG */}
+                    <div style={{ display: 'flex', justifyContent: 'center', margin: 'var(--pf-t--global--spacer--lg) 0' }}>
+                      <svg width="140" height="140" viewBox="0 0 140 140">
+                        <circle cx="70" cy="70" r="55" fill="none" stroke="#e0e0e0" strokeWidth="15" />
+                        <circle 
+                          cx="70" cy="70" r="55" fill="none" 
+                          stroke="#F0AB00" strokeWidth="15"
+                          strokeDasharray={`${0.84 * 345.58} ${345.58}`}
+                          strokeDashoffset="86.4"
+                          transform="rotate(-90 70 70)"
+                        />
+                        <text x="70" y="65" textAnchor="middle" fontSize="24" fontWeight="bold">84%</text>
+                        <text x="70" y="85" textAnchor="middle" fontSize="11" fill="#666">healthy</text>
+                      </svg>
+                    </div>
+                    <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+                      <FlexItem>
+                        <Content component="p" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>Healthy</Content>
+                        <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>84%</Content>
+                      </FlexItem>
+                      <FlexItem>
+                        <Content component="p" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>Needs Review</Content>
+                        <Content component="p" style={{ margin: 0, fontWeight: 'bold' }}>16%</Content>
+                      </FlexItem>
+                    </Flex>
+                    <div style={{ marginTop: 'var(--pf-t--global--spacer--sm)', height: '8px', borderRadius: '4px', background: '#e0e0e0', overflow: 'hidden' }}>
+                      <div style={{ width: '84%', height: '100%', background: '#F0AB00' }} />
+                    </div>
+                    <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}>
+                      <Content component="p" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Health Score</Content>
+                      <Label color="yellow" isCompact>↔ Medium</Label>
+                    </Flex>
+                  </div>
+                </CompassPanel>
+              </GridItem>
+            </Grid>
 
             {/* Security Feed Header - floating on background, sticky */}
             <div style={{ 
