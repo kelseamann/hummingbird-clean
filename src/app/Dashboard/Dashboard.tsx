@@ -112,6 +112,7 @@ interface ContainerImage {
   daysSincePublished?: number;
   size?: string;
   upstreamSize?: string; // Size of the equivalent Docker Hub image for comparison
+  upstreamCveCount?: number; // Number of CVEs in the equivalent Docker Hub image
   availableVariants?: ('fips' | 'builder' | 'go-tools')[];
   lastUpdated?: string; // ISO date string
   lastScanned?: string; // ISO date string
@@ -131,6 +132,7 @@ const languageRuntimes: ContainerImage[] = [
     daysSincePublished: 7,
     size: '32 MB',
     upstreamSize: '850 MB',
+    upstreamCveCount: 47,
     availableVariants: ['fips', 'go-tools'],
     lastUpdated: '2026-01-23T11:45:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -146,6 +148,7 @@ const languageRuntimes: ContainerImage[] = [
     daysSincePublished: 3,
     size: '45 MB',
     upstreamSize: '1.1 GB',
+    upstreamCveCount: 156,
     availableVariants: ['builder'],
     lastUpdated: '2026-01-27T09:10:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -161,6 +164,7 @@ const languageRuntimes: ContainerImage[] = [
     daysSincePublished: 10,
     size: '85 MB',
     upstreamSize: '470 MB',
+    upstreamCveCount: 89,
     availableVariants: ['fips', 'builder'],
     lastUpdated: '2026-01-20T14:30:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -176,6 +180,7 @@ const languageRuntimes: ContainerImage[] = [
     daysSincePublished: 12,
     size: '24 MB',
     upstreamSize: '1.0 GB',
+    upstreamCveCount: 234,
     availableVariants: ['fips', 'builder', 'go-tools'],
     lastUpdated: '2026-01-18T14:32:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -191,6 +196,7 @@ const languageRuntimes: ContainerImage[] = [
     daysSincePublished: 6,
     size: '28 MB',
     upstreamSize: '900 MB',
+    upstreamCveCount: 178,
     availableVariants: ['builder'],
     lastUpdated: '2026-01-24T08:20:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -210,6 +216,7 @@ const databases: ContainerImage[] = [
     daysSincePublished: 9,
     size: '120 MB',
     upstreamSize: '405 MB',
+    upstreamCveCount: 112,
     availableVariants: ['fips'],
     lastUpdated: '2026-01-21T12:00:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -225,6 +232,7 @@ const databases: ContainerImage[] = [
     daysSincePublished: 4,
     size: '8 MB',
     upstreamSize: '85 MB',
+    upstreamCveCount: 34,
     availableVariants: [],
     lastUpdated: '2026-01-26T15:30:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -240,6 +248,7 @@ const databases: ContainerImage[] = [
     daysSincePublished: 11,
     size: '95 MB',
     upstreamSize: '425 MB',
+    upstreamCveCount: 98,
     availableVariants: ['fips', 'builder'],
     lastUpdated: '2026-01-19T10:15:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -259,6 +268,7 @@ const devTools: ContainerImage[] = [
     daysSincePublished: 5,
     size: '12 MB',
     upstreamSize: '130 MB',
+    upstreamCveCount: 23,
     availableVariants: ['fips', 'builder'],
     lastUpdated: '2026-01-25T10:45:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -274,6 +284,7 @@ const devTools: ContainerImage[] = [
     daysSincePublished: 8,
     size: '15 MB',
     upstreamSize: '200 MB',
+    upstreamCveCount: 42,
     availableVariants: ['builder'],
     lastUpdated: '2026-01-22T09:00:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -289,6 +300,7 @@ const devTools: ContainerImage[] = [
     daysSincePublished: 2,
     size: '5 MB',
     upstreamSize: '20 MB',
+    upstreamCveCount: 8,
     availableVariants: [],
     lastUpdated: '2026-01-28T14:20:00Z',
     lastScanned: '2026-01-30T08:15:00Z',
@@ -1976,6 +1988,138 @@ podman run -d -p 8080:8080 my-website`}</CodeBlockCode></CodeBlock>
                   </CompassPanel>
                 </div>
 
+                {/* Version History / Changelog Section */}
+                <div id="version-history" style={{ marginBottom: 'var(--pf-t--global--spacer--xl)', scrollMarginTop: '24px' }}>
+                  <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Version History<TypeLabel level="H2" /></Content>
+                  <CompassPanel>
+                    <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                      <Content component="p" style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+                        Recent image updates showing what changed and what was resolved in each release.
+                      </Content>
+                      <Table variant="compact" borders={false}>
+                        <Thead>
+                          <Tr>
+                            <Th>Version</Th>
+                            <Th>Release Date</Th>
+                            <Th>Changes</Th>
+                            <Th>CVEs Resolved</Th>
+                            <Th>Status</Th>
+                          </Tr>
+                        </Thead>
+                        <Tbody>
+                          <Tr>
+                            <Td>
+                              <code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                                {selectedImage?.latestTag}
+                              </code>
+                              <Label color="blue" isCompact style={{ marginLeft: '8px' }}>Latest</Label>
+                            </Td>
+                            <Td>Jan 28, 2026</Td>
+                            <Td>
+                              <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                                <span>Security patch for CVE-2026-1234</span>
+                                <span style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Base image update to RHEL 9.4</span>
+                              </Flex>
+                            </Td>
+                            <Td>
+                              <Flex gap={{ default: 'gapSm' }}>
+                                <Label color="red" isCompact>CVE-2026-1234</Label>
+                                <Label color="yellow" isCompact>CVE-2026-1122</Label>
+                              </Flex>
+                            </Td>
+                            <Td><Label color="green" icon={<CheckCircleIcon />} isCompact>Current</Label></Td>
+                          </Tr>
+                          <Tr>
+                            <Td>
+                              <code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                                {selectedImage?.latestTag?.split('.').map((v, i) => i === 2 ? String(parseInt(v) - 1) : v).join('.') || '1.0.0'}
+                              </code>
+                            </Td>
+                            <Td>Jan 15, 2026</Td>
+                            <Td>
+                              <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                                <span>OpenSSL library update (3.0.13)</span>
+                                <span style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Performance improvements</span>
+                              </Flex>
+                            </Td>
+                            <Td>
+                              <Flex gap={{ default: 'gapSm' }}>
+                                <Label color="yellow" isCompact>CVE-2026-0891</Label>
+                              </Flex>
+                            </Td>
+                            <Td><Label variant="outline" isCompact>Superseded</Label></Td>
+                          </Tr>
+                          <Tr>
+                            <Td>
+                              <code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                                {selectedImage?.latestTag?.split('.').map((v, i) => i === 2 ? String(parseInt(v) - 2) : v).join('.') || '1.0.0'}
+                              </code>
+                            </Td>
+                            <Td>Jan 8, 2026</Td>
+                            <Td>
+                              <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                                <span>Critical security update</span>
+                                <span style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>zlib vulnerability patch</span>
+                              </Flex>
+                            </Td>
+                            <Td>
+                              <Flex gap={{ default: 'gapSm' }}>
+                                <Label color="red" isCompact>CVE-2026-0723</Label>
+                                <Label color="red" isCompact>CVE-2026-0724</Label>
+                              </Flex>
+                            </Td>
+                            <Td><Label variant="outline" isCompact>Superseded</Label></Td>
+                          </Tr>
+                          <Tr>
+                            <Td>
+                              <code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                                {selectedImage?.latestTag?.split('.').map((v, i) => i === 1 ? String(parseInt(v) - 1) : i === 2 ? '0' : v).join('.') || '1.0.0'}
+                              </code>
+                            </Td>
+                            <Td>Dec 20, 2025</Td>
+                            <Td>
+                              <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                                <span>Minor version bump</span>
+                                <span style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>New features and stability fixes</span>
+                              </Flex>
+                            </Td>
+                            <Td>
+                              <span style={{ color: 'var(--pf-t--global--text--color--subtle)', fontStyle: 'italic' }}>No CVEs</span>
+                            </Td>
+                            <Td><Label variant="outline" isCompact>Superseded</Label></Td>
+                          </Tr>
+                          <Tr>
+                            <Td>
+                              <code style={{ fontFamily: 'var(--pf-t--global--font--family--mono)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                                {selectedImage?.latestTag?.split('.').map((v, i) => i === 0 ? String(parseInt(v)) : i === 1 ? String(parseInt(v) - 2) : '5').join('.') || '1.0.0'}
+                              </code>
+                            </Td>
+                            <Td>Dec 5, 2025</Td>
+                            <Td>
+                              <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                                <span>End-of-year security rollup</span>
+                                <span style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Multiple package updates</span>
+                              </Flex>
+                            </Td>
+                            <Td>
+                              <Flex gap={{ default: 'gapSm' }} flexWrap={{ default: 'wrap' }}>
+                                <Label color="yellow" isCompact>CVE-2025-4821</Label>
+                                <Label color="grey" isCompact>+3 more</Label>
+                              </Flex>
+                            </Td>
+                            <Td><Label variant="outline" isCompact>Superseded</Label></Td>
+                          </Tr>
+                        </Tbody>
+                      </Table>
+                      <Flex justifyContent={{ default: 'justifyContentFlexEnd' }} style={{ marginTop: 'var(--pf-t--global--spacer--md)' }}>
+                        <Button variant="link" icon={<ArrowRightIcon />} iconPosition="end">
+                          View full changelog
+                        </Button>
+                      </Flex>
+                    </div>
+                  </CompassPanel>
+                </div>
+
                 {/* Compatibility Notes Section */}
                 <div id="compatibility-notes" style={{ marginBottom: 'var(--pf-t--global--spacer--xl)', scrollMarginTop: '24px' }}>
                   <Content component="h2" style={{ marginBottom: 'var(--pf-t--global--spacer--md)', fontSize: 'var(--pf-t--global--font--size--2xl)' }}>Compatibility Notes<TypeLabel level="H2" /></Content>
@@ -2063,6 +2207,7 @@ Q6VznCXqlzV3AO4AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
                 <JumpLinksItem href="#available-tags">Available Tags</JumpLinksItem>
                 <JumpLinksItem href="#deployment">Deployment</JumpLinksItem>
                 <JumpLinksItem href="#documentation">Documentation</JumpLinksItem>
+                <JumpLinksItem href="#version-history">Version History</JumpLinksItem>
                 <JumpLinksItem href="#compatibility-notes">Compatibility Notes</JumpLinksItem>
                 <JumpLinksItem href="#image-verification">Image Verification</JumpLinksItem>
                 <JumpLinksItem href="#vulnerability-scanning">Vulnerability Scanning</JumpLinksItem>
@@ -2115,40 +2260,72 @@ Q6VznCXqlzV3AO4AK/ge/HYtv6wMPfe4NHP3VQkCWoUokegC926FB+MTyA==
                           </code>
                         </Flex>
 
-                        {/* Size Comparison */}
-                        <div style={{ 
-                          backgroundColor: 'var(--pf-t--global--background--color--primary--default)',
-                          borderRadius: '8px',
-                          padding: 'var(--pf-t--global--spacer--md)',
-                          marginBottom: 'var(--pf-t--global--spacer--md)'
-                        }}>
-                          <Content component="h4" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>
-                            Size Comparison
-                          </Content>
-                          <Grid hasGutter>
-                            <GridItem span={6}>
-                              <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
-                                <span style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Upstream (Docker Hub)</span>
-                                <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                                  <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--pf-t--global--icon--color--status--danger--default)' }}>{selectedImage?.upstreamSize || 'N/A'}</span>
+                        {/* Size & Security Comparison */}
+                        <Grid hasGutter style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}>
+                          {/* Size Comparison */}
+                          <GridItem span={6}>
+                            <div style={{ 
+                              backgroundColor: 'var(--pf-t--global--background--color--primary--default)',
+                              borderRadius: '8px',
+                              padding: 'var(--pf-t--global--spacer--md)',
+                              height: '100%'
+                            }}>
+                              <Content component="h4" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>
+                                Size Comparison
+                              </Content>
+                              <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
+                                <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                                  <span style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Upstream (Docker Hub)</span>
+                                  <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--pf-t--global--icon--color--status--danger--default)' }}>{selectedImage?.upstreamSize || 'N/A'}</span>
+                                </Flex>
+                                <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                                  <span style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Hummingbird</span>
+                                  <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                                    <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--pf-t--global--icon--color--status--success--default)' }}>{selectedImage?.size || 'N/A'}</span>
+                                    <Label color="green" isCompact>
+                                      {selectedImage?.upstreamSize && selectedImage?.size ? 
+                                        `${Math.round((1 - parseFloat(selectedImage.size) / (selectedImage.upstreamSize.includes('GB') ? parseFloat(selectedImage.upstreamSize) * 1000 : parseFloat(selectedImage.upstreamSize))) * 100)}% smaller` 
+                                        : ''}
+                                    </Label>
+                                  </Flex>
                                 </Flex>
                               </Flex>
-                            </GridItem>
-                            <GridItem span={6}>
-                              <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
-                                <span style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Hummingbird</span>
-                                <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
-                                  <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--pf-t--global--icon--color--status--success--default)' }}>{selectedImage?.size || 'N/A'}</span>
-                                  <Label color="green" isCompact>
-                                    {selectedImage?.upstreamSize && selectedImage?.size ? 
-                                      `${Math.round((1 - parseFloat(selectedImage.size) / (selectedImage.upstreamSize.includes('GB') ? parseFloat(selectedImage.upstreamSize) * 1000 : parseFloat(selectedImage.upstreamSize))) * 100)}% smaller` 
-                                      : ''}
-                                  </Label>
+                            </div>
+                          </GridItem>
+                          {/* CVE/Security Comparison */}
+                          <GridItem span={6}>
+                            <div style={{ 
+                              backgroundColor: 'var(--pf-t--global--background--color--primary--default)',
+                              borderRadius: '8px',
+                              padding: 'var(--pf-t--global--spacer--md)',
+                              height: '100%'
+                            }}>
+                              <Content component="h4" style={{ marginBottom: 'var(--pf-t--global--spacer--sm)', fontWeight: 'bold', fontSize: 'var(--pf-t--global--font--size--body--default)' }}>
+                                Security Comparison
+                              </Content>
+                              <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
+                                <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                                  <span style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Upstream CVEs</span>
+                                  <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                                    <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--pf-t--global--icon--color--status--danger--default)' }}>{selectedImage?.upstreamCveCount || 0}</span>
+                                    <Label color="red" isCompact>Known vulnerabilities</Label>
+                                  </Flex>
+                                </Flex>
+                                <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                                  <span style={{ fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Hummingbird CVEs</span>
+                                  <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
+                                    <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--pf-t--global--icon--color--status--success--default)' }}>{selectedImage?.cveCount || 0}</span>
+                                    <Label color="green" isCompact icon={<CheckCircleIcon />}>
+                                      {selectedImage?.upstreamCveCount && selectedImage?.upstreamCveCount > 0 ? 
+                                        `${Math.round(((selectedImage.upstreamCveCount - (selectedImage.cveCount || 0)) / selectedImage.upstreamCveCount) * 100)}% cleaner` 
+                                        : 'Clean'}
+                                    </Label>
+                                  </Flex>
                                 </Flex>
                               </Flex>
-                            </GridItem>
-                          </Grid>
-                        </div>
+                            </div>
+                          </GridItem>
+                        </Grid>
 
                         <Content component="p" style={{ color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)', margin: 0 }}>
                           Hummingbird {selectedImage?.name} provides the same functionality with a significantly reduced attack surface, 

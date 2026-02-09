@@ -250,6 +250,10 @@ const SecurityFeed: React.FunctionComponent = () => {
                     <Content component="p" style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
                       Avg. Resolution Time
                     </Content>
+                    <Content component="p" style={{ margin: 0, marginTop: '4px', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                      <span style={{ color: 'var(--pf-t--global--icon--color--status--danger--default)', textDecoration: 'line-through' }}>~7 days</span>
+                      <span style={{ marginLeft: '4px', color: 'var(--pf-t--global--text--color--subtle)' }}>upstream avg.</span>
+                    </Content>
                     <Button variant="link" isInline icon={<ArrowRightIcon />} iconPosition="end" style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}>
                       View metrics
                     </Button>
@@ -267,6 +271,10 @@ const SecurityFeed: React.FunctionComponent = () => {
                     </Content>
                     <Content component="p" style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
                       CVEs Resolved (30d)
+                    </Content>
+                    <Content component="p" style={{ margin: 0, marginTop: '4px', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                      <span style={{ color: 'var(--pf-t--global--icon--color--status--danger--default)' }}>1,247</span>
+                      <span style={{ marginLeft: '4px', color: 'var(--pf-t--global--text--color--subtle)' }}>unresolved in upstream</span>
                     </Content>
                     <Button variant="link" isInline icon={<ArrowRightIcon />} iconPosition="end" style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}>
                       View resolved
@@ -286,6 +294,9 @@ const SecurityFeed: React.FunctionComponent = () => {
                     <Content component="p" style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
                       Images Scanned
                     </Content>
+                    <Content component="p" style={{ margin: 0, marginTop: '4px', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                      <Label color="green" isCompact>100% coverage</Label>
+                    </Content>
                     <Button variant="link" isInline icon={<ArrowRightIcon />} iconPosition="end" style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}>
                       View images
                     </Button>
@@ -304,6 +315,10 @@ const SecurityFeed: React.FunctionComponent = () => {
                     <Content component="p" style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
                       Active Vulnerabilities
                     </Content>
+                    <Content component="p" style={{ margin: 0, marginTop: '4px', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                      <span style={{ color: 'var(--pf-t--global--icon--color--status--danger--default)' }}>~89 avg.</span>
+                      <span style={{ marginLeft: '4px', color: 'var(--pf-t--global--text--color--subtle)' }}>per upstream image</span>
+                    </Content>
                     <Button variant="link" isInline icon={<ArrowRightIcon />} iconPosition="end" style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}>
                       View active
                     </Button>
@@ -311,6 +326,55 @@ const SecurityFeed: React.FunctionComponent = () => {
                 </CompassPanel>
               </GridItem>
             </Grid>
+
+            {/* Upstream Comparison Summary */}
+            <CompassPanel style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
+              <div style={{ padding: 'var(--pf-t--global--spacer--lg)' }}>
+                <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} alignItems={{ default: 'alignItemsCenter' }} flexWrap={{ default: 'wrap' }} gap={{ default: 'gapMd' }}>
+                  <FlexItem>
+                    <Content component="h3" style={{ margin: 0, marginBottom: '4px' }}>Hummingbird vs Upstream Docker Hub Images</Content>
+                    <Content component="p" style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
+                      Aggregate comparison across all 42 Hummingbird images vs their upstream equivalents
+                    </Content>
+                  </FlexItem>
+                  <FlexItem>
+                    <Button variant="secondary">View detailed comparison</Button>
+                  </FlexItem>
+                </Flex>
+                <Grid hasGutter style={{ marginTop: 'var(--pf-t--global--spacer--lg)' }}>
+                  <GridItem span={12} md={4}>
+                    <div style={{ textAlign: 'center', padding: 'var(--pf-t--global--spacer--md)', backgroundColor: 'var(--pf-t--global--background--color--secondary--default)', borderRadius: '8px' }}>
+                      <Content component="p" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Total CVEs Eliminated</Content>
+                      <Flex justifyContent={{ default: 'justifyContentCenter' }} alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapMd' }} style={{ marginTop: '8px' }}>
+                        <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--pf-t--global--icon--color--status--success--default)' }}>3,847</span>
+                        <span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>vs</span>
+                        <span style={{ fontSize: '1rem', color: 'var(--pf-t--global--icon--color--status--danger--default)', textDecoration: 'line-through' }}>3,850 in upstream</span>
+                      </Flex>
+                    </div>
+                  </GridItem>
+                  <GridItem span={12} md={4}>
+                    <div style={{ textAlign: 'center', padding: 'var(--pf-t--global--spacer--md)', backgroundColor: 'var(--pf-t--global--background--color--secondary--default)', borderRadius: '8px' }}>
+                      <Content component="p" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Average Image Size Reduction</Content>
+                      <Flex justifyContent={{ default: 'justifyContentCenter' }} alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapMd' }} style={{ marginTop: '8px' }}>
+                        <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--pf-t--global--icon--color--status--success--default)' }}>94%</span>
+                        <span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>smaller</span>
+                        <Label color="green" isCompact>~850MB → ~45MB avg</Label>
+                      </Flex>
+                    </div>
+                  </GridItem>
+                  <GridItem span={12} md={4}>
+                    <div style={{ textAlign: 'center', padding: 'var(--pf-t--global--spacer--md)', backgroundColor: 'var(--pf-t--global--background--color--secondary--default)', borderRadius: '8px' }}>
+                      <Content component="p" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Security Score Improvement</Content>
+                      <Flex justifyContent={{ default: 'justifyContentCenter' }} alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapMd' }} style={{ marginTop: '8px' }}>
+                        <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--pf-t--global--icon--color--status--success--default)' }}>A+</span>
+                        <span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>vs</span>
+                        <span style={{ fontSize: '1rem', color: 'var(--pf-t--global--icon--color--status--danger--default)' }}>C- upstream avg</span>
+                      </Flex>
+                    </div>
+                  </GridItem>
+                </Grid>
+              </div>
+            </CompassPanel>
 
             {/* Middle Row - Activity Chart and Recent Resolutions */}
             <Grid hasGutter style={{ marginBottom: 'var(--pf-t--global--spacer--lg)' }}>
