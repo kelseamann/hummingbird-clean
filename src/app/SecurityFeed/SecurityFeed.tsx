@@ -250,9 +250,8 @@ const SecurityFeed: React.FunctionComponent = () => {
                     <Content component="p" style={{ margin: 0, color: 'var(--pf-t--global--text--color--subtle)', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
                       Avg. Resolution Time
                     </Content>
-                    <Content component="p" style={{ margin: 0, marginTop: '4px', fontSize: 'var(--pf-t--global--font--size--body--sm)' }}>
-                      <span style={{ color: 'var(--pf-t--global--icon--color--status--danger--default)', textDecoration: 'line-through' }}>~7 days</span>
-                      <span style={{ marginLeft: '4px', color: 'var(--pf-t--global--text--color--subtle)' }}>upstream avg.</span>
+                    <Content component="p" style={{ margin: 0, marginTop: '4px', fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>
+                      vs ~7 days upstream avg.
                     </Content>
                     <Button variant="link" isInline icon={<ArrowRightIcon />} iconPosition="end" style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}>
                       View metrics
@@ -347,8 +346,7 @@ const SecurityFeed: React.FunctionComponent = () => {
                       <Content component="p" style={{ margin: 0, fontSize: 'var(--pf-t--global--font--size--body--sm)', color: 'var(--pf-t--global--text--color--subtle)' }}>Total CVEs Eliminated</Content>
                       <Flex justifyContent={{ default: 'justifyContentCenter' }} alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapMd' }} style={{ marginTop: '8px' }}>
                         <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--pf-t--global--icon--color--status--success--default)' }}>3,847</span>
-                        <span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>vs</span>
-                        <span style={{ fontSize: '1rem', color: 'var(--pf-t--global--icon--color--status--danger--default)', textDecoration: 'line-through' }}>3,850 in upstream</span>
+                        <span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>vs 3,850 in upstream</span>
                       </Flex>
                     </div>
                   </GridItem>
